@@ -1,0 +1,42 @@
+.promotion-banner {
+  background: linear-gradient(90deg, #ff9800 0%, #ff5722 100%);
+  color: #fff;
+  padding: 2rem 1rem;
+  text-align: center;
+  margin: 2rem 0;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.promotion-content h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.promotion-content p {
+  font-size: 1.2rem;
+  margin-bottom: 1.2rem;
+}
+
+.promotion-btn {
+  background: #fff;
+  color: #ff5722;
+  border: none;
+  padding: 0.7rem 2rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s, color 0.2s;
+}
+
+.promotion-btn:hover {
+  background: #ff5722;
+  color: #fff;
+}
+
+.highlight {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #fff200;
+} 

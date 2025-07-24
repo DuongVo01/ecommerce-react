@@ -1,0 +1,18 @@
+.featured-products-section {
+  padding: 2rem 0;
+  background: #f8f9fa;
+  text-align: center;
+}
+
+.featured-products-section h2 {
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  color: #222;
+}
+
+.featured-products-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+} 

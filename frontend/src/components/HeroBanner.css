@@ -1,0 +1,40 @@
+
+.hero-banner {
+  background: linear-gradient(135deg, #e3eafc 0%, #f6f8fa 100%);
+  color: #1976d2;
+  text-align: center;
+  padding: 3.5rem 1.5rem 2.5rem 1.5rem;
+  border-radius: 0 0 32px 32px;
+  box-shadow: 0 2px 24px #0001;
+}
+
+.hero-content h1 {
+  font-size: 2.6rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.hero-content p {
+  font-size: 1.18rem;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.hero-button {
+  background-color: #ff9800;
+  color: #fff;
+  border: none;
+  padding: 0.9rem 2.2rem;
+  font-size: 1.08rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px #ff980033;
+  transition: background 0.2s, color 0.2s;
+}
+
+.hero-button:hover {
+  background-color: #ff5722;
+  color: #fff;
+}
