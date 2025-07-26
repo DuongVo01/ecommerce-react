@@ -1,9 +1,13 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { FaBoxOpen, FaSearch, FaSignOutAlt, FaHome, FaShoppingCart, FaHeadset } from 'react-icons/fa';
+import { FaBoxOpen, FaSearch, FaSignOutAlt, FaHome, FaShoppingCart, FaHeadset, FaListAlt, FaUser } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../UserContext';
 import { useToast } from '../ToastContext';
 import { fetchProducts, createProduct, updateProduct, deleteProduct, fetchCategories } from '../services/api';
+import {
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
+  Button
+} from '@mui/material';
 
 
 const AdminProducts = () => {
@@ -13,7 +17,7 @@ const AdminProducts = () => {
   const { showToast } = useToast();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [form, setForm] = useState({ name: '', price: '', category: '', description: '', image: null, stock: '', oldImage: '' });
+  const [form, setForm] = useState({ name: '', price: '', category: '', description: '', shortDesc: '', image: null, stock: '', oldImage: '' });
   const [editId, setEditId] = useState(null);
 
   useEffect(() => {
@@ -71,7 +75,7 @@ const AdminProducts = () => {
       fetchProducts()
         .then(res => setProducts(res.data));
       setEditId(null);
-      setForm({ name: '', price: '', category: '', description: '', image: null, stock: '', oldImage: '' });
+      setForm({ name: '', price: '', category: '', description: '', shortDesc: '', image: null, stock: '', oldImage: '' });
     } catch {
       showToast('Lỗi khi lưu sản phẩm', 'error');
     }
@@ -101,7 +105,9 @@ const AdminProducts = () => {
         <nav style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
           <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: '#1976d2', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><FaHome /> Trang chủ</button>
           <button onClick={() => navigate('/admin/products')} style={{ background: 'none', border: 'none', color: '#1976d2', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><FaBoxOpen /> Sản phẩm</button>
-          <button onClick={() => navigate('/admin/orders')} style={{ background: 'none', border: 'none', color: '#1976d2', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><FaShoppingCart /> Đơn hàng</button>
+          <button onClick={() => navigate('/admin/orders')} style={{ background: 'none', border: 'none', color: '#d32f2f', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><FaShoppingCart /> Đơn hàng</button>
+          <button onClick={() => navigate('/admin/categories')} style={{ background: 'none', border: 'none', color: '#388e3c', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><FaListAlt /> Danh mục</button>
+          <button onClick={() => navigate('/admin/users')} style={{ background: 'none', border: 'none', color: '#d32f2f', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><FaUser /> Người dùng</button>
         </nav>
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
           <div className="admin-search-bar" style={{ display: 'flex', alignItems: 'center', background: '#f6f8fa', borderRadius: 8, padding: '6px 12px', boxShadow: '0 1px 4px #0001', minWidth: 180 }}>
@@ -118,7 +124,10 @@ const AdminProducts = () => {
           <FaBoxOpen style={{ fontSize: 72, color: '#fff', background: '#1976d2', borderRadius: 16, boxShadow: '0 2px 12px #0002', padding: 12 }} />
           <div>
             <h2 style={{ color: '#fff', fontWeight: 700, fontSize: 36, marginBottom: 10, letterSpacing: 1 }}>Quản lý sản phẩm</h2>
-            <p style={{ color: '#fff', fontSize: 18, marginBottom: 18, fontWeight: 400 }}>Kiểm soát, cập nhật và quản lý sản phẩm của cửa hàng một cách chuyên nghiệp.</p>
+            <p style={{ color: '#fff', fontSize: 18, marginBottom: 8, fontWeight: 400 }}>Kiểm soát, cập nhật và quản lý sản phẩm của hệ thống.</p>
+            <div style={{ color: '#fff', fontSize: 22, fontWeight: 600, marginBottom: 10 }}>
+              Tổng số sản phẩm: {products.length}
+            </div>
             <button onClick={() => { setEditId(null); setForm({ name: '', price: '', category: '', description: '', image: null, stock: '', oldImage: '' }); window.scrollTo({ top: 400, behavior: 'smooth' }); }} style={{ background: '#ff9800', color: '#fff', border: 'none', borderRadius: 8, padding: '12px 32px', fontWeight: 700, fontSize: 18, boxShadow: '0 2px 8px #ff980033', cursor: 'pointer', transition: 'background 0.2s' }}>Thêm sản phẩm mới</button>
           </div>
         </div>
@@ -145,6 +154,8 @@ const AdminProducts = () => {
             </select>
           </div>
           <div style={{ display: 'grid', gap: 12 }}>
+            <label style={{ fontWeight: 500, marginBottom: 4 }}>Mô tả ngắn</label>
+            <input name="shortDesc" placeholder="Mô tả ngắn" value={form.shortDesc} onChange={handleChange} style={{ padding: 10, borderRadius: 8, border: '1px solid #dbeafe', fontSize: 16, marginBottom: 8 }} />
             <label style={{ fontWeight: 500, marginBottom: 4 }}>Mô tả</label>
             <input name="description" placeholder="Mô tả" value={form.description} onChange={handleChange} style={{ padding: 10, borderRadius: 8, border: '1px solid #dbeafe', fontSize: 16 }} />
           </div>
@@ -163,66 +174,72 @@ const AdminProducts = () => {
           </div>
           <div style={{ display: 'flex', gap: 16, marginTop: 8 }}>
             <button type="submit" style={{ background: '#1976d2', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 24px', fontWeight: 600, fontSize: 16, boxShadow: '0 2px 8px #1976d233', transition: 'background 0.2s', cursor: 'pointer' }}>{editId ? 'Cập nhật' : 'Thêm mới'}</button>
-            {editId && <button type="button" style={{ background: '#e3eafc', color: '#1976d2', border: 'none', borderRadius: 8, padding: '10px 24px', fontWeight: 600, fontSize: 16, boxShadow: '0 2px 8px #1976d233', transition: 'background 0.2s', cursor: 'pointer' }} onClick={() => { setEditId(null); setForm({ name: '', price: '', category: '', description: '', image: null, stock: '', oldImage: '' }); }}>Hủy</button>}
+            {editId && <button type="button" style={{ background: '#e3eafc', color: '#1976d2', border: 'none', borderRadius: 8, padding: '10px 24px', fontWeight: 600, fontSize: 16, boxShadow: '0 2px 8px #1976d233', transition: 'background 0.2s', cursor: 'pointer' }} onClick={() => { setEditId(null); setForm({ name: '', price: '', category: '', description: '', shortDesc: '', image: null, stock: '', oldImage: '' }); }}>Hủy</button>}
           </div>
         </form>
       </div>
       {/* Bảng danh sách sản phẩm */}
       <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 4px 24px #0002', padding: 32, margin: '0 auto', maxWidth: 1100, width: '100%' }}>
         <h3 style={{ marginBottom: 24, color: '#1976d2', fontWeight: 600, fontSize: 22 }}>Danh sách sản phẩm</h3>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0, background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px #0001', fontSize: 16 }}>
-            <thead>
-              <tr style={{ background: '#e3eafc', color: '#1976d2', fontWeight: 600 }}>
-                <th style={{ padding: 14, borderBottom: '2px solid #1976d2', borderTopLeftRadius: 12 }}>Tên</th>
-                <th style={{ padding: 14, borderBottom: '2px solid #1976d2' }}>Giá</th>
-                <th style={{ padding: 14, borderBottom: '2px solid #1976d2' }}>Danh mục</th>
-                <th style={{ padding: 14, borderBottom: '2px solid #1976d2' }}>Mô tả</th>
-                <th style={{ padding: 14, borderBottom: '2px solid #1976d2' }}>Ảnh</th>
-                <th style={{ padding: 14, borderBottom: '2px solid #1976d2' }}>Kho</th>
-                <th style={{ padding: 14, borderBottom: '2px solid #1976d2', borderTopRightRadius: 12 }}>Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
+        <TableContainer component={Paper}>
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow sx={{ background: '#e3eafc' }}>
+                <TableCell sx={{ fontWeight: 700, color: '#1976d2' }}>Tên sản phẩm</TableCell>
+                <TableCell sx={{ fontWeight: 700, color: '#1976d2' }}>Giá</TableCell>
+                <TableCell sx={{ fontWeight: 700, color: '#1976d2' }}>Danh mục</TableCell>
+                <TableCell sx={{ fontWeight: 700, color: '#1976d2' }}>Mô tả ngắn</TableCell>
+                <TableCell sx={{ fontWeight: 700, color: '#1976d2' }}>Mô tả</TableCell>
+                <TableCell sx={{ fontWeight: 700, color: '#1976d2' }}>Ảnh</TableCell>
+                <TableCell sx={{ fontWeight: 700, color: '#1976d2' }}>Kho</TableCell>
+                <TableCell sx={{ fontWeight: 700, color: '#1976d2' }}>Hành động</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {products.map((product, idx) => (
-                <tr key={product._id} style={{ background: idx % 2 === 0 ? '#f6f8fa' : '#fff', transition: 'background 0.2s', borderBottom: '1px solid #e3eafc', borderRadius: 8, boxShadow: '0 1px 4px #0001' }}>
-                  <td style={{ padding: 12, fontWeight: 500, maxWidth: 180, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'center' }}>{product.name}</td>
-                  <td style={{ padding: 12, color: '#d32f2f', fontWeight: 600 }}>{Number(product.price).toLocaleString('vi-VN')}₫</td>
-                  <td style={{ padding: 12 }}>{product.category}</td>
-                  <td style={{ padding: 12, maxWidth: 220, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.description}</td>
-                  <td style={{ padding: 12 }}>
-                    <img src={product.image ? `http://localhost:5000${product.image}` : ''} alt={product.name} style={{ width: 60, borderRadius: 8, boxShadow: '0 2px 8px #0002', border: '1px solid #eee' }} />
-                  </td>
-                  <td style={{ padding: 12 }}>{product.stock}</td>
-                  <td style={{ padding: 12, height: 72, position: 'relative' }}>
-                    <div style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 8 }}>
-                      <button
-                        onClick={() => {
-                          setEditId(product._id);
-                          setForm({
-                            name: product.name,
-                            price: product.price,
-                            category: product.category,
-                            description: product.description,
-                            image: null,
-                            stock: product.stock,
-                            oldImage: product.image || '',
-                          });
-                          window.scrollTo({ top: 200, behavior: 'smooth' });
-                        }}
-                        style={{ background: '#e3eafc', color: '#1976d2', border: 'none', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontWeight: 600, fontSize: 15, boxShadow: '0 2px 8px #1976d233', transition: 'background 0.2s' }}
-                        title="Sửa"
-                      >
-                        <span role="img" aria-label="edit">✏️</span>
-                      </button>
-                      <button onClick={() => handleDelete(product._id)} style={{ background: '#fdecea', color: '#d32f2f', border: 'none', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontWeight: 600, fontSize: 15, boxShadow: '0 2px 8px #d32f2f33', transition: 'background 0.2s' }} title="Xóa"><span role="img" aria-label="delete">🗑️</span></button>
-                    </div>
-                  </td>
-                </tr>
+                <TableRow key={product._id} sx={{ background: idx % 2 === 0 ? '#f6f8fa' : '#fff', transition: 'background 0.2s' }}>
+                  <TableCell sx={{ fontWeight: 500 }}>{product.name}</TableCell>
+                  <TableCell sx={{ color: '#d32f2f', fontWeight: 600 }}>{Number(product.price).toLocaleString('vi-VN')}₫</TableCell>
+                  <TableCell>{product.category}</TableCell>
+                  <TableCell>{product.shortDesc}</TableCell>
+                  <TableCell sx={{ maxWidth: 220, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.description}</TableCell>
+                  <TableCell>
+                    {product.image && <img src={`http://localhost:5000${product.image}`} alt={product.name} style={{ width: 60, borderRadius: 8, boxShadow: '0 2px 8px #0002', border: '1px solid #eee' }} />}
+                  </TableCell>
+                  <TableCell>{product.stock}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      size="small"
+                      onClick={() => {
+                        setEditId(product._id);
+                        setForm({
+                          name: product.name,
+                          price: product.price,
+                          category: product.category,
+                          description: product.description,
+                          shortDesc: product.shortDesc,
+                          image: null,
+                          stock: product.stock,
+                          oldImage: product.image || '',
+                        });
+                        window.scrollTo({ top: 200, behavior: 'smooth' });
+                      }}
+                      sx={{ mr: 1 }}
+                    >Sửa</Button>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      onClick={() => handleDelete(product._id)}
+                    >Xóa</Button>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </TableContainer>
       </div>
       <style>{`
         @media (max-width: 1100px) {

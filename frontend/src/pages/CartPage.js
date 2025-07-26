@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useCart } from '../CartContext';
+import { UserContext } from '../UserContext';
+import { createOrder } from '../services/api';
 import { Link, useNavigate } from 'react-router-dom';
 import './CartPage.css';
 
 const CartPage = () => {
   const { cartItems, removeFromCart, updateQuantity, clearCart, getTotal } = useCart();
+  const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
   // Xác nhận khi xóa sản phẩm
@@ -22,8 +25,30 @@ const CartPage = () => {
   };
 
   // Chuyển sang trang thanh toán
-  const handleCheckout = () => {
-    navigate('/checkout');
+  // Xử lý đặt hàng khi thanh toán
+  const handleCheckout = async () => {
+    const userId = user?._id || user?.id;
+    if (!user || !userId) {
+      alert('Bạn cần đăng nhập để thanh toán!');
+      navigate('/login');
+      return;
+    }
+    try {
+      const orderData = {
+        items: cartItems.map(item => ({
+          productId: item._id || item.id,
+          quantity: item.quantity
+        })),
+        total: getTotal(),
+        userId: userId
+      };
+      const res = await createOrder(userId, orderData);
+      const orderId = res.data._id || res.data.id;
+      clearCart();
+      navigate('/order-detail', { state: { orderId } });
+    } catch (err) {
+      alert('Có lỗi khi đặt hàng, vui lòng thử lại!');
+    }
   };
 
   return (
@@ -76,7 +101,7 @@ const CartPage = () => {
           <div className="cart-summary">
             <div className="cart-total">Tổng tiền: <span>{getTotal().toLocaleString()}₫</span></div>
             <button className="cart-clear-btn" onClick={handleClear}>Xóa toàn bộ</button>
-            <button className="cart-checkout-btn" onClick={handleCheckout}>Thanh toán</button>
+            <button className="cart-checkout-btn" onClick={handleCheckout}>Đặt hàng</button>
           </div>
         </>
       )}

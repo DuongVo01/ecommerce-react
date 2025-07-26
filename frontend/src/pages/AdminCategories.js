@@ -1,4 +1,6 @@
+
 import React, { useEffect, useState, useContext } from 'react';
+import { FaBoxOpen, FaSearch, FaSignOutAlt, FaHome, FaShoppingCart, FaHeadset, FaListAlt, FaUser } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../UserContext';
 import { useToast } from '../ToastContext';
@@ -8,7 +10,7 @@ const API = 'http://localhost:5000/api/categories';
 
 const AdminCategories = () => {
   const { showToast } = useToast();
-  const { user } = React.useContext(UserContext);
+  const { user } = useContext(UserContext);
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [form, setForm] = useState({ name: '', image: null });
@@ -16,7 +18,7 @@ const AdminCategories = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user === undefined) return; // Đợi user xác định
+    if (user === undefined) return;
     if (!user || user.role !== 'admin') {
       alert('Bạn không có quyền truy cập trang này!');
       navigate('/');
@@ -28,6 +30,11 @@ const AdminCategories = () => {
         setLoading(false);
       });
   }, [user, navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    navigate('/login');
+  };
 
   if (user === undefined) return <div>Đang kiểm tra quyền truy cập...</div>;
   if (!user || user.role !== 'admin') return null;
@@ -57,7 +64,6 @@ const AdminCategories = () => {
         });
         showToast('Thêm danh mục thành công!', 'success');
       }
-      // Reload categories list
       axios.get(API)
         .then(res => setCategories(res.data))
         .catch(() => {});
@@ -74,56 +80,110 @@ const AdminCategories = () => {
   };
 
   const handleDelete = async id => {
-    if (window.confirm('Bạn có chắc muốn xóa danh mục này?')) {
-      try {
-        await axios.delete(`${API}/${id}`);
-        showToast('Xóa danh mục thành công!', 'success');
-        axios.get(API)
-          .then(res => setCategories(res.data))
-          .catch(() => {});
-      } catch {
-        showToast('Lỗi khi xóa danh mục', 'error');
-      }
+    if (!window.confirm('Bạn có chắc muốn xóa danh mục này?')) return;
+    try {
+      await axios.delete(`${API}/${id}`);
+      showToast('Xóa danh mục thành công!', 'success');
+      axios.get(API)
+        .then(res => setCategories(res.data))
+        .catch(() => {});
+    } catch {
+      showToast('Lỗi khi xóa danh mục', 'error');
     }
   };
 
   if (loading) return <div>Đang tải danh mục...</div>;
 
   return (
-    <div style={{ padding: 32, background: '#f6f8fa', minHeight: '100vh' }}>
-      <h2 style={{ color: '#388e3c', marginBottom: 24 }}>Quản lý danh mục</h2>
-      <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px #0001', padding: 24, marginBottom: 32, maxWidth: 500 }}>
-        <h3 style={{ marginBottom: 16 }}>{editId ? 'Cập nhật danh mục' : 'Thêm danh mục mới'}</h3>
-        <form onSubmit={handleSubmit} encType="multipart/form-data" style={{ display: 'grid', gap: 16 }}>
-          <input name="name" placeholder="Tên danh mục" value={form.name} onChange={handleChange} required style={{ padding: 8, borderRadius: 6, border: '1px solid #ccc' }} />
-          <input name="image" type="file" accept="image/*" onChange={handleChange} style={{ padding: 8, borderRadius: 6, border: '1px solid #ccc' }} />
-          <div style={{ display: 'flex', gap: 12 }}>
-            <button type="submit" style={{ background: '#388e3c', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 16px', fontWeight: 500 }}>{editId ? 'Cập nhật' : 'Thêm mới'}</button>
-            {editId && <button type="button" style={{ background: '#ccc', color: '#333', border: 'none', borderRadius: 6, padding: '8px 16px' }} onClick={() => { setEditId(null); setForm({ name: '', image: null }); }}>Hủy</button>}
+    <div style={{ background: '#f6f8fa', minHeight: '100vh', fontFamily: 'Segoe UI, Arial, sans-serif' }}>
+      {/* Header */}
+      <header style={{ background: '#fff', boxShadow: '0 2px 12px #0001', padding: '0 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68, position: 'sticky', top: 0, zIndex: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <img src="/logo192.png" alt="ShopStore" style={{ width: 40, height: 40, borderRadius: 8, boxShadow: '0 2px 8px #1976d233' }} />
+          <span style={{ fontWeight: 700, fontSize: 22, color: '#1976d2', letterSpacing: 1 }}>ShopStore Admin</span>
+        </div>
+        <nav style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
+          <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: '#1976d2', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><FaHome /> Trang chủ</button>
+          <button onClick={() => navigate('/admin/products')} style={{ background: 'none', border: 'none', color: '#1976d2', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><FaBoxOpen /> Sản phẩm</button>
+          <button onClick={() => navigate('/admin/orders')} style={{ background: 'none', border: 'none', color: '#d32f2f', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><FaShoppingCart /> Đơn hàng</button>
+          <button onClick={() => navigate('/admin/categories')} style={{ background: 'none', border: 'none', color: '#388e3c', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><FaListAlt /> Danh mục</button>
+          <button onClick={() => navigate('/admin/users')} style={{ background: 'none', border: 'none', color: '#d32f2f', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><FaUser /> Người dùng</button>
+        </nav>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+          <div className="admin-search-bar" style={{ display: 'flex', alignItems: 'center', background: '#f6f8fa', borderRadius: 8, padding: '6px 12px', boxShadow: '0 1px 4px #0001', minWidth: 180 }}>
+            <FaSearch style={{ color: '#388e3c', fontSize: 18, marginRight: 6 }} />
+            <input type="text" placeholder="Tìm danh mục..." style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: 15, width: 120 }} />
+          </div>
+          <button style={{ background: 'none', border: 'none', color: '#ff9800', fontSize: 22, cursor: 'pointer' }} title="Hỗ trợ khách hàng"><FaHeadset /></button>
+          <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#d32f2f', fontSize: 22, cursor: 'pointer' }} title="Đăng xuất"><FaSignOutAlt /></button>
+        </div>
+      </header>
+      {/* Banner */}
+      <section style={{ width: '100%', background: 'linear-gradient(90deg, #388e3c 60%, #ff9800 100%)', borderRadius: 0, margin: '0 0 32px 0', boxShadow: '0 4px 24px #388e3c33', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 180, position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 32, width: '100%', maxWidth: 1100, padding: '32px 24px' }}>
+          <FaListAlt style={{ fontSize: 72, color: '#fff', background: '#388e3c', borderRadius: 16, boxShadow: '0 2px 12px #0002', padding: 12 }} />
+          <div>
+            <h2 style={{ color: '#fff', fontWeight: 700, fontSize: 36, marginBottom: 10, letterSpacing: 1 }}>Quản lý danh mục</h2>
+            <p style={{ color: '#fff', fontSize: 18, marginBottom: 18, fontWeight: 400 }}>Kiểm soát, cập nhật và quản lý danh mục sản phẩm một cách chuyên nghiệp.</p>
+            <div style={{ color: '#fff', fontSize: 22, fontWeight: 600, marginBottom: 10 }}>
+              Tổng số danh mục: {categories.length}
+            </div>
+            <button onClick={() => { setEditId(null); setForm({ name: '', image: null }); window.scrollTo({ top: 400, behavior: 'smooth' }); }} style={{ background: '#ff9800', color: '#fff', border: 'none', borderRadius: 8, padding: '12px 32px', fontWeight: 700, fontSize: 18, boxShadow: '0 2px 8px #ff980033', cursor: 'pointer', transition: 'background 0.2s' }}>Thêm danh mục mới</button>
+          </div>
+        </div>
+      </section>
+      {/* Form thêm/sửa danh mục */}
+      <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 4px 24px #0002', padding: 32, margin: '0 auto 40px', maxWidth: 700, width: '100%' }}>
+        <h3 style={{ marginBottom: 24, color: '#388e3c', fontWeight: 600, fontSize: 22 }}>{editId ? 'Cập nhật danh mục' : 'Thêm danh mục mới'}</h3>
+        <form onSubmit={handleSubmit} encType="multipart/form-data" style={{ display: 'grid', gap: 20 }}>
+          <div style={{ display: 'grid', gap: 12 }}>
+            <label style={{ fontWeight: 500, marginBottom: 4 }}>Tên danh mục</label>
+            <input name="name" placeholder="Tên danh mục" value={form.name} onChange={handleChange} required style={{ padding: 10, borderRadius: 8, border: '1px solid #dbeafe', fontSize: 16 }} />
+          </div>
+          <div style={{ display: 'grid', gap: 12 }}>
+            <label style={{ fontWeight: 500, marginBottom: 4 }}>Ảnh danh mục</label>
+            <input name="image" type="file" accept="image/*" onChange={handleChange} style={{ padding: 10, borderRadius: 8, border: '1px solid #dbeafe', fontSize: 16 }} />
+          </div>
+          <div style={{ display: 'flex', gap: 16, marginTop: 8 }}>
+            <button type="submit" style={{ background: '#388e3c', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 24px', fontWeight: 600, fontSize: 16, boxShadow: '0 2px 8px #388e3c33', transition: 'background 0.2s', cursor: 'pointer' }}>{editId ? 'Cập nhật' : 'Thêm mới'}</button>
+            {editId && <button type="button" style={{ background: '#e3fcec', color: '#388e3c', border: 'none', borderRadius: 8, padding: '10px 24px', fontWeight: 600, fontSize: 16, boxShadow: '0 2px 8px #388e3c33', transition: 'background 0.2s', cursor: 'pointer' }} onClick={() => { setEditId(null); setForm({ name: '', image: null }); }}>Hủy</button>}
           </div>
         </form>
       </div>
-      <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px #0001', padding: 24 }}>
-        <h3 style={{ marginBottom: 16 }}>Danh sách danh mục</h3>
+      {/* Bảng danh sách danh mục */}
+      <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 4px 24px #0002', padding: 32, margin: '0 auto', maxWidth: 1100, width: '100%' }}>
+        <h3 style={{ marginBottom: 24, color: '#388e3c', fontWeight: 600, fontSize: 22 }}>Danh sách danh mục</h3>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', background: '#fff' }}>
+          <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0, background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px #0001', fontSize: 16 }}>
             <thead>
-              <tr style={{ background: '#e3fcec' }}>
-                <th style={{ padding: 12, borderBottom: '2px solid #388e3c' }}>Tên</th>
-                <th style={{ padding: 12, borderBottom: '2px solid #388e3c' }}>Ảnh</th>
-                <th style={{ padding: 12, borderBottom: '2px solid #388e3c' }}>Hành động</th>
+              <tr style={{ background: '#e3fcec', color: '#388e3c', fontWeight: 600 }}>
+                <th style={{ padding: 14, borderBottom: '2px solid #388e3c', borderTopLeftRadius: 12 }}>Tên</th>
+                <th style={{ padding: 14, borderBottom: '2px solid #388e3c' }}>Ảnh</th>
+                <th style={{ padding: 14, borderBottom: '2px solid #388e3c', borderTopRightRadius: 12 }}>Hành động</th>
               </tr>
             </thead>
             <tbody>
-              {categories.map(cat => (
-                <tr key={cat._id} style={{ borderBottom: '1px solid #eee', transition: 'background 0.2s' }}>
-                  <td style={{ padding: 10 }}>{cat.name}</td>
-                  <td style={{ padding: 10 }}>
-                    <img src={cat.image ? `http://localhost:5000${cat.image}` : ''} alt={cat.name} style={{ width: 60, borderRadius: 8, boxShadow: '0 1px 4px #0002' }} />
+              {categories.map((cat, idx) => (
+                <tr key={cat._id} style={{ background: idx % 2 === 0 ? '#f6f8fa' : '#fff', transition: 'background 0.2s', borderBottom: '1px solid #e3fcec', borderRadius: 8, boxShadow: '0 1px 4px #0001' }}>
+                  <td style={{ padding: 12, fontWeight: 500, maxWidth: 180, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'center' }}>{cat.name}</td>
+                  <td style={{ padding: 12 }}>
+                    <img src={cat.image ? `http://localhost:5000${cat.image}` : ''} alt={cat.name} style={{ width: 60, borderRadius: 8, boxShadow: '0 2px 8px #0002', border: '1px solid #eee' }} />
                   </td>
-                  <td style={{ padding: 10 }}>
-                    <button onClick={() => handleEdit(cat)} style={{ background: '#e3fcec', color: '#388e3c', border: 'none', borderRadius: 6, padding: '6px 12px', marginRight: 8, cursor: 'pointer', fontWeight: 500 }} title="Sửa"><span role="img" aria-label="edit">✏️</span></button>
-                    <button onClick={() => handleDelete(cat._id)} style={{ background: '#fdecea', color: '#d32f2f', border: 'none', borderRadius: 6, padding: '6px 12px', cursor: 'pointer', fontWeight: 500 }} title="Xóa"><span role="img" aria-label="delete">🗑️</span></button>
+                  <td style={{ padding: 12, height: 72, position: 'relative' }}>
+                    <div style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 8 }}>
+                      <button
+                        onClick={() => {
+                          setEditId(cat._id);
+                          setForm({ name: cat.name, image: null });
+                          window.scrollTo({ top: 200, behavior: 'smooth' });
+                        }}
+                        style={{ background: '#e3fcec', color: '#388e3c', border: 'none', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontWeight: 600, fontSize: 15, boxShadow: '0 2px 8px #388e3c33', transition: 'background 0.2s' }}
+                        title="Sửa"
+                      >
+                        <span role="img" aria-label="edit">✏️</span>
+                      </button>
+                      <button onClick={() => handleDelete(cat._id)} style={{ background: '#fdecea', color: '#d32f2f', border: 'none', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontWeight: 600, fontSize: 15, boxShadow: '0 2px 8px #d32f2f33', transition: 'background 0.2s' }} title="Xóa"><span role="img" aria-label="delete">🗑️</span></button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -131,6 +191,19 @@ const AdminCategories = () => {
           </table>
         </div>
       </div>
+      <style>{`
+        @media (max-width: 1100px) {
+          header { padding: 0 12px !important; }
+          section { padding: 0 !important; }
+        }
+        @media (max-width: 900px) {
+          section { min-height: 80px !important; }
+          h2 { font-size: 18px !important; }
+          .admin-products-form, .admin-products-table { padding: 4px !important; }
+          table { font-size: 12px !important; }
+          th, td { padding: 6px !important; }
+        }
+      `}</style>
     </div>
   );
 };

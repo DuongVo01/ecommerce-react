@@ -7,7 +7,7 @@ import axios from 'axios';
 const AdminDashboard = () => {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
-  const [stats, setStats] = useState({ products: 0, categories: 0, users: 0 });
+  const [stats, setStats] = useState({ products: 0, categories: 0, users: 0, orders: 0 });
   const [loadingStats, setLoadingStats] = useState(true);
 
   useEffect(() => {
@@ -34,6 +34,10 @@ const AdminDashboard = () => {
     axios.get('http://localhost:5000/api/auth/users')
       .then(res => setStats(prev => ({ ...prev, users: res.data.length })))
       .catch(() => {});
+    // Lấy tổng số đơn hàng
+    axios.get('http://localhost:5000/api/orders/admin')
+      .then(res => setStats(prev => ({ ...prev, orders: res.data.length })))
+      .catch(() => {});
   }, []);
 
   if (user === undefined) return <div>Đang kiểm tra quyền truy cập...</div>;
@@ -58,7 +62,7 @@ const AdminDashboard = () => {
         <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px #0001', padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <span style={{ fontSize: 32, color: '#f57c00', marginBottom: 8 }}>🧾</span>
           <div style={{ fontSize: 18, fontWeight: 600 }}>Đơn hàng</div>
-          <div style={{ fontSize: 28, color: '#333', margin: '8px 0' }}>?</div>
+          <div style={{ fontSize: 28, color: '#333', margin: '8px 0' }}>{loadingStats ? '...' : stats.orders}</div>
           <Link to="/admin/orders" style={{ color: '#f57c00', textDecoration: 'none', fontWeight: 500 }}>Quản lý đơn hàng</Link>
         </div>
         <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px #0001', padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

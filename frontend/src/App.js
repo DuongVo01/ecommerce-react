@@ -2,6 +2,8 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
+import MyOrdersPage from './pages/MyOrdersPage';
+import OrderDetailPage from './pages/OrderDetailPage';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import ProductListPage from './pages/ProductListPage';
@@ -10,7 +12,6 @@ import CategoryProductsPage from './pages/CategoryProductsPage';
 import CartPage from './pages/CartPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import CheckoutPage from './pages/CheckoutPage';
 import { CartProvider } from './CartContext';
 import { UserProvider } from './UserContext';
 import { ToastProvider } from './ToastContext';
@@ -34,7 +35,8 @@ function App() {
               <Route path="/product/:id" element={<ProductDetailPage />} />
               <Route path="/category/:name" element={<CategoryProductsPage />} />
               <Route path="/cart" element={<CartPage />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/order-detail" element={<OrderDetailPage />} />
+              <Route path="/my-orders" element={<MyOrdersPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/admin" element={<AdminDashboard />} />

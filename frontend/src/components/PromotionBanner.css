@@ -1,42 +1,101 @@
+/* Banner khuyến mãi với gradient và bóng tinh tế */
 .promotion-banner {
   background: linear-gradient(90deg, #ff9800 0%, #ff5722 100%);
-  color: #fff;
-  padding: 2rem 1rem;
+  color: #ffffff;
+  padding: 1.5rem 1rem; /* Giảm padding để gọn gàng hơn */
   text-align: center;
-  margin: 2rem 0;
+  margin: 1.5rem 0; /* Giảm margin để tích hợp tốt hơn */
   border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+.promotion-banner:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Nội dung banner với bố cục rõ ràng */
 .promotion-content h2 {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.8rem; /* Giảm nhẹ để cân đối */
+  margin-bottom: 0.4rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .promotion-content p {
-  font-size: 1.2rem;
-  margin-bottom: 1.2rem;
+  font-size: 1rem; /* Giảm để không lấn át tiêu đề */
+  margin-bottom: 1rem;
+  color: #ffe6cc; /* Màu sáng hơn để nổi trên nền gradient */
+  max-width: 80%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
+/* Nút hành động với thiết kế gradient ngược */
 .promotion-btn {
-  background: #fff;
+  background: #ffffff;
   color: #ff5722;
   border: none;
   padding: 0.7rem 2rem;
   font-size: 1rem;
-  border-radius: 5px;
+  border-radius: 25px; /* Bo tròn nhiều hơn để hiện đại */
   cursor: pointer;
-  font-weight: bold;
-  transition: background 0.2s, color 0.2s;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 2px 8px rgba(255, 87, 34, 0.2);
 }
 
 .promotion-btn:hover {
-  background: #ff5722;
-  color: #fff;
+  background: linear-gradient(90deg, #ff5722 0%, #ff9800 100%);
+  color: #ffffff;
+  transform: scale(1.05);
 }
 
+/* Highlight với hiệu ứng nổi bật */
 .highlight {
   font-size: 1.3rem;
-  font-weight: bold;
-  color: #fff200;
-} 
+  font-weight: 700;
+  color: #ffd700; /* Vàng sáng hơn, phù hợp với gradient */
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2); /* Thêm bóng để nổi */
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .promotion-banner {
+    padding: 1rem 0.5rem;
+    margin: 1rem 0;
+  }
+
+  .promotion-content h2 {
+    font-size: 1.5rem;
+  }
+
+  .promotion-content p {
+    font-size: 0.9rem;
+    max-width: 90%;
+  }
+
+  .promotion-btn {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .promotion-banner {
+    border-radius: 8px;
+  }
+
+  .promotion-content h2 {
+    font-size: 1.2rem;
+  }
+
+  .promotion-content p {
+    font-size: 0.85rem;
+  }
+}

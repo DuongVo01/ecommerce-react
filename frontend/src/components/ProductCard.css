@@ -1,110 +1,148 @@
+/* Card sản phẩm với gradient và bóng nhẹ */
 .product-card {
-  background: linear-gradient(135deg, #e3eafc 0%, #fff 100%);
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(25,118,210,0.10);
-  padding: 1.2rem 1rem 1.5rem 1rem;
-  text-align: center;
-  transition: box-shadow 0.25s, transform 0.18s;
+  background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 0.75rem;
   margin: 0.5rem;
-  width: 240px;
+  width: 220px;
   max-width: 100%;
   display: inline-block;
   vertical-align: top;
-  position: relative;
-  border: 1.5px solid #e3eafc;
-  overflow: hidden;
+  text-align: center;
+  transition: box-shadow 0.25s, transform 0.3s ease; /* Thêm transition cho transform */
+  height: auto;
+  min-height: 260px; /* Giảm nhẹ để gọn gàng hơn */
 }
 
 .product-card:hover {
-  box-shadow: 0 8px 32px #1976d233;
-  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px); /* Hiệu ứng nổi lên khi hover */
 }
 
+/* Hình ảnh sản phẩm với viền tinh tế */
 .product-image {
   width: 100%;
-  max-width: 180px;
-  height: 180px;
+  height: 140px;
   object-fit: cover;
-  border-radius: 12px;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 12px #1976d233;
+  border-radius: 6px;
+  margin-bottom: 0.6rem;
+  border: 1px solid #e5e7eb; /* Viền nhẹ để nổi bật */
 }
 
+/* Tên sản phẩm với font đẹp hơn */
 .product-name {
-  font-size: 1.15rem;
-  margin: 0.5rem 0 0.2rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e3a8a;
+  margin: 0.3rem 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 200px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   line-clamp: 2;
-  margin-left: auto;
-  margin-right: auto;
-  font-weight: 600;
-  color: #1976d2;
+  min-height: 40px;
+  padding: 0 0.2rem;
 }
 
+/* Mô tả ngắn (nếu có) */
+.product-shortdesc {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+  margin: 0.2rem auto;
+  color: #64748b;
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+/* Giá tiền với hiệu ứng nổi bật */
 .product-price {
-  color: #ff9800;
+  font-size: 1.1rem;
   font-weight: 700;
-  font-size: 1.18rem;
-  margin-bottom: 1rem;
-  letter-spacing: 1px;
-  text-shadow: 0 2px 8px #ff980033;
+  color: #dc2626;
+  margin: 0.5rem 0;
+  text-shadow: 0 1px 2px rgba(220, 38, 38, 0.1); /* Hiệu ứng bóng nhẹ */
 }
 
-.product-detail-btn {
-  display: inline-block;
-  background: #007bff;
-  color: #fff;
-  padding: 0.5rem 1.2rem;
-  border-radius: 4px;
-  text-decoration: none;
-  transition: background 0.2s;
-}
-
-
-.product-detail-btn {
-  display: inline-block;
-  background: #1976d2;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 0.5rem 1.1rem;
-  font-weight: 600;
-  text-decoration: none;
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-  transition: background 0.2s, color 0.2s;
-}
-
-.product-detail-btn:hover {
-  background: #e3eafc;
-  color: #1976d2;
-}
-
+/* Nút Mua ngay với thiết kế gradient */
 .product-buy-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: linear-gradient(90deg, #ff9800 60%, #ff5722 100%);
-  color: #fff;
+  background: linear-gradient(90deg, #f97316 0%, #fb923c 100%);
+  color: #ffffff;
   border: none;
-  border-radius: 24px;
-  padding: 0.7rem 1.5rem;
-  font-weight: 700;
-  font-size: 1rem;
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
+  border-radius: 20px;
+  padding: 0.5rem 1.2rem;
+  font-weight: 600;
+  font-size: 0.9rem;
   cursor: pointer;
-  box-shadow: 0 2px 8px #ff980033;
-  transition: background 0.2s, color 0.2s, transform 0.18s;
+  box-shadow: 0 2px 6px rgba(249, 115, 22, 0.2);
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
 .product-buy-btn:hover {
-  background: linear-gradient(90deg, #ff5722 60%, #ff9800 100%);
-  color: #fff;
-  transform: scale(1.07);
+  background: linear-gradient(90deg, #ea580c 0%, #f59e0b 100%);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
+}
+
+/* Bộ lọc và sắp xếp với viền và nền */
+.filter-section {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.filter-section select {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  background: #f9fafb;
+  transition: border-color 0.2s;
+}
+
+.filter-section select:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+/* Body nền sạch sẽ với hiệu ứng nhẹ */
+body {
+  background: #f1f5f9;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Arial, sans-serif; /* Font hiện đại hơn */
+}
+
+/* Loại bỏ nền hình ảnh không cần thiết */
+body::before {
+  content: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .product-card {
+    width: 180px;
+    min-height: 240px;
+  }
+  .product-image {
+    height: 120px;
+  }
+  .product-name {
+    font-size: 0.95rem;
+  }
+  .product-price {
+    font-size: 1rem;
+  }
+  .product-buy-btn {
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+  }
 }

@@ -37,7 +37,8 @@ const Navbar = () => {
             <li className="navbar-item"><Link to="/login" className="navbar-btn">Đăng nhập</Link></li>
           ) : (
             <>
-              <li className="navbar-item">Xin chào, <b>{user.username || user.email}</b></li>
+            <li className="navbar-item">Xin chào, <b>{user.username || user.email}</b></li>
+            <li className="navbar-item"><Link to="/my-orders">Đơn mua của tôi</Link></li>
               <li className="navbar-item"><button onClick={handleLogout} className="navbar-btn" style={{ background: '#fdecea', color: '#d32f2f' }}>Đăng xuất</button></li>
             </>
           )}

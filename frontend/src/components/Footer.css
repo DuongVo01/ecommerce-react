@@ -1,32 +1,94 @@
+/* Footer với nền tối và hiệu ứng bóng */
 .footer {
-  background: #222;
-  color: #fff;
-  padding: 2rem 1rem 1rem 1rem;
+  background: #1e293b; /* Nền xám đậm hơn, tinh tế */
+  color: #ffffff;
+  padding: 2rem 1rem 1.5rem 1rem; /* Tinh chỉnh padding cho cân đối */
   margin-top: 2rem;
+  border-top: 1px solid #334155; /* Viền trên nhẹ nhàng */
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.05); /* Bóng nhẹ ở dưới */
+  font-family: 'Segoe UI', Arial, sans-serif;
 }
 
+/* Nội dung footer với bố cục linh hoạt */
 .footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 3rem;
+  gap: 2rem; /* Giảm gap để gọn gàng hơn */
   margin-bottom: 1.5rem;
 }
 
 .footer-section {
   min-width: 180px;
+  flex: 1;
+  text-align: center; /* Căn giữa trên mobile */
 }
 
 .footer-section h4 {
   margin-bottom: 0.7rem;
-  font-size: 1.1rem;
-  color: #ff9800;
+  font-size: 1.2rem; /* Tăng nhẹ để nổi bật */
+  color: #facc15; /* Màu vàng sáng hơn, hài hòa */
+  font-weight: 600;
+  text-transform: uppercase; /* Thêm hiệu ứng chữ hoa */
+  letter-spacing: 0.5px;
 }
 
+.footer-section p {
+  font-size: 0.95rem;
+  margin: 0.4rem 0;
+  color: #94a3b8; /* Xám nhạt, dễ đọc */
+  line-height: 1.5;
+}
+
+.footer-section a {
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-section a:hover {
+  color: #facc15; /* Giữ màu vàng khi hover link */
+}
+
+/* Phần bottom của footer */
 .footer-bottom {
   text-align: center;
-  font-size: 0.95rem;
-  color: #bbb;
-  border-top: 1px solid #444;
-  padding-top: 1rem;
-} 
+  font-size: 0.9rem;
+  color: #cbd5e1; /* Xám nhạt hơn, tinh tế */
+  border-top: 1px solid #334155;
+  padding-top: 1.2rem;
+  margin-top: 1.2rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .footer-section {
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer {
+    padding: 1.5rem 0.5rem 1rem 0.5rem;
+  }
+
+  .footer-section h4 {
+    font-size: 1.1rem;
+  }
+
+  .footer-section p {
+    font-size: 0.9rem;
+  }
+
+  .footer-bottom {
+    font-size: 0.85rem;
+    padding-top: 1rem;
+  }
+}

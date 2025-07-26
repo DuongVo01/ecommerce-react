@@ -18,6 +18,9 @@ router.get('/admin', async (req, res) => {
 router.get('/:userId', orderController.getOrdersByUser);
 // Create new order
 router.post('/:userId', orderController.createOrder);
+
+// Delete order
+router.delete('/:orderId', orderController.deleteOrder);
 // Update order status
 router.put('/:orderId', orderController.updateOrderStatus);
 

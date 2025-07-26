@@ -1,40 +1,98 @@
-
+/* Hero Banner với gradient và hiệu ứng bóng */
 .hero-banner {
   background: linear-gradient(135deg, #e3eafc 0%, #f6f8fa 100%);
-  color: #1976d2;
+  color: #1e40af; /* Xanh đậm hơn, dễ đọc hơn */
   text-align: center;
-  padding: 3.5rem 1.5rem 2.5rem 1.5rem;
-  border-radius: 0 0 32px 32px;
-  box-shadow: 0 2px 24px #0001;
+  padding: 3rem 1rem 2rem 1rem; /* Tinh chỉnh padding cho gọn gàng */
+  border-radius: 0 0 24px 24px; /* Giảm radius để cân đối */
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+.hero-banner:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Nội dung hero với bố cục rõ ràng */
 .hero-content h1 {
-  font-size: 2.6rem;
-  margin-bottom: 1rem;
+  font-size: 2.4rem; /* Giảm nhẹ để không lấn át */
+  margin-bottom: 0.8rem;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase; /* Thêm hiệu ứng chữ hoa */
+  line-height: 1.2;
 }
 
 .hero-content p {
-  font-size: 1.18rem;
-  margin-bottom: 2rem;
-  color: #333;
+  font-size: 1.1rem; /* Giảm để cân đối với tiêu đề */
+  margin-bottom: 1.5rem;
+  color: #475569; /* Xám đậm hơn, hài hòa */
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 0.5rem;
 }
 
+/* Nút hành động với gradient và hiệu ứng */
 .hero-button {
-  background-color: #ff9800;
-  color: #fff;
+  background: linear-gradient(90deg, #ff9800 0%, #ff5722 100%); /* Gradient cho nút */
+  color: #ffffff;
   border: none;
   padding: 0.9rem 2.2rem;
-  font-size: 1.08rem;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px #ff980033;
-  transition: background 0.2s, color 0.2s;
+  border-radius: 10px; /* Tăng radius cho hiện đại */
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .hero-button:hover {
-  background-color: #ff5722;
-  color: #fff;
+  background: linear-gradient(90deg, #ff5722 0%, #ff8c00 100%); /* Gradient ngược khi hover */
+  transform: scale(1.05); /* Nổi lên khi hover */
+  box-shadow: 0 6px 16px rgba(255, 87, 34, 0.3);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .hero-banner {
+    padding: 2rem 0.5rem 1.5rem 0.5rem;
+    border-radius: 0 0 16px 16px;
+  }
+
+  .hero-content h1 {
+    font-size: 1.8rem;
+  }
+
+  .hero-content p {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .hero-button {
+    padding: 0.7rem 1.8rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-banner {
+    padding: 1.5rem 0.3rem 1rem 0.3rem;
+  }
+
+  .hero-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .hero-content p {
+    font-size: 0.9rem;
+  }
+
+  .hero-button {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.95rem;
+  }
 }

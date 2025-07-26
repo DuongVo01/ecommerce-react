@@ -1,18 +1,62 @@
+/* Section sản phẩm nổi bật */
 .featured-products-section {
-  padding: 2rem 0;
-  background: #f8f9fa;
-  text-align: center;
+  padding: 2rem 1rem;
+  background: #f1f5f9; /* Nền xám nhạt, sạch sẽ */
+  margin: 2rem 0;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 }
 
 .featured-products-section h2 {
-  margin-bottom: 2rem;
-  font-size: 2rem;
-  color: #222;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1e40af; /* Xanh đậm, nổi bật */
+  text-align: center;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
+/* Danh sách sản phẩm */
 .featured-products-list {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 2rem;
-} 
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Loading và Error state */
+.featured-products-section div {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #64748b;
+  padding: 1rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .featured-products-section {
+    padding: 1.5rem 0.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .featured-products-section h2 {
+    font-size: 1.5rem;
+  }
+
+  .featured-products-list {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .featured-products-section h2 {
+    font-size: 1.3rem;
+  }
+
+  .featured-products-list {
+    grid-template-columns: 1fr;
+  }
+}
