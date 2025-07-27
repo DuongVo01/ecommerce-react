@@ -46,6 +46,9 @@ export const deleteProduct = (id) => api.delete(`/products/${id}`);
 export const register = (data) => api.post('/auth/register', data);
 export const login = (data) => api.post('/auth/login', data);
 
+// User APIs
+export const updateUser = (userId, data) => api.put(`/user/${userId}`, data);
+
 // Cart APIs
 export const getCart = (userId) => api.get(`/cart/${userId}`);
 export const addToCart = (userId, data) => api.post(`/cart/${userId}`, data);

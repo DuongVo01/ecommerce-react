@@ -97,7 +97,11 @@ const AdminUsers = () => {
             <thead>
               <tr style={{ background: '#fdecea', color: '#d32f2f', fontWeight: 600 }}>
                 <th style={{ padding: 14, borderBottom: '2px solid #d32f2f', borderTopLeftRadius: 12 }}>Username</th>
+                <th style={{ padding: 14, borderBottom: '2px solid #d32f2f' }}>Tên</th>
                 <th style={{ padding: 14, borderBottom: '2px solid #d32f2f' }}>Email</th>
+                <th style={{ padding: 14, borderBottom: '2px solid #d32f2f' }}>Số điện thoại</th>
+                <th style={{ padding: 14, borderBottom: '2px solid #d32f2f' }}>Giới tính</th>
+                <th style={{ padding: 14, borderBottom: '2px solid #d32f2f' }}>Ngày sinh</th>
                 <th style={{ padding: 14, borderBottom: '2px solid #d32f2f' }}>Role</th>
                 <th style={{ padding: 14, borderBottom: '2px solid #d32f2f', borderTopRightRadius: 12 }}>Hành động</th>
               </tr>
@@ -106,7 +110,11 @@ const AdminUsers = () => {
               {users.map((user, idx) => (
                 <tr key={user._id} style={{ background: idx % 2 === 0 ? '#f6f8fa' : '#fff', transition: 'background 0.2s', borderBottom: '1px solid #fdecea', borderRadius: 8, boxShadow: '0 1px 4px #0001' }}>
                   <td style={{ padding: 12, fontWeight: 500, maxWidth: 180, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'center' }}>{user.username}</td>
+                  <td style={{ padding: 12 }}>{user.name || '-'}</td>
                   <td style={{ padding: 12 }}>{user.email}</td>
+                  <td style={{ padding: 12 }}>{user.phone || '-'}</td>
+                  <td style={{ padding: 12 }}>{user.gender || '-'}</td>
+                  <td style={{ padding: 12 }}>{user.birthday ? new Date(user.birthday).toLocaleDateString() : '-'}</td>
                   <td style={{ padding: 12 }}>{user.role}</td>
                   <td style={{ padding: 12, height: 72, position: 'relative' }}>
                     <div style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 8 }}>

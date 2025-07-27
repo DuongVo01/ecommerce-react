@@ -1,0 +1,150 @@
+/* Orders Sidebar - Professional E-commerce Design */
+
+.orders-container {
+  display: flex;
+  min-height: 80vh;
+  background: linear-gradient(135deg, #f6f8fa 0%, #ffffff 100%);
+  padding: 20px;
+}
+
+.orders-sidebar {
+  width: 280px;
+  background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  margin: 24px 0 24px 24px;
+  padding: 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: fit-content;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.orders-sidebar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.orders-sidebar-title {
+  font-weight: 700;
+  font-size: 24px;
+  color: #d32f2f;
+  margin-bottom: 16px;
+  text-align: center;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-bottom: 2px solid #fee2e2;
+  transition: color 0.2s ease;
+}
+
+.orders-sidebar-title:hover {
+  color: #b91c1c;
+}
+
+.orders-sidebar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-left: 28px;
+  padding: 0 16px;
+}
+
+.orders-sidebar-item {
+  font-weight: 500;
+  color: #374151;
+  font-size: 16px;
+  cursor: pointer;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.orders-sidebar-item:hover,
+.orders-sidebar-item:focus {
+  background: #f3f4f6;
+  color: #1e40af;
+  outline: none;
+}
+
+.orders-sidebar-item.active {
+  color: #1976d2;
+  font-weight: 600;
+  background: #e0eaff;
+}
+
+.orders-sidebar-item.active::after {
+  content: '✔';
+  position: absolute;
+  right: 12px;
+  color: #10b981;
+  font-size: 14px;
+}
+
+.orders-sidebar-purchase {
+  font-weight: 700;
+  font-size: 22px;
+  color: #1976d2;
+  margin-top: 24px;
+  text-align: center;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 16px;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 0 0 12px 12px;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.orders-sidebar-purchase:hover {
+  background: #e0eaff;
+  color: #1e40af;
+}
+
+.orders-main {
+  flex: 1;
+  padding: 24px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .orders-sidebar {
+    width: 100%;
+    margin: 16px 0;
+    padding: 16px 0;
+  }
+
+  .orders-sidebar-list {
+    margin-left: 16px;
+    padding: 0 12px;
+  }
+
+  .orders-sidebar-item {
+    padding: 6px 10px;
+    font-size: 15px;
+  }
+
+  .orders-main {
+    padding: 16px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .orders-sidebar {
+    border-radius: 8px;
+  }
+
+  .orders-sidebar-title,
+  .orders-sidebar-purchase {
+    font-size: 20px;
+    padding: 6px 12px;
+  }
+
+  .orders-sidebar-item {
+    font-size: 14px;
+  }
+}

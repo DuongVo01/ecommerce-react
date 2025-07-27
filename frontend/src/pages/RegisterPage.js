@@ -11,6 +11,8 @@ const RegisterPage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const navigate = useNavigate();
+  const { loginUser } = React.useContext(require('../UserContext').UserContext);
+  const { login } = require('../services/api');
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
@@ -19,8 +21,11 @@ const RegisterPage = () => {
     }
     try {
       await register({ name, username, email, password });
-      alert('Đăng ký thành công!');
-      navigate('/login');
+      // Đăng nhập tự động sau khi đăng ký thành công
+      const res = await login({ login: username, password });
+      loginUser(res.data.user);
+      alert('Đăng ký và đăng nhập thành công!');
+      navigate('/account');
     } catch (err) {
       alert(err.response?.data?.error || 'Đăng ký thất bại!');
     }

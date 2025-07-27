@@ -20,6 +20,9 @@ app.use('/api/categories', require('./routes/categories'));
 app.use('/api/orders', require('./routes/orders'));
 // Cart routes
 app.use('/api/cart', require('./routes/cart'));
+
+// User routes
+app.use('/api/user', require('./routes/user'));
 // Auth routes
 app.use('/api/auth', require('./routes/auth'));
 
