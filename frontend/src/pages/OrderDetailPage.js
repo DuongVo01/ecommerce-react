@@ -65,14 +65,23 @@ const OrderDetailPage = () => {
             padding: '4px 12px',
             borderRadius: 8,
             fontWeight: 600,
-            background: order.status === 'completed' ? '#e0f7fa' : order.status === 'shipping' ? '#fffde7' : order.status === 'waiting' ? '#e3fcec' : '#fbe9e7',
-            color: order.status === 'completed' ? '#009688' : order.status === 'shipping' ? '#fbc02d' : order.status === 'waiting' ? '#388e3c' : '#d84315',
+            background: order.status === 'completed' ? '#e0f7fa'
+              : order.status === 'shipping' ? '#fffde7'
+              : order.status === 'waiting' ? '#e3fcec'
+              : order.status === 'pending' ? '#e3fcec'
+              : '#fbe9e7',
+            color: order.status === 'completed' ? '#009688'
+              : order.status === 'shipping' ? '#fbc02d'
+              : order.status === 'waiting' ? '#388e3c'
+              : order.status === 'pending' ? '#388e3c'
+              : '#d84315',
           }}>
             {order.status === 'completed' && 'Đã giao'}
             {order.status === 'shipping' && 'Đang vận chuyển'}
             {order.status === 'waiting' && 'Chờ giao hàng'}
+            {order.status === 'pending' && 'Chờ xác nhận'}
             {order.status === 'cancelled' && 'Đã hủy'}
-            {['completed','shipping','waiting','cancelled'].indexOf(order.status) === -1 && order.status}
+            {['completed','shipping','waiting','pending','cancelled'].indexOf(order.status) === -1 && order.status}
           </span>
         </div>
         <div>
