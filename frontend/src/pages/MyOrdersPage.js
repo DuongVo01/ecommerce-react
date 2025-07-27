@@ -60,9 +60,15 @@ const MyOrdersPage = () => {
                       padding: '4px 12px',
                       borderRadius: 8,
                       fontWeight: 600,
-                      background: order.status === 'Đã giao' ? '#e0f7fa' : order.status === 'Đang xử lý' ? '#fffde7' : '#fbe9e7',
-                      color: order.status === 'Đã giao' ? '#009688' : order.status === 'Đang xử lý' ? '#fbc02d' : '#d84315',
-                    }}>{order.status}</span>
+                      background: order.status === 'completed' ? '#e0f7fa' : order.status === 'shipping' ? '#fffde7' : order.status === 'waiting' ? '#e3fcec' : '#fbe9e7',
+                      color: order.status === 'completed' ? '#009688' : order.status === 'shipping' ? '#fbc02d' : order.status === 'waiting' ? '#388e3c' : '#d84315',
+                    }}>
+                      {order.status === 'completed' && 'Đã giao'}
+                      {order.status === 'shipping' && 'Đang vận chuyển'}
+                      {order.status === 'waiting' && 'Chờ giao hàng'}
+                      {order.status === 'cancelled' && 'Đã hủy'}
+                      {['completed','shipping','waiting','cancelled'].indexOf(order.status) === -1 && order.status}
+                    </span>
                   </td>
                   <td style={{ padding: 12 }}>
                     <button
