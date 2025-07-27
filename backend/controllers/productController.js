@@ -1,3 +1,40 @@
+// Sửa đánh giá sản phẩm
+exports.updateProductReview = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    const reviewId = req.params.reviewId;
+    const review = product.reviews.id(reviewId) || product.reviews.find(r => r._id?.toString() === reviewId);
+    if (!review) return res.status(404).json({ error: 'Review not found' });
+    // Chỉ cho phép sửa nếu user trùng tên
+    if (review.user !== req.body.user) return res.status(403).json({ error: 'Bạn không có quyền sửa đánh giá này' });
+    review.rating = req.body.rating;
+    review.comment = req.body.comment;
+    review.date = new Date().toLocaleString('vi-VN');
+    await product.save();
+    res.json(review);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// Xóa đánh giá sản phẩm
+exports.deleteProductReview = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    const reviewId = req.params.reviewId;
+    const review = product.reviews.id(reviewId) || product.reviews.find(r => r._id?.toString() === reviewId);
+    if (!review) return res.status(404).json({ error: 'Review not found' });
+    // Chỉ cho phép xóa nếu user trùng tên
+    if (review.user !== req.body.user) return res.status(403).json({ error: 'Bạn không có quyền xóa đánh giá này' });
+    product.reviews = product.reviews.filter(r => (r._id?.toString() || r.id) !== reviewId);
+    await product.save();
+    res.json({ message: 'Đã xóa đánh giá' });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
 const Product = require('../models/Product');
 
 exports.getAllProducts = async (req, res) => {
@@ -62,6 +99,34 @@ exports.deleteProduct = async (req, res) => {
     if (!deletedProduct) return res.status(404).json({ error: 'Product not found' });
     res.json({ message: 'Product deleted' });
   } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// Lấy danh sách đánh giá sản phẩm
+exports.getProductReviews = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    res.json(product.reviews || []);
+  } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+// Thêm đánh giá sản phẩm
+exports.addProductReview = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    const review = req.body;
+    if (!review || !review.rating || !review.comment) {
+      return res.status(400).json({ error: 'Missing rating or comment' });
+    }
+    product.reviews.push(review);
+    await product.save();
+    res.status(201).json(review);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 };

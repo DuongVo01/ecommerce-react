@@ -21,4 +21,11 @@ router.put('/:id', upload.single('image'), productController.updateProduct);
 // Delete product
 router.delete('/:id', productController.deleteProduct);
 
+
+// Đánh giá sản phẩm
+router.get('/:id/reviews', productController.getProductReviews);
+router.post('/:id/reviews', productController.addProductReview);
+router.put('/:id/reviews/:reviewId', productController.updateProductReview);
+router.delete('/:id/reviews/:reviewId', productController.deleteProductReview);
+
 module.exports = router;

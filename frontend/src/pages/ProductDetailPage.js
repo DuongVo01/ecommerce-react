@@ -4,31 +4,32 @@ import ProductCard from '../components/ProductCard';
 import { useCart } from '../CartContext';
 import { useToast } from '../ToastContext';
 import { fetchProductById, fetchProducts } from '../services/api';
+import { getReviews, addReview } from '../services/api';
+import { updateReview, deleteReview } from '../services/api';
 import './ProductDetailPage.css';
 
 
-const reviews = [
-  {
-    id: 1,
-    user: 'Nguyễn Văn A',
-    rating: 5,
-    comment: 'Sản phẩm rất đẹp, chất lượng tốt, giao hàng nhanh!'
-  },
-  {
-    id: 2,
-    user: 'Trần Thị B',
-    rating: 4,
-    comment: 'Áo mặc thoải mái, sẽ ủng hộ tiếp.'
-  },
-  {
-    id: 3,
-    user: 'Lê Văn C',
-    rating: 5,
-    comment: 'Đóng gói cẩn thận, giá hợp lý.'
-  },
-];
+// Xóa đánh giá mẫu, khởi tạo reviewList là mảng rỗng
 
 const ProductDetailPage = () => {
+  // Hàm lọc review theo số sao và người dùng (đặt trong component để dùng state trực tiếp)
+  const filteredReviews = () => {
+    let reviews = reviewList;
+    if (filterStar > 0) {
+      reviews = reviews.filter(r => r.rating === filterStar);
+    }
+    if (showOnlyMine) {
+      reviews = reviews.filter(r => r.user === user.username);
+    }
+    return reviews;
+  };
+  // State cho bộ lọc đánh giá
+  const [filterStar, setFilterStar] = useState(0); // 0: tất cả
+  const [showOnlyMine, setShowOnlyMine] = useState(false);
+  // State & hooks chỉ khai báo 1 lần duy nhất
+  const [editingReviewId, setEditingReviewId] = useState(null);
+  const [editRating, setEditRating] = useState(5);
+  const [editComment, setEditComment] = useState("");
   const { id } = useParams();
   const { addToCart } = useCart();
   const { showToast } = useToast();
@@ -36,6 +37,21 @@ const ProductDetailPage = () => {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [reviewList, setReviewList] = useState([]);
+  const [newRating, setNewRating] = useState(5);
+  const [newComment, setNewComment] = useState("");
+  // Giả sử có context người dùng
+  const user = JSON.parse(localStorage.getItem('user')) || { username: 'Ẩn danh', role: 'user' };
+
+  useEffect(() => {
+    if (reviewList && reviewList.length > 0) {
+      console.log('Review List:', reviewList);
+      // Hiển thị rõ tên người dùng từng review
+      reviewList.forEach((review, idx) => {
+        console.log(`Review #${idx + 1}: user=`, review.user, 'rating=', review.rating, 'comment=', review.comment, 'date=', review.date);
+      });
+    }
+  }, [reviewList]);
 
   useEffect(() => {
     fetchProductById(id)
@@ -46,6 +62,18 @@ const ProductDetailPage = () => {
       .catch(() => {
         setError('Không tìm thấy sản phẩm');
         setLoading(false);
+      });
+    // Lấy đánh giá từ backend
+    getReviews(id)
+      .then(res => {
+        // Đưa review của user hiện tại lên đầu danh sách
+        const allReviews = res.data || [];
+        const myReview = allReviews.filter(r => r.user === user.username);
+        const otherReviews = allReviews.filter(r => r.user !== user.username);
+        setReviewList([...myReview, ...otherReviews]);
+      })
+      .catch(() => {
+        setReviewList([]);
       });
   }, [id]);
 
@@ -87,15 +115,165 @@ const ProductDetailPage = () => {
       {/* Đánh giá sản phẩm */}
       <div className="product-reviews">
         <h3>Đánh giá sản phẩm</h3>
-        {reviews.length === 0 ? (
-          <p>Chưa có đánh giá nào.</p>
+        {/* Bộ lọc đánh giá */}
+        <div style={{marginBottom:'1rem',display:'flex',alignItems:'center',gap:'1.5rem'}}>
+          <div>
+            <span>Lọc theo số sao: </span>
+            {[0,1,2,3,4,5].map(star => (
+              <button
+                key={star}
+                style={{background:filterStar===star?'#f59e0b':'#e5e7eb',color:filterStar===star?'white':'#374151',border:'none',borderRadius:'6px',padding:'0.3rem 0.7rem',marginRight:'0.2rem',cursor:'pointer'}}
+                onClick={()=>setFilterStar(star)}
+              >{star===0?'Tất cả':star+'★'}</button>
+            ))}
+          </div>
+          <div>
+            <label style={{cursor:'pointer'}}>
+              <input type="checkbox" checked={showOnlyMine} onChange={e=>setShowOnlyMine(e.target.checked)} style={{marginRight:'0.5rem'}} />
+              Chỉ xem đánh giá của tôi
+            </label>
+          </div>
+        </div>
+        <form
+          style={{ marginBottom: "2rem", background: "#f8fafc", padding: "1rem", borderRadius: "12px", border: "1px solid #e2e8f0" }}
+          onSubmit={async e => {
+            e.preventDefault();
+            if (!newComment.trim()) return;
+            // Kiểm tra nếu user đã có đánh giá cho sản phẩm này
+            const hasReviewed = reviewList.some(r => r.user === user.username);
+            if (hasReviewed) {
+              showToast("Bạn chỉ được gửi một đánh giá cho mỗi sản phẩm!");
+              return;
+            }
+            const reviewData = {
+              user: user.username,
+              rating: newRating,
+              comment: newComment,
+              date: new Date().toLocaleString('vi-VN')
+            };
+            try {
+              await addReview(id, reviewData);
+              // Lấy lại danh sách đánh giá mới nhất
+              const res = await getReviews(id);
+              setReviewList(res.data);
+              setNewComment("");
+              setNewRating(5);
+              showToast("Cảm ơn bạn đã đánh giá!");
+            } catch {
+              showToast("Lỗi khi gửi đánh giá!");
+            }
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <span>Đánh giá:</span>
+              {[1,2,3,4,5].map(star => (
+                <span
+                  key={star}
+                  style={{ cursor: "pointer", color: star <= newRating ? "#f59e0b" : "#e5e7eb", fontSize: "1.3rem" }}
+                  onClick={() => setNewRating(star)}
+                >★</span>
+              ))}
+            </div>
+            <textarea
+              placeholder="Nhận xét của bạn"
+              value={newComment}
+              onChange={e => setNewComment(e.target.value)}
+              style={{ padding: "0.5rem", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "1rem", minHeight: "60px" }}
+              required
+            />
+            <button type="submit" style={{ background: "#3b82f6", color: "white", border: "none", borderRadius: "8px", padding: "0.75rem 1.5rem", fontWeight: 700, fontSize: "1rem", cursor: "pointer" }}>Gửi đánh giá</button>
+          </div>
+        </form>
+        {filteredReviews().length === 0 ? (
+          <p>Không có đánh giá phù hợp.</p>
         ) : (
           <ul className="review-list">
-            {reviews.map(review => (
-              <li key={review.id} className="review-item">
-                <div className="review-user">{review.user}</div>
+            {filteredReviews().map(review => (
+              <li key={review._id || review.id} className="review-item">
+                <div className="review-user">{review.user} <span style={{color:'#64748b', fontSize:'0.9em', marginLeft:'8px'}}>{review.date ? review.date : ''}</span></div>
                 <div className="review-rating">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</div>
-                <div className="review-comment">{review.comment}</div>
+                {editingReviewId === (review._id || review.id) ? (
+                  <form
+                    style={{marginTop:'0.5rem'}}
+                    onSubmit={async e => {
+                      e.preventDefault();
+                      try {
+                        await updateReview(id, review._id || review.id, {
+                          user: user.username,
+                          rating: editRating,
+                          comment: editComment
+                        });
+                        const res = await getReviews(id);
+                        setReviewList(res.data);
+                        setEditingReviewId(null);
+                        showToast('Đã cập nhật đánh giá!');
+                      } catch {
+                        showToast('Lỗi khi cập nhật đánh giá!');
+                      }
+                    }}
+                  >
+                    <div style={{display:'flex',alignItems:'center',gap:'0.5rem'}}>
+                      <span>Đánh giá:</span>
+                      {[1,2,3,4,5].map(star => (
+                        <span key={star} style={{cursor:'pointer',color:star<=editRating?'#f59e0b':'#e5e7eb',fontSize:'1.3rem'}} onClick={()=>setEditRating(star)}>★</span>
+                      ))}
+                    </div>
+                    <textarea value={editComment} onChange={e=>setEditComment(e.target.value)} style={{padding:'0.5rem',borderRadius:'8px',border:'1px solid #e2e8f0',fontSize:'1rem',minHeight:'60px',margin:'0.5rem 0'}} required />
+                    <button type="submit" style={{background:'#10b981',color:'white',border:'none',borderRadius:'8px',padding:'0.5rem 1rem',fontWeight:700,marginRight:'0.5rem'}}>Lưu</button>
+                    <button type="button" style={{background:'#e5e7eb',color:'#374151',border:'none',borderRadius:'8px',padding:'0.5rem 1rem',fontWeight:700}} onClick={()=>setEditingReviewId(null)}>Hủy</button>
+                  </form>
+                ) : (
+                  <div className="review-comment">{review.comment}</div>
+                )}
+                {/* Chỉ cho phép sửa/xóa nếu là user hiện tại hoặc admin (xóa) */}
+                {(review.user === user.username && editingReviewId !== (review._id || review.id)) && (
+                  <div style={{marginTop:'0.5rem',display:'flex',gap:'0.5rem'}}>
+                    <button
+                      style={{background:'#3b82f6',color:'white',border:'none',borderRadius:'8px',padding:'0.3rem 0.8rem',fontWeight:600,cursor:'pointer'}}
+                      onClick={()=>{
+                        setEditingReviewId(review._id || review.id);
+                        setEditRating(review.rating);
+                        setEditComment(review.comment);
+                      }}
+                    >Sửa</button>
+                    <button
+                      style={{background:'#ef4444',color:'white',border:'none',borderRadius:'8px',padding:'0.3rem 0.8rem',fontWeight:600,cursor:'pointer'}}
+                      onClick={async()=>{
+                        if(window.confirm('Bạn có chắc muốn xóa đánh giá này?')){
+                          try {
+                            await deleteReview(id, review._id || review.id, { user: user.username });
+                            const res = await getReviews(id);
+                            setReviewList(res.data);
+                            showToast('Đã xóa đánh giá!');
+                          } catch {
+                            showToast('Lỗi khi xóa đánh giá!');
+                          }
+                        }
+                      }}
+                    >Xóa</button>
+                  </div>
+                )}
+                {/* Admin có thể xóa mọi đánh giá */}
+                {user.role === 'admin' && review.user !== user.username && (
+                  <div style={{marginTop:'0.5rem',display:'flex',gap:'0.5rem'}}>
+                    <button
+                      style={{background:'#ef4444',color:'white',border:'none',borderRadius:'8px',padding:'0.3rem 0.8rem',fontWeight:600,cursor:'pointer'}}
+                      onClick={async()=>{
+                        if(window.confirm('Admin: Bạn có chắc muốn xóa đánh giá này?')){
+                          try {
+                            await deleteReview(id, review._id || review.id, { user: user.username, admin: true });
+                            const res = await getReviews(id);
+                            setReviewList(res.data);
+                            showToast('Admin đã xóa đánh giá!');
+                          } catch {
+                            showToast('Lỗi khi admin xóa đánh giá!');
+                          }
+                        }
+                      }}
+                    >Admin Xóa</button>
+                  </div>
+                )}
               </li>
             ))}
           </ul>

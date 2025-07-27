@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:5000/api';
@@ -9,6 +8,14 @@ export const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+// Chỉnh sửa và xóa đánh giá sản phẩm
+export const updateReview = (productId, reviewId, data) => api.put(`/products/${productId}/reviews/${reviewId}`, data);
+export const deleteReview = (productId, reviewId, data) => api.delete(`/products/${productId}/reviews/${reviewId}`, { data });
+
+// Đánh giá sản phẩm
+export const getReviews = (productId) => api.get(`/products/${productId}/reviews`);
+export const addReview = (productId, data) => api.post(`/products/${productId}/reviews`, data);
 
 // Lấy danh mục sản phẩm
 export const fetchCategories = async () => {

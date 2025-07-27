@@ -36,11 +36,19 @@ const Navbar = () => {
           {!user ? (
             <li className="navbar-item"><Link to="/login" className="navbar-btn">Đăng nhập</Link></li>
           ) : (
-            <>
-            <li className="navbar-item">Xin chào, <b>{user.username || user.email}</b></li>
-            <li className="navbar-item"><Link to="/my-orders">Đơn mua của tôi</Link></li>
-              <li className="navbar-item"><button onClick={handleLogout} className="navbar-btn" style={{ background: '#fdecea', color: '#d32f2f' }}>Đăng xuất</button></li>
-            </>
+            <li className="navbar-item navbar-dropdown">
+              <button className="navbar-dropdown-toggle" onClick={() => setMenuOpen(!menuOpen)}>
+                <span style={{marginRight:8}}>👤 {user.username || user.email}</span>
+                <span style={{fontSize:'1.2em'}}>▼</span>
+              </button>
+              {menuOpen && (
+                <ul className="navbar-dropdown-menu">
+                  <li><Link to="/account" onClick={()=>setMenuOpen(false)}>Tài khoản của tôi</Link></li>
+                  <li><Link to="/my-orders" onClick={()=>setMenuOpen(false)}>Đơn mua của tôi</Link></li>
+                  <li><button onClick={()=>{setMenuOpen(false);handleLogout();}} style={{ background: '#fdecea', color: '#d32f2f', width:'100%', textAlign:'left', border:'none', padding:'0.5rem 1rem', borderRadius:'6px', cursor:'pointer'}}>Đăng xuất</button></li>
+                </ul>
+              )}
+            </li>
           )}
         </ul>
       </div>

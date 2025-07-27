@@ -1,3 +1,60 @@
+/* Dropdown Menu cho tài khoản */
+.navbar-dropdown {
+  position: relative;
+}
+
+.navbar-dropdown-toggle {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.navbar-dropdown-toggle:hover {
+  background: #f3f4f6;
+}
+
+.navbar-dropdown-menu {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  min-width: 180px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  z-index: 100;
+  padding: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.navbar-dropdown-menu li {
+  list-style: none;
+}
+.navbar-dropdown-menu a,
+.navbar-dropdown-menu button {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  color: #374151;
+  text-decoration: none;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.navbar-dropdown-menu a:hover,
+.navbar-dropdown-menu button:hover {
+  background: #f3f4f6;
+  color: #2563eb;
+}
 /* Navbar với glassmorphism effect */
 .navbar {
   background: rgba(255, 255, 255, 0.95);
