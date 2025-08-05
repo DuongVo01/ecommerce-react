@@ -408,6 +408,11 @@
   font-size: 1.1rem;
 }
 
+.highlight-review {
+  background: #fef08a !important;
+  transition: background 0.5s;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .product-detail-page {

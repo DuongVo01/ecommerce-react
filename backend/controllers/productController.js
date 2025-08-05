@@ -26,10 +26,27 @@ exports.deleteProductReview = async (req, res) => {
     const reviewId = req.params.reviewId;
     const review = product.reviews.id(reviewId) || product.reviews.find(r => r._id?.toString() === reviewId);
     if (!review) return res.status(404).json({ error: 'Review not found' });
-    // Chỉ cho phép xóa nếu user trùng tên
-    if (review.user !== req.body.user) return res.status(403).json({ error: 'Bạn không có quyền xóa đánh giá này' });
+    // Nếu là admin thì cho phép xóa mọi đánh giá
+    if (!req.body.admin && review.user !== req.body.user) {
+      return res.status(403).json({ error: 'Bạn không có quyền xóa đánh giá này' });
+    }
     product.reviews = product.reviews.filter(r => (r._id?.toString() || r.id) !== reviewId);
     await product.save();
+
+    // Xóa report liên quan nếu có (file uploads/reports/reports.json)
+    const fs = require('fs');
+    const path = require('path');
+    const reportsPath = path.join(__dirname, '../uploads/reports/reports.json');
+    try {
+      if (fs.existsSync(reportsPath)) {
+        const reportsData = fs.readFileSync(reportsPath, 'utf8');
+        let reports = [];
+        try { reports = JSON.parse(reportsData); } catch {}
+        const newReports = Array.isArray(reports) ? reports.filter(r => r.commentId !== reviewId) : [];
+        fs.writeFileSync(reportsPath, JSON.stringify(newReports, null, 2), 'utf8');
+      }
+    } catch (e) { /* ignore */ }
+
     res.json({ message: 'Đã xóa đánh giá' });
   } catch (err) {
     res.status(400).json({ error: err.message });

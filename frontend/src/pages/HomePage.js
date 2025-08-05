@@ -1,6 +1,7 @@
 
 
 import React from 'react';
+import BannerSlider from '../components/BannerSlider';
 import HeroBanner from '../components/HeroBanner';
 import CategoryList from '../components/CategoryList';
 import PromotionBanner from '../components/PromotionBanner';
@@ -9,6 +10,8 @@ import FeaturedProducts from '../components/FeaturedProducts';
 const HomePage = () => {
   return (
     <div style={{ background: 'linear-gradient(135deg,#e3eafc 0%,#f6f8fa 100%)', minHeight: '100vh' }}>
+
+      <BannerSlider />
       <HeroBanner />
 
 

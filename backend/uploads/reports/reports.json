@@ -1,0 +1,18 @@
+[
+  {
+    "id": "1754288171402-265486285",
+    "commentId": "68904ffd7198eee92ad34310",
+    "reason": "Vi phạm khác",
+    "productId": "68904c1d12a90c3aefd75f06",
+    "user": "admin",
+    "date": "2025-08-04T06:16:11.402Z"
+  },
+  {
+    "id": "1754383843403-754289365",
+    "commentId": "68904c6712a90c3aefd75f44",
+    "reason": "Đánh giá không chính xác / gây hiểu lầm (ví dụ như: đánh giá và sản phẩm không khớp, ...)",
+    "productId": "68904c1d12a90c3aefd75f06",
+    "user": "admin",
+    "date": "2025-08-05T08:50:43.403Z"
+  }
+]

@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { UserContext } from '../UserContext';
 import { fetchProducts } from '../services/api';
 import axios from 'axios';
+import './AdminDashboard.css';
 
 const AdminDashboard = () => {
   const { user } = useContext(UserContext);
@@ -40,37 +41,68 @@ const AdminDashboard = () => {
       .catch(() => {});
   }, []);
 
+
+  // Banner state for dashboard card
+  const [banners, setBanners] = useState([]);
+  // Báo cáo đánh giá
+  const [reportCount, setReportCount] = useState(0);
+
+  // Fetch số lượng báo cáo đánh giá
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/reports')
+      .then(res => setReportCount(res.data.length))
+      .catch(() => setReportCount(0));
+  }, []);
+
+  // Fetch banners (for count only)
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/banners')
+      .then(res => setBanners(res.data))
+      .catch(() => setBanners([]));
+  }, []);
+
   if (user === undefined) return <div>Đang kiểm tra quyền truy cập...</div>;
   if (!user || user.role !== 'admin') return null;
 
   return (
-    <div style={{ padding: 32, background: '#f6f8fa', minHeight: '100vh' }}>
-      <h1 style={{ marginBottom: 24, color: '#1976d2' }}>Admin Dashboard</h1>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24, marginBottom: 32 }}>
-        <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px #0001', padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <span style={{ fontSize: 32, color: '#1976d2', marginBottom: 8 }}>📦</span>
-          <div style={{ fontSize: 18, fontWeight: 600 }}>Sản phẩm</div>
-          <div style={{ fontSize: 28, color: '#333', margin: '8px 0' }}>{loadingStats ? '...' : stats.products}</div>
-          <Link to="/admin/products" style={{ color: '#1976d2', textDecoration: 'none', fontWeight: 500 }}>Quản lý sản phẩm</Link>
-        </div>
-        <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px #0001', padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <span style={{ fontSize: 32, color: '#388e3c', marginBottom: 8 }}>🗂️</span>
-          <div style={{ fontSize: 18, fontWeight: 600 }}>Danh mục</div>
-          <div style={{ fontSize: 28, color: '#333', margin: '8px 0' }}>{loadingStats ? '...' : stats.categories}</div>
-          <Link to="/admin/categories" style={{ color: '#388e3c', textDecoration: 'none', fontWeight: 500 }}>Quản lý danh mục</Link>
-        </div>
-        <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px #0001', padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <span style={{ fontSize: 32, color: '#f57c00', marginBottom: 8 }}>🧾</span>
-          <div style={{ fontSize: 18, fontWeight: 600 }}>Đơn hàng</div>
-          <div style={{ fontSize: 28, color: '#333', margin: '8px 0' }}>{loadingStats ? '...' : stats.orders}</div>
-          <Link to="/admin/orders" style={{ color: '#f57c00', textDecoration: 'none', fontWeight: 500 }}>Quản lý đơn hàng</Link>
-        </div>
-        <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px #0001', padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <span style={{ fontSize: 32, color: '#d32f2f', marginBottom: 8 }}>👤</span>
-          <div style={{ fontSize: 18, fontWeight: 600 }}>Người dùng</div>
-          <div style={{ fontSize: 28, color: '#333', margin: '8px 0' }}>{loadingStats ? '...' : stats.users}</div>
-          <Link to="/admin/users" style={{ color: '#d32f2f', textDecoration: 'none', fontWeight: 500 }}>Quản lý người dùng</Link>
-        </div>
+    <div className="admin-dashboard-container">
+      <h1 className="admin-dashboard-title">Admin Dashboard</h1>
+      <div className="admin-dashboard-grid">
+        <Link to="/admin/reports" className="admin-dashboard-card" style={{textDecoration:'none',color:'inherit'}}>
+          <span className="admin-dashboard-icon admin-dashboard-reports" style={{fontSize:28}}>🚩</span>
+          <div className="admin-dashboard-label">Báo cáo đánh giá</div>
+          <div className="admin-dashboard-value">{reportCount}</div>
+        </Link>
+        <Link to="/admin/banners" className="admin-dashboard-card" style={{textDecoration:'none',color:'inherit'}}>
+          <span className="admin-dashboard-icon admin-dashboard-banners" style={{fontSize:28}}>🖼️</span>
+          <div className="admin-dashboard-label">Banner trang chủ</div>
+          <div className="admin-dashboard-value">{banners.length}</div>
+          {/* <div className="admin-dashboard-link banners">Quản lý Banner</div> */}
+        </Link>
+        <Link to="/admin/products" className="admin-dashboard-card" style={{textDecoration:'none',color:'inherit'}}>
+          <span className="admin-dashboard-icon admin-dashboard-products">📦</span>
+          <div className="admin-dashboard-label">Sản phẩm</div>
+          <div className="admin-dashboard-value">{loadingStats ? '...' : stats.products}</div>
+          {/* <div className="admin-dashboard-link products">Quản lý sản phẩm</div> */}
+        </Link>
+        <Link to="/admin/categories" className="admin-dashboard-card" style={{textDecoration:'none',color:'inherit'}}>
+          <span className="admin-dashboard-icon admin-dashboard-categories">🗂️</span>
+          <div className="admin-dashboard-label">Danh mục</div>
+          <div className="admin-dashboard-value">{loadingStats ? '...' : stats.categories}</div>
+          {/* <div className="admin-dashboard-link categories">Quản lý danh mục</div> */}
+        </Link>
+        <Link to="/admin/orders" className="admin-dashboard-card" style={{textDecoration:'none',color:'inherit'}}>
+          <span className="admin-dashboard-icon admin-dashboard-orders">🧾</span>
+          <div className="admin-dashboard-label">Đơn hàng</div>
+          <div className="admin-dashboard-value">{loadingStats ? '...' : stats.orders}</div>
+          {/* <div className="admin-dashboard-link orders">Quản lý đơn hàng</div> */}
+        </Link>
+        <Link to="/admin/users" className="admin-dashboard-card" style={{textDecoration:'none',color:'inherit'}}>
+          <span className="admin-dashboard-icon admin-dashboard-users">👤</span>
+          <div className="admin-dashboard-label">Người dùng</div>
+          <div className="admin-dashboard-value">{loadingStats ? '...' : stats.users}</div>
+          {/* <div className="admin-dashboard-link users">Quản lý người dùng</div> */}
+        </Link>
       </div>
       {/* Có thể bổ sung thêm widget/thống kê khác tại đây */}
     </div>

@@ -4,6 +4,7 @@
 
 
 import React, { useEffect, useState, useContext } from 'react';
+import './AdminOrders.css';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../UserContext';
 import axios from 'axios';
@@ -12,6 +13,7 @@ import {
   TableSortLabel, TablePagination, Button, Chip, useTheme
 } from '@mui/material';
 import { green, blue, orange, red } from '@mui/material/colors';
+import { FaBoxOpen, FaSearch, FaSignOutAlt, FaHome, FaShoppingCart, FaHeadset, FaListAlt, FaUser } from 'react-icons/fa';
 
 const API = 'http://localhost:5000/api/orders';
 
@@ -99,22 +101,26 @@ const AdminOrders = () => {
 
   return (
     <div style={{ background: theme.palette.mode === 'dark' ? '#181818' : '#f6f8fa', minHeight: '100vh', fontFamily: 'Segoe UI, Arial, sans-serif' }}>
-      {/* Header */}
-      <header style={{ background: '#fff', boxShadow: '0 2px 12px #0001', padding: '0 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68, position: 'sticky', top: 0, zIndex: 10 }}>
+      {/* Header giống trang sản phẩm */}
+      <header className="admin-orders-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <img src="/logo192.png" alt="ShopStore" style={{ width: 40, height: 40, borderRadius: 8, boxShadow: '0 2px 8px #1976d233' }} />
           <span style={{ fontWeight: 700, fontSize: 22, color: '#d32f2f', letterSpacing: 1 }}>ShopStore Admin</span>
         </div>
         <nav style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
-          <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: '#1976d2', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><span role="img" aria-label="home">🏠</span> Trang chủ</button>
-          <button onClick={() => navigate('/admin/products')} style={{ background: 'none', border: 'none', color: '#1976d2', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><span role="img" aria-label="box">📦</span> Sản phẩm</button>
-          <button onClick={() => navigate('/admin/orders')} style={{ background: 'none', border: 'none', color: '#d32f2f', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><span role="img" aria-label="order">📝</span> Đơn hàng</button>
-          <button onClick={() => navigate('/admin/categories')} style={{ background: 'none', border: 'none', color: '#388e3c', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><span role="img" aria-label="list">📋</span> Danh mục</button>
-          <button onClick={() => navigate('/admin/users')} style={{ background: 'none', border: 'none', color: '#d32f2f', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><span role="img" aria-label="user">👤</span> Người dùng</button>
+          <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: '#1976d2', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><FaHome /> Trang chủ</button>
+          <button onClick={() => navigate('/admin/products')} style={{ background: 'none', border: 'none', color: '#1976d2', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><FaBoxOpen /> Sản phẩm</button>
+          <button onClick={() => navigate('/admin/orders')} style={{ background: 'none', border: 'none', color: '#d32f2f', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><FaShoppingCart /> Đơn hàng</button>
+          <button onClick={() => navigate('/admin/categories')} style={{ background: 'none', border: 'none', color: '#388e3c', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><FaListAlt /> Danh mục</button>
+          <button onClick={() => navigate('/admin/users')} style={{ background: 'none', border: 'none', color: '#d32f2f', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><FaUser /> Người dùng</button>
         </nav>
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-          <button style={{ background: 'none', border: 'none', color: '#ff9800', fontSize: 22, cursor: 'pointer' }} title="Hỗ trợ khách hàng"><span role="img" aria-label="support">🛎️</span></button>
-          <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#d32f2f', fontSize: 22, cursor: 'pointer' }} title="Đăng xuất"><span role="img" aria-label="logout">🚪</span></button>
+          <div className="admin-search-bar">
+            <FaSearch style={{ color: '#d32f2f', fontSize: 18, marginRight: 6 }} />
+            <input type="text" placeholder="Tìm đơn hàng..." style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: 15, width: 120 }} />
+          </div>
+          <button style={{ background: 'none', border: 'none', color: '#ff9800', fontSize: 22, cursor: 'pointer' }} title="Hỗ trợ khách hàng"><FaHeadset /></button>
+          <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#d32f2f', fontSize: 22, cursor: 'pointer' }} title="Đăng xuất"><FaSignOutAlt /></button>
         </div>
       </header>
       {/* Banner */}

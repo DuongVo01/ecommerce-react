@@ -16,6 +16,8 @@ import { CartProvider } from './CartContext';
 import { UserProvider } from './UserContext';
 import { ToastProvider } from './ToastContext';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminBannerPage from './pages/AdminBannerPage';
+import AdminReportPage from './pages/AdminReportPage';
 import AdminProducts from './pages/AdminProducts';
 import AdminCategories from './pages/AdminCategories';
 import AdminOrders from './pages/AdminOrders';
@@ -41,6 +43,8 @@ function App() {
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/account" element={React.createElement(require('./pages/AccountPage').default)} />
               <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/banners" element={<AdminBannerPage />} />
+              <Route path="/admin/reports" element={<AdminReportPage />} />
               <Route path="/admin/products" element={<AdminProducts />} />
               <Route path="/admin/categories" element={<AdminCategories />} />
               <Route path="/admin/orders" element={<AdminOrders />} />

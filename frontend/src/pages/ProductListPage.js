@@ -116,9 +116,9 @@ const ProductListPage = () => {
           </Select>
         </FormControl>
       </Box>
-      <Grid container spacing={3}>
+      <Grid container spacing={3} columns={{ xs: 1, sm: 2, md: 5 }}>
         {paginatedProducts.map(product => (
-          <Grid item xs={12} sm={6} md={3} key={product._id || product.id}>
+          <Grid item xs={12} sm={6} md={2.4} key={product._id || product.id}>
             <ProductCard product={product}>
               {product.shortDesc && (
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
+import './AdminProducts.css';
 import { FaBoxOpen, FaSearch, FaSignOutAlt, FaHome, FaShoppingCart, FaHeadset, FaListAlt, FaUser } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../UserContext';
@@ -241,19 +242,7 @@ const AdminProducts = () => {
           </Table>
         </TableContainer>
       </div>
-      <style>{`
-        @media (max-width: 1100px) {
-          header { padding: 0 12px !important; }
-          section { padding: 0 !important; }
-        }
-        @media (max-width: 900px) {
-          section { min-height: 80px !important; }
-          h2 { font-size: 18px !important; }
-          .admin-products-form, .admin-products-table { padding: 4px !important; }
-          table { font-size: 12px !important; }
-          th, td { padding: 6px !important; }
-        }
-      `}</style>
+      {/* Responsive styles moved to AdminProducts.css */}
     </div>
   );
 }

@@ -1,10 +1,14 @@
 
 import React, { useEffect, useState, useContext } from 'react';
+import './AdminCategories.css';
 import { FaBoxOpen, FaSearch, FaSignOutAlt, FaHome, FaShoppingCart, FaHeadset, FaListAlt, FaUser } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../UserContext';
 import { useToast } from '../ToastContext';
 import axios from 'axios';
+import {
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button
+} from '@mui/material';
 
 const API = 'http://localhost:5000/api/categories';
 
@@ -153,57 +157,48 @@ const AdminCategories = () => {
       {/* Bảng danh sách danh mục */}
       <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 4px 24px #0002', padding: 32, margin: '0 auto', maxWidth: 1100, width: '100%' }}>
         <h3 style={{ marginBottom: 24, color: '#388e3c', fontWeight: 600, fontSize: 22 }}>Danh sách danh mục</h3>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0, background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px #0001', fontSize: 16 }}>
-            <thead>
-              <tr style={{ background: '#e3fcec', color: '#388e3c', fontWeight: 600 }}>
-                <th style={{ padding: 14, borderBottom: '2px solid #388e3c', borderTopLeftRadius: 12 }}>Tên</th>
-                <th style={{ padding: 14, borderBottom: '2px solid #388e3c' }}>Ảnh</th>
-                <th style={{ padding: 14, borderBottom: '2px solid #388e3c', borderTopRightRadius: 12 }}>Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
+        <TableContainer component={Paper}>
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow sx={{ background: '#e3fcec' }}>
+                <TableCell sx={{ fontWeight: 700, color: '#388e3c' }}>Tên danh mục</TableCell>
+                <TableCell sx={{ fontWeight: 700, color: '#388e3c' }}>Ảnh</TableCell>
+                <TableCell sx={{ fontWeight: 700, color: '#388e3c' }}>Hành động</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {categories.map((cat, idx) => (
-                <tr key={cat._id} style={{ background: idx % 2 === 0 ? '#f6f8fa' : '#fff', transition: 'background 0.2s', borderBottom: '1px solid #e3fcec', borderRadius: 8, boxShadow: '0 1px 4px #0001' }}>
-                  <td style={{ padding: 12, fontWeight: 500, maxWidth: 180, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'center' }}>{cat.name}</td>
-                  <td style={{ padding: 12 }}>
-                    <img src={cat.image ? `http://localhost:5000${cat.image}` : ''} alt={cat.name} style={{ width: 60, borderRadius: 8, boxShadow: '0 2px 8px #0002', border: '1px solid #eee' }} />
-                  </td>
-                  <td style={{ padding: 12, height: 72, position: 'relative' }}>
-                    <div style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 8 }}>
-                      <button
-                        onClick={() => {
-                          setEditId(cat._id);
-                          setForm({ name: cat.name, image: null });
-                          window.scrollTo({ top: 200, behavior: 'smooth' });
-                        }}
-                        style={{ background: '#e3fcec', color: '#388e3c', border: 'none', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontWeight: 600, fontSize: 15, boxShadow: '0 2px 8px #388e3c33', transition: 'background 0.2s' }}
-                        title="Sửa"
-                      >
-                        <span role="img" aria-label="edit">✏️</span>
-                      </button>
-                      <button onClick={() => handleDelete(cat._id)} style={{ background: '#fdecea', color: '#d32f2f', border: 'none', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontWeight: 600, fontSize: 15, boxShadow: '0 2px 8px #d32f2f33', transition: 'background 0.2s' }} title="Xóa"><span role="img" aria-label="delete">🗑️</span></button>
-                    </div>
-                  </td>
-                </tr>
+                <TableRow key={cat._id} sx={{ background: idx % 2 === 0 ? '#f6f8fa' : '#fff', transition: 'background 0.2s' }}>
+                  <TableCell sx={{ fontWeight: 500 }}>{cat.name}</TableCell>
+                  <TableCell>
+                    {cat.image && <img src={`http://localhost:5000${cat.image}`} alt={cat.name} style={{ width: 60, borderRadius: 8, boxShadow: '0 2px 8px #0002', border: '1px solid #eee' }} />}
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="outlined"
+                      color="success"
+                      size="small"
+                      onClick={() => {
+                        setEditId(cat._id);
+                        setForm({ name: cat.name, image: null });
+                        window.scrollTo({ top: 200, behavior: 'smooth' });
+                      }}
+                      sx={{ mr: 1 }}
+                    >Sửa</Button>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      onClick={() => handleDelete(cat._id)}
+                    >Xóa</Button>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </TableContainer>
       </div>
-      <style>{`
-        @media (max-width: 1100px) {
-          header { padding: 0 12px !important; }
-          section { padding: 0 !important; }
-        }
-        @media (max-width: 900px) {
-          section { min-height: 80px !important; }
-          h2 { font-size: 18px !important; }
-          .admin-products-form, .admin-products-table { padding: 4px !important; }
-          table { font-size: 12px !important; }
-          th, td { padding: 6px !important; }
-        }
-      `}</style>
+      {/* Responsive styles moved to AdminCategories.css */}
     </div>
   );
 };

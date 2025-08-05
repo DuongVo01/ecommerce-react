@@ -15,6 +15,10 @@ const AccountPage = () => {
   const [birthday, setBirthday] = useState(user?.birthday ? user.birthday.slice(0,10) : "");
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
+  // Địa chỉ
+  const [addresses, setAddresses] = useState(user?.addresses || []);
+  const [addressForm, setAddressForm] = useState({ name: '', phone: '', address: '' });
+  const [editAddressId, setEditAddressId] = useState(null);
 
   if (!user) {
     return (
@@ -118,9 +122,74 @@ const AccountPage = () => {
       case 'address':
         return (
           <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px #0001', padding: 32, maxWidth: 500, width: '100%', textAlign: 'center' }}>
-            <h2 className="account-title">Địa chỉ</h2>
+            <h2 className="account-title">Địa chỉ nhận hàng</h2>
             <div className="account-desc">Quản lý địa chỉ nhận hàng của bạn tại đây.</div>
-            <div style={{ color: '#888', marginTop: 24 }}>Chức năng này sẽ được phát triển sau.</div>
+            {/* Danh sách địa chỉ */}
+            <ul style={{ listStyle: 'none', padding: 0, margin: '24px 0' }}>
+              {addresses.length === 0 && <li style={{ color: '#888', marginBottom: 12 }}>Chưa có địa chỉ nào.</li>}
+              {addresses.map((addr, idx) => (
+                <li key={idx} style={{ background: '#f8fafc', borderRadius: 8, padding: '10px 16px', marginBottom: 10, boxShadow: '0 1px 4px #1976d211', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ textAlign: 'left' }}>
+                    <div><strong>{addr.name}</strong> <span style={{ color: '#1976d2', fontWeight: 500 }}>{addr.phone}</span></div>
+                    <div style={{ color: '#374151', fontSize: 15 }}>{addr.address}</div>
+                  </div>
+                  <div>
+                    <button style={{ background: '#e3eafc', color: '#1976d2', border: 'none', borderRadius: 6, padding: '6px 14px', marginRight: 8, cursor: 'pointer', fontWeight: 500 }} onClick={() => { setEditAddressId(idx); setAddressForm(addr); }}>Sửa</button>
+                    <button style={{ background: '#fdecea', color: '#d32f2f', border: 'none', borderRadius: 6, padding: '6px 14px', cursor: 'pointer', fontWeight: 500 }} onClick={() => {
+                      setAddresses(addresses.filter((_, i) => i !== idx));
+                      if (user) loginUser({ ...user, addresses: addresses.filter((_, i) => i !== idx) });
+                    }}>Xóa</button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            {/* Form thêm/sửa địa chỉ */}
+            <form style={{ marginTop: 12 }} onSubmit={e => {
+              e.preventDefault();
+              if (editAddressId !== null) {
+                const newList = addresses.map((a, i) => i === editAddressId ? addressForm : a);
+                setAddresses(newList);
+                if (user) loginUser({ ...user, addresses: newList });
+                setEditAddressId(null);
+              } else {
+                setAddresses([...addresses, addressForm]);
+                if (user) loginUser({ ...user, addresses: [...addresses, addressForm] });
+              }
+              setAddressForm({ name: '', phone: '', address: '' });
+            }}>
+              <h3 style={{ color: '#1976d2', fontWeight: 600, marginBottom: 10 }}>{editAddressId !== null ? 'Cập nhật địa chỉ' : 'Thêm địa chỉ mới'}</h3>
+              <input
+                type="text"
+                placeholder="Tên người nhận"
+                value={addressForm.name}
+                onChange={e => setAddressForm({ ...addressForm, name: e.target.value })}
+                required
+                style={{ marginBottom: 8, width: '100%', padding: 10, borderRadius: 6, border: '1px solid #dbeafe', fontSize: 15 }}
+              />
+              <input
+                type="tel"
+                placeholder="Số điện thoại"
+                value={addressForm.phone}
+                onChange={e => setAddressForm({ ...addressForm, phone: e.target.value })}
+                required
+                pattern="[0-9]{10,11}"
+                style={{ marginBottom: 8, width: '100%', padding: 10, borderRadius: 6, border: '1px solid #dbeafe', fontSize: 15 }}
+              />
+              <input
+                type="text"
+                placeholder="Địa chỉ nhận hàng"
+                value={addressForm.address}
+                onChange={e => setAddressForm({ ...addressForm, address: e.target.value })}
+                required
+                style={{ marginBottom: 8, width: '100%', padding: 10, borderRadius: 6, border: '1px solid #dbeafe', fontSize: 15 }}
+              />
+              <div style={{ display: 'flex', gap: 12, marginTop: 8, justifyContent: 'center' }}>
+                <button type="submit" className="account-btn" style={{ minWidth: 120 }}>{editAddressId !== null ? 'Cập nhật' : 'Thêm mới'}</button>
+                {editAddressId !== null && (
+                  <button type="button" className="account-btn" style={{ background: '#e3eafc', color: '#1976d2', minWidth: 80 }} onClick={() => { setEditAddressId(null); setAddressForm({ name: '', phone: '', address: '' }); }}>Hủy</button>
+                )}
+              </div>
+            </form>
           </div>
         );
       case 'privacy':

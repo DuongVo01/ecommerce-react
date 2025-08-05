@@ -1,10 +1,18 @@
 
 import React, { useEffect, useState, useContext } from 'react';
+import './AdminUsers.css';
 import { FaUser, FaSearch, FaSignOutAlt, FaHome, FaShoppingCart, FaHeadset, FaBoxOpen, FaListAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../UserContext';
 import { useToast } from '../ToastContext';
 import axios from 'axios';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
 
 const API = 'http://localhost:5000/api/auth/users';
 
@@ -55,7 +63,7 @@ const AdminUsers = () => {
   return (
     <div style={{ background: '#f6f8fa', minHeight: '100vh', fontFamily: 'Segoe UI, Arial, sans-serif' }}>
       {/* Header */}
-      <header style={{ background: '#fff', boxShadow: '0 2px 12px #0001', padding: '0 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68, position: 'sticky', top: 0, zIndex: 10 }}>
+      <header className="admin-users-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <img src="/logo192.png" alt="ShopStore" style={{ width: 40, height: 40, borderRadius: 8, boxShadow: '0 2px 8px #1976d233' }} />
           <span style={{ fontWeight: 700, fontSize: 22, color: '#d32f2f', letterSpacing: 1 }}>ShopStore Admin</span>
@@ -68,7 +76,7 @@ const AdminUsers = () => {
           <button onClick={() => navigate('/admin/users')} style={{ background: 'none', border: 'none', color: '#d32f2f', fontWeight: 600, fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}><FaUser /> Người dùng</button>
         </nav>
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-          <div className="admin-search-bar" style={{ display: 'flex', alignItems: 'center', background: '#f6f8fa', borderRadius: 8, padding: '6px 12px', boxShadow: '0 1px 4px #0001', minWidth: 180 }}>
+          <div className="admin-search-bar">
             <FaSearch style={{ color: '#d32f2f', fontSize: 18, marginRight: 6 }} />
             <input type="text" placeholder="Tìm người dùng..." style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: 15, width: 120 }} />
           </div>
@@ -90,56 +98,42 @@ const AdminUsers = () => {
         </div>
       </section>
       {/* Bảng danh sách người dùng */}
-      <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 4px 24px #0002', padding: 32, margin: '0 auto', maxWidth: 1100, width: '100%' }}>
-        <h3 style={{ marginBottom: 24, color: '#d32f2f', fontWeight: 600, fontSize: 22 }}>Danh sách người dùng</h3>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0, background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px #0001', fontSize: 16 }}>
-            <thead>
-              <tr style={{ background: '#fdecea', color: '#d32f2f', fontWeight: 600 }}>
-                <th style={{ padding: 14, borderBottom: '2px solid #d32f2f', borderTopLeftRadius: 12 }}>Username</th>
-                <th style={{ padding: 14, borderBottom: '2px solid #d32f2f' }}>Tên</th>
-                <th style={{ padding: 14, borderBottom: '2px solid #d32f2f' }}>Email</th>
-                <th style={{ padding: 14, borderBottom: '2px solid #d32f2f' }}>Số điện thoại</th>
-                <th style={{ padding: 14, borderBottom: '2px solid #d32f2f' }}>Giới tính</th>
-                <th style={{ padding: 14, borderBottom: '2px solid #d32f2f' }}>Ngày sinh</th>
-                <th style={{ padding: 14, borderBottom: '2px solid #d32f2f' }}>Role</th>
-                <th style={{ padding: 14, borderBottom: '2px solid #d32f2f', borderTopRightRadius: 12 }}>Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
+      <div className="admin-table-container">
+        <h3 className="admin-table-title">Danh sách người dùng</h3>
+        <TableContainer component={Paper} className="admin-table-paper">
+          <Table className="admin-table" aria-label="user table">
+            <TableHead>
+              <TableRow className="admin-table-header-row">
+                <TableCell className="admin-table-header-cell" align="center">Username</TableCell>
+                <TableCell className="admin-table-header-cell" align="center">Tên</TableCell>
+                <TableCell className="admin-table-header-cell" align="center">Email</TableCell>
+                <TableCell className="admin-table-header-cell" align="center">Số điện thoại</TableCell>
+                <TableCell className="admin-table-header-cell" align="center">Giới tính</TableCell>
+                <TableCell className="admin-table-header-cell" align="center">Ngày sinh</TableCell>
+                <TableCell className="admin-table-header-cell" align="center">Role</TableCell>
+                <TableCell className="admin-table-header-cell" align="center">Hành động</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {users.map((user, idx) => (
-                <tr key={user._id} style={{ background: idx % 2 === 0 ? '#f6f8fa' : '#fff', transition: 'background 0.2s', borderBottom: '1px solid #fdecea', borderRadius: 8, boxShadow: '0 1px 4px #0001' }}>
-                  <td style={{ padding: 12, fontWeight: 500, maxWidth: 180, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'center' }}>{user.username}</td>
-                  <td style={{ padding: 12 }}>{user.name || '-'}</td>
-                  <td style={{ padding: 12 }}>{user.email}</td>
-                  <td style={{ padding: 12 }}>{user.phone || '-'}</td>
-                  <td style={{ padding: 12 }}>{user.gender || '-'}</td>
-                  <td style={{ padding: 12 }}>{user.birthday ? new Date(user.birthday).toLocaleDateString() : '-'}</td>
-                  <td style={{ padding: 12 }}>{user.role}</td>
-                  <td style={{ padding: 12, height: 72, position: 'relative' }}>
-                    <div style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 8 }}>
-                      <button onClick={() => handleDelete(user._id)} style={{ background: '#fdecea', color: '#d32f2f', border: 'none', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontWeight: 600, fontSize: 15, boxShadow: '0 2px 8px #d32f2f33', transition: 'background 0.2s' }} title="Xóa"><span role="img" aria-label="delete">🗑️</span></button>
-                    </div>
-                  </td>
-                </tr>
+                <TableRow key={user._id} className={idx % 2 === 0 ? 'admin-table-row-even' : 'admin-table-row-odd'}>
+                  <TableCell align="center" className="admin-table-cell">{user.username}</TableCell>
+                  <TableCell align="center" className="admin-table-cell">{user.name || '-'}</TableCell>
+                  <TableCell align="center" className="admin-table-cell">{user.email}</TableCell>
+                  <TableCell align="center" className="admin-table-cell">{user.phone || '-'}</TableCell>
+                  <TableCell align="center" className="admin-table-cell">{user.gender || '-'}</TableCell>
+                  <TableCell align="center" className="admin-table-cell">{user.birthday ? new Date(user.birthday).toLocaleDateString() : '-'}</TableCell>
+                  <TableCell align="center" className="admin-table-cell">{user.role}</TableCell>
+                  <TableCell align="center" className="admin-table-cell">
+                    <button onClick={() => handleDelete(user._id)} className="admin-table-delete-btn" title="Xóa"><span role="img" aria-label="delete">🗑️</span></button>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </TableContainer>
       </div>
-      <style>{`
-        @media (max-width: 1100px) {
-          header { padding: 0 12px !important; }
-          section { padding: 0 !important; }
-        }
-        @media (max-width: 900px) {
-          section { min-height: 80px !important; }
-          h2 { font-size: 18px !important; }
-          .admin-products-form, .admin-products-table { padding: 4px !important; }
-          table { font-size: 12px !important; }
-          th, td { padding: 6px !important; }
-        }
-      `}</style>
+      {/* Responsive styles moved to AdminUsers.css */}
     </div>
   );
 };

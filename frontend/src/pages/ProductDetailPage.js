@@ -6,12 +6,36 @@ import { useToast } from '../ToastContext';
 import { fetchProductById, fetchProducts } from '../services/api';
 import { getReviews, addReview } from '../services/api';
 import { updateReview, deleteReview } from '../services/api';
+
+
+import ReportCommentModal from '../components/ReportCommentModal';
+import axios from 'axios';
 import './ProductDetailPage.css';
 
 
 // Xóa đánh giá mẫu, khởi tạo reviewList là mảng rỗng
 
 const ProductDetailPage = () => {
+  // State cho báo cáo comment
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportCommentId, setReportCommentId] = useState(null);
+
+  // ...existing code...
+  // Hàm gửi báo cáo comment
+  const handleReportSubmit = async ({ commentId, reason }) => {
+    // Gửi báo cáo lên backend (cần backend nhận)
+    try {
+      await axios.post('http://localhost:5000/api/reports', {
+        commentId,
+        reason,
+        productId: id,
+        user: user.username
+      });
+      showToast('Đã gửi báo cáo!');
+    } catch {
+      showToast('Lỗi khi gửi báo cáo!');
+    }
+  };
   // Hàm lọc review theo số sao và người dùng (đặt trong component để dùng state trực tiếp)
   const filteredReviews = () => {
     let reviews = reviewList;
@@ -105,8 +129,21 @@ const ProductDetailPage = () => {
         <img src={product.image ? `http://localhost:5000${product.image}` : ''} alt={product.name} className="product-detail-image" />
         <div className="product-detail-info">
           <h2>{product.name}</h2>
-          <p className="product-detail-price">{product.price}₫</p>
-          <p className="product-detail-category">Danh mục: {product.category}</p>
+          <p
+            className="product-detail-price"
+            style={{
+              fontSize: '2.2rem',
+              fontWeight: 800,
+              color: '#e11d48',
+              textShadow: '0 2px 8px #fbb6ce77',
+              margin: '16px 0 0 0',
+              letterSpacing: '1px',
+              display: 'block'
+            }}
+          >
+            {Number(product.price).toLocaleString('vi-VN')}₫
+          </p>
+          <p className="product-detail-category" style={{margin: '8px 0 8px 0', fontWeight: 500, color: '#334155'}}>Danh mục: {product.category}</p>
           <pre className="product-detail-desc">{product.description}</pre>
           <button className="add-to-cart-btn" onClick={() => { addToCart(product); showToast('Đã thêm vào giỏ hàng!'); }}>Thêm vào giỏ hàng</button>
         </div>
@@ -226,37 +263,45 @@ const ProductDetailPage = () => {
                 ) : (
                   <div className="review-comment">{review.comment}</div>
                 )}
-                {/* Chỉ cho phép sửa/xóa nếu là user hiện tại hoặc admin (xóa) */}
-                {(review.user === user.username && editingReviewId !== (review._id || review.id)) && (
-                  <div style={{marginTop:'0.5rem',display:'flex',gap:'0.5rem'}}>
-                    <button
-                      style={{background:'#3b82f6',color:'white',border:'none',borderRadius:'8px',padding:'0.3rem 0.8rem',fontWeight:600,cursor:'pointer'}}
-                      onClick={()=>{
-                        setEditingReviewId(review._id || review.id);
-                        setEditRating(review.rating);
-                        setEditComment(review.comment);
-                      }}
-                    >Sửa</button>
-                    <button
-                      style={{background:'#ef4444',color:'white',border:'none',borderRadius:'8px',padding:'0.3rem 0.8rem',fontWeight:600,cursor:'pointer'}}
-                      onClick={async()=>{
-                        if(window.confirm('Bạn có chắc muốn xóa đánh giá này?')){
-                          try {
-                            await deleteReview(id, review._id || review.id, { user: user.username });
-                            const res = await getReviews(id);
-                            setReviewList(res.data);
-                            showToast('Đã xóa đánh giá!');
-                          } catch {
-                            showToast('Lỗi khi xóa đánh giá!');
+                {/* Nút báo cáo comment */}
+                <div style={{marginTop:'0.5rem',display:'flex',gap:'0.5rem',flexWrap:'wrap'}}>
+                  <button
+                    style={{background:'#f87171',color:'white',border:'none',borderRadius:'8px',padding:'0.3rem 0.8rem',fontWeight:600,cursor:'pointer'}}
+                    onClick={()=>{
+                      setReportCommentId(review._id || review.id);
+                      setReportOpen(true);
+                    }}
+                  >Báo cáo</button>
+                  {/* Chỉ cho phép sửa/xóa nếu là user hiện tại hoặc admin (xóa) */}
+                  {(review.user === user.username && editingReviewId !== (review._id || review.id)) && (
+                    <>
+                      <button
+                        style={{background:'#3b82f6',color:'white',border:'none',borderRadius:'8px',padding:'0.3rem 0.8rem',fontWeight:600,cursor:'pointer'}}
+                        onClick={()=>{
+                          setEditingReviewId(review._id || review.id);
+                          setEditRating(review.rating);
+                          setEditComment(review.comment);
+                        }}
+                      >Sửa</button>
+                      <button
+                        style={{background:'#ef4444',color:'white',border:'none',borderRadius:'8px',padding:'0.3rem 0.8rem',fontWeight:600,cursor:'pointer'}}
+                        onClick={async()=>{
+                          if(window.confirm('Bạn có chắc muốn xóa đánh giá này?')){
+                            try {
+                              await deleteReview(id, review._id || review.id, { user: user.username });
+                              const res = await getReviews(id);
+                              setReviewList(res.data);
+                              showToast('Đã xóa đánh giá!');
+                            } catch {
+                              showToast('Lỗi khi xóa đánh giá!');
+                            }
                           }
-                        }
-                      }}
-                    >Xóa</button>
-                  </div>
-                )}
-                {/* Admin có thể xóa mọi đánh giá */}
-                {user.role === 'admin' && review.user !== user.username && (
-                  <div style={{marginTop:'0.5rem',display:'flex',gap:'0.5rem'}}>
+                        }}
+                      >Xóa</button>
+                    </>
+                  )}
+                  {/* Admin có thể xóa mọi đánh giá */}
+                  {user.role === 'admin' && review.user !== user.username && (
                     <button
                       style={{background:'#ef4444',color:'white',border:'none',borderRadius:'8px',padding:'0.3rem 0.8rem',fontWeight:600,cursor:'pointer'}}
                       onClick={async()=>{
@@ -272,10 +317,17 @@ const ProductDetailPage = () => {
                         }
                       }}
                     >Admin Xóa</button>
-                  </div>
-                )}
+                  )}
+                </div>
               </li>
             ))}
+      {/* Modal báo cáo comment */}
+      <ReportCommentModal
+        open={reportOpen}
+        onClose={()=>setReportOpen(false)}
+        onSubmit={handleReportSubmit}
+        commentId={reportCommentId}
+      />
           </ul>
         )}
       </div>
