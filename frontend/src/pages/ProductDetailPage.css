@@ -1,3 +1,162 @@
+/* --- Khối mô tả sản phẩm chuyên nghiệp --- */
+.product-desc-block {
+  background: linear-gradient(135deg, #f8fafc 80%, #e3eafc 100%);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px #1976d211;
+  padding: 2.5rem 3rem 2rem 3rem;
+  margin-bottom: 2.5rem;
+  max-width: 1100px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+.desc-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+.desc-icon {
+  font-size: 1.5rem;
+  color: #1976d2;
+  background: #e3eafc;
+  border-radius: 50%;
+  padding: 6px;
+  box-shadow: 0 1px 4px #1976d211;
+}
+.product-detail-desc {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 1.08rem;
+  color: #374151;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  line-height: 1.7;
+  white-space: pre-line;
+  word-break: break-word;
+}
+@media (max-width: 768px) {
+  .product-desc-block {
+    padding: 1.2rem 0.7rem 1rem 0.7rem;
+    border-radius: 12px;
+  }
+  .desc-title {
+    font-size: 1rem;
+  }
+  .product-detail-desc {
+    font-size: 0.98rem;
+  }
+}
+/* --- Nút Gửi đánh giá --- */
+.btn-submit-review {
+  background: linear-gradient(90deg, #3b82f6 0%, #6366f1 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px #3b82f622;
+  cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s, transform 0.18s;
+}
+.btn-submit-review:hover {
+  background: linear-gradient(90deg, #6366f1 0%, #3b82f6 100%);
+  box-shadow: 0 4px 16px #6366f133;
+  transform: translateY(-2px) scale(1.04);
+}
+/* --- Nút Lưu/Hủy khi chỉnh sửa đánh giá --- */
+.btn-save-review {
+  background: linear-gradient(90deg, #10b981 0%, #22d3ee 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-right: 0.5rem;
+  box-shadow: 0 2px 8px #10b98122;
+  cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s, transform 0.18s;
+}
+.btn-save-review:hover {
+  background: linear-gradient(90deg, #22d3ee 0%, #10b981 100%);
+  box-shadow: 0 4px 16px #10b98133;
+  transform: translateY(-2px) scale(1.04);
+}
+.btn-cancel-review {
+  background: #e5e7eb;
+  color: #374151;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  font-weight: 700;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px #64748b22;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.18s;
+}
+.btn-cancel-review:hover {
+  background: #f1f5f9;
+  color: #ef4444;
+  box-shadow: 0 4px 16px #64748b33;
+  transform: translateY(-2px) scale(1.04);
+}
+/* --- Review Menu (ba chấm) --- */
+.review-menu {
+  position: absolute;
+  top: 36px;
+  right: 0;
+  min-width: 120px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(30,41,59,0.18), 0 1.5px 6px rgba(59,130,246,0.08);
+  padding: 0.5rem 0.25rem;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-10px) scale(0.98);
+  transition: opacity 0.22s cubic-bezier(.4,0,.2,1), transform 0.22s cubic-bezier(.4,0,.2,1);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.review-menu.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+.review-menu button {
+  width: 100%;
+  background: none;
+  border: none;
+  color: #334155;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  text-align: left;
+  transition: background 0.18s, color 0.18s, transform 0.18s;
+  cursor: pointer;
+  font-weight: 600;
+}
+.review-menu button:hover {
+  background: #f1f5f9;
+  color: #2563eb;
+  transform: translateX(2px) scale(1.03);
+}
+@media (max-width: 600px) {
+  .review-menu {
+    min-width: 100px;
+    right: 0;
+    top: 32px;
+    font-size: 0.95rem;
+  }
+  .review-menu button {
+    padding: 0.45rem 0.7rem;
+    font-size: 0.97rem;
+  }
+}
 /* Product Detail Page Styles - E-commerce Optimized */
 
 .product-detail-page {
@@ -112,12 +271,16 @@
   color: #374151;
   line-height: 1.6;
   font-size: 1rem;
-  padding: 1rem;
+  padding: 1rem 2.5rem;
   background: #f8fafc;
-  border-radius: 8px;
+  border-radius: 12px;
   border: 1px solid #e2e8f0;
   word-break: break-word;
   white-space: pre-line;
+  max-width: 900px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .product-detail-desc ul {
@@ -406,11 +569,6 @@
   color: #dc2626;
   font-weight: 700;
   font-size: 1.1rem;
-}
-
-.highlight-review {
-  background: #fef08a !important;
-  transition: background 0.5s;
 }
 
 /* Responsive Design */

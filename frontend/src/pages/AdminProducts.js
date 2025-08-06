@@ -158,7 +158,13 @@ const AdminProducts = () => {
             <label style={{ fontWeight: 500, marginBottom: 4 }}>Mô tả ngắn</label>
             <input name="shortDesc" placeholder="Mô tả ngắn" value={form.shortDesc} onChange={handleChange} style={{ padding: 10, borderRadius: 8, border: '1px solid #dbeafe', fontSize: 16, marginBottom: 8 }} />
             <label style={{ fontWeight: 500, marginBottom: 4 }}>Mô tả</label>
-            <input name="description" placeholder="Mô tả" value={form.description} onChange={handleChange} style={{ padding: 10, borderRadius: 8, border: '1px solid #dbeafe', fontSize: 16 }} />
+            <textarea
+              name="description"
+              placeholder="Mô tả chi tiết sản phẩm"
+              value={form.description}
+              onChange={handleChange}
+              style={{ padding: 10, borderRadius: 8, border: '1px solid #dbeafe', fontSize: 16, minHeight: 120, resize: 'vertical', width: '100%' }}
+            />
           </div>
           <div style={{ display: 'grid', gap: 12 }}>
             <label style={{ fontWeight: 500, marginBottom: 4 }}>Ảnh sản phẩm</label>
