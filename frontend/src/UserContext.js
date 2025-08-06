@@ -6,8 +6,14 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(undefined);
 
   const loginUser = (userData) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+    // Xử lý avatar thành URL đầy đủ nếu cần
+    let avatarUrl = userData.avatar;
+    if (avatarUrl && avatarUrl.startsWith('/uploads/')) {
+      avatarUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${avatarUrl}`;
+    }
+    const userWithAvatar = { ...userData, avatar: avatarUrl };
+    setUser(userWithAvatar);
+    localStorage.setItem('user', JSON.stringify(userWithAvatar));
   };
 
   const logoutUser = () => {
@@ -17,7 +23,14 @@ export const UserProvider = ({ children }) => {
 
   React.useEffect(() => {
     const storedUser = localStorage.getItem('user');
-    if (storedUser) setUser(JSON.parse(storedUser));
+    if (storedUser) {
+      const userData = JSON.parse(storedUser);
+      let avatarUrl = userData.avatar;
+      if (avatarUrl && avatarUrl.startsWith('/uploads/')) {
+        avatarUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${avatarUrl}`;
+      }
+      setUser({ ...userData, avatar: avatarUrl });
+    }
   }, []);
 
   return (

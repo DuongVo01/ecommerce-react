@@ -37,8 +37,13 @@ const Navbar = () => {
             <li className="navbar-item"><Link to="/login" className="navbar-btn">Đăng nhập</Link></li>
           ) : (
             <li className="navbar-item navbar-dropdown">
-              <button className="navbar-dropdown-toggle" onClick={() => setMenuOpen(!menuOpen)}>
-                <span style={{marginRight:8}}>👤 {user.username || user.email}</span>
+              <button className="navbar-dropdown-toggle" onClick={() => setMenuOpen(!menuOpen)} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                <img
+                  src={user.avatar ? (user.avatar.startsWith('http') ? user.avatar : `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${user.avatar}`) : '/default-avatar.png'}
+                  alt="Avatar"
+                  style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', boxShadow: '0 1px 4px #1976d211', border: '2px solid #e3eafc', marginRight: 4 }}
+                />
+                <span style={{ fontWeight: 600, color: '#1976d2', fontSize: 16 }}>{user.username || user.email}</span>
                 <span style={{fontSize:'1.2em'}}>▼</span>
               </button>
               {menuOpen && (

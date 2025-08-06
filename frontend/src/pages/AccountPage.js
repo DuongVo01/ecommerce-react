@@ -19,7 +19,49 @@ const AccountPage = () => {
   const [addresses, setAddresses] = useState(user?.addresses || []);
   const [addressForm, setAddressForm] = useState({ name: '', phone: '', address: '' });
   const [editAddressId, setEditAddressId] = useState(null);
+  // Avatar
+  const [avatar, setAvatar] = useState(user?.avatar || null);
+  const [avatarPreview, setAvatarPreview] = useState(user?.avatar || null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
 
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatar(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleAvatarUpload = async () => {
+    if (!avatar) return;
+    setAvatarUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('avatar', avatar);
+      formData.append('name', name);
+      formData.append('phone', phone);
+      formData.append('gender', gender);
+      formData.append('birthday', birthday);
+      // Gửi lên backend
+      const updatedUser = await (await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/user/${user._id || user.id}`, {
+        method: 'PUT',
+        body: formData,
+      })).json();
+      if (updatedUser && updatedUser.avatar) {
+        loginUser({ ...user, ...updatedUser });
+        setAvatarPreview(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${updatedUser.avatar}`);
+      }
+      setAvatarUploading(false);
+      setAvatar(null);
+      alert("Đã cập nhật thông tin và ảnh đại diện!");
+    } catch (err) {
+      setAvatarUploading(false);
+      alert("Cập nhật thất bại!");
+    }
+  };
+  if (user === undefined) {
+    return <div style={{ textAlign: 'center', padding: 48, fontSize: 18, color: '#1976d2' }}>Đang tải thông tin tài khoản...</div>;
+  }
   if (!user) {
     return (
       <div className="account-container">
@@ -36,14 +78,28 @@ const AccountPage = () => {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await updateUser(user._id || user.id, {
-        name,
-        phone,
-        gender,
-        birthday
-      });
-      loginUser({ ...user, name, phone, gender, birthday });
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('phone', phone);
+      formData.append('gender', gender);
+      formData.append('birthday', birthday);
+      if (avatar) formData.append('avatar', avatar);
+      // Gửi lên backend
+      const updatedUser = await (await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/user/${user._id || user.id}`, {
+        method: 'PUT',
+        body: formData,
+      })).json();
+      if (updatedUser) {
+        // Xử lý avatar thành URL đầy đủ nếu cần
+        let avatarUrl = updatedUser.avatar;
+        if (avatarUrl && avatarUrl.startsWith('/uploads/')) {
+          avatarUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${avatarUrl}`;
+        }
+        loginUser({ ...updatedUser, avatar: avatarUrl });
+        setAvatarPreview(avatarUrl || '/default-avatar.png');
+      }
       setSaving(false);
+      setAvatar(null);
       alert("Đã lưu thông tin hồ sơ!");
     } catch (err) {
       setSaving(false);
@@ -58,66 +114,82 @@ const AccountPage = () => {
     switch (activeTab) {
       case 'profile':
         return (
-          <form className="account-form" onSubmit={handleSave} style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px #0001', padding: 32, maxWidth: 500, width: '100%' }}>
-            <h2 className="account-title">Hồ sơ của tôi</h2>
-            <div className="account-desc">Quản lý thông tin hồ sơ để bảo mật tài khoản</div>
-            <div className="account-row">
-              <strong>Tên đăng nhập:</strong> <span style={{ color: "#1976d2", fontWeight: 600 }}>{user.username || "-"}</span>
+          <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start' }}>
+            <form className="account-form" onSubmit={handleSave} style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px #0001', padding: 32, maxWidth: 500, width: '100%' }}>
+              <h2 className="account-title">Hồ sơ của tôi</h2>
+              <div className="account-desc">Quản lý thông tin hồ sơ để bảo mật tài khoản</div>
+              <div className="account-row">
+                <strong>Tên đăng nhập:</strong> <span style={{ color: "#1976d2", fontWeight: 600 }}>{user.username || "-"}</span>
+              </div>
+              <div className="account-row">
+                <strong>Tên:</strong>
+                <input
+                  className="account-input"
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="account-row">
+                <strong>Email:</strong> <span style={{ color: "#374151", fontWeight: 500 }}>{user.email || "-"}</span>
+              </div>
+              <div className="account-row">
+                <strong>Số điện thoại:</strong>
+                <input
+                  className="account-input"
+                  type="tel"
+                  value={phone}
+                  onChange={e => setPhone(e.target.value)}
+                  pattern="[0-9]{10,11}"
+                  required
+                />
+              </div>
+              <div className="account-row">
+                <strong>Giới tính:</strong>
+                <select
+                  className="account-select"
+                  value={gender}
+                  onChange={e => setGender(e.target.value)}
+                  required
+                >
+                  <option value="">Chọn giới tính</option>
+                  <option value="Nam">Nam</option>
+                  <option value="Nữ">Nữ</option>
+                  <option value="Khác">Khác</option>
+                </select>
+              </div>
+              <div className="account-row">
+                <strong>Ngày sinh:</strong>
+                <input
+                  className="account-input"
+                  type="date"
+                  value={birthday}
+                  onChange={e => setBirthday(e.target.value)}
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className="account-btn"
+                disabled={saving}
+              >{saving ? "Đang lưu..." : "Lưu thông tin"}</button>
+            </form>
+            {/* Vertical divider */}
+            <div style={{ width: 1, background: '#e3eafc', height: '100%', minHeight: 320, margin: '0 18px', boxShadow: '0 0 0 1px #e3eafc' }} />
+            {/* Avatar section - Professional UI */}
+            <div className="account-avatar-section" style={{ minWidth: 240, maxWidth: 280, background: 'linear-gradient(135deg, #f8fafc 80%, #e3eafc 100%)', borderRadius: 18, boxShadow: '0 4px 18px #1976d211', padding: 28, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22, border: '1.5px solid #e3eafc', position: 'relative' }}>
+              <div style={{ fontWeight: 700, fontSize: 19, marginBottom: 8, color: '#1976d2', letterSpacing: '0.02em' }}>Ảnh đại diện</div>
+              <div style={{ position: 'relative', width: 120, height: 120, borderRadius: '50%', overflow: 'hidden', background: '#f8fafc', border: '2.5px solid #1976d2', marginBottom: 12, boxShadow: '0 2px 12px #1976d211', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'box-shadow 0.2s' }}>
+                <img src={avatarPreview || '/default-avatar.png'} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.18s' }} />
+                <label htmlFor="avatar-upload" style={{ position: 'absolute', bottom: 8, right: 8, background: '#1976d2', color: '#fff', borderRadius: '50%', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px #1976d233', cursor: 'pointer', border: '2px solid #fff', fontSize: 18, transition: 'background 0.18s' }} title="Chọn ảnh">
+                  <span style={{ fontWeight: 700 }}>✎</span>
+                  <input type="file" accept="image/*" id="avatar-upload" style={{ display: 'none' }} onChange={handleAvatarChange} />
+                </label>
+              </div>
+              <div style={{ color: '#64748b', fontSize: 13, marginTop: 2, textAlign: 'center' }}>Chọn ảnh JPG, PNG, tối đa 2MB.<br />Ảnh đại diện giúp bạn nhận diện tài khoản dễ dàng hơn.</div>
             </div>
-            <div className="account-row">
-              <strong>Tên:</strong>
-              <input
-                className="account-input"
-                type="text"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                required
-              />
-            </div>
-            <div className="account-row">
-              <strong>Email:</strong> <span style={{ color: "#374151", fontWeight: 500 }}>{user.email || "-"}</span>
-            </div>
-            <div className="account-row">
-              <strong>Số điện thoại:</strong>
-              <input
-                className="account-input"
-                type="tel"
-                value={phone}
-                onChange={e => setPhone(e.target.value)}
-                pattern="[0-9]{10,11}"
-                required
-              />
-            </div>
-            <div className="account-row">
-              <strong>Giới tính:</strong>
-              <select
-                className="account-select"
-                value={gender}
-                onChange={e => setGender(e.target.value)}
-                required
-              >
-                <option value="">Chọn giới tính</option>
-                <option value="Nam">Nam</option>
-                <option value="Nữ">Nữ</option>
-                <option value="Khác">Khác</option>
-              </select>
-            </div>
-            <div className="account-row">
-              <strong>Ngày sinh:</strong>
-              <input
-                className="account-input"
-                type="date"
-                value={birthday}
-                onChange={e => setBirthday(e.target.value)}
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className="account-btn"
-              disabled={saving}
-            >{saving ? "Đang lưu..." : "Lưu thông tin"}</button>
-          </form>
+          </div>
         );
       case 'address':
         return (
@@ -214,7 +286,7 @@ const AccountPage = () => {
   };
 
   return (
-    <div className="orders-container">
+    <div className="orders-container" style={{ display: 'flex', gap: 32 }}>
       {/* Sidebar */}
       <aside className="orders-sidebar">
         <div
@@ -245,11 +317,11 @@ const AccountPage = () => {
         >Đơn mua</div>
       </aside>
       {/* Main content: Tab content */}
-      <div className="orders-main">
+      <div className="orders-main" style={{ flex: 1 }}>
         {renderTabContent()}
       </div>
     </div>
   );
-};
+}
 
 export default AccountPage;

@@ -104,6 +104,7 @@ const AdminUsers = () => {
           <Table className="admin-table" aria-label="user table">
             <TableHead>
               <TableRow className="admin-table-header-row">
+                <TableCell className="admin-table-header-cell" align="center">Avatar</TableCell>
                 <TableCell className="admin-table-header-cell" align="center">Username</TableCell>
                 <TableCell className="admin-table-header-cell" align="center">Tên</TableCell>
                 <TableCell className="admin-table-header-cell" align="center">Email</TableCell>
@@ -115,20 +116,29 @@ const AdminUsers = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {users.map((user, idx) => (
-                <TableRow key={user._id} className={idx % 2 === 0 ? 'admin-table-row-even' : 'admin-table-row-odd'}>
-                  <TableCell align="center" className="admin-table-cell">{user.username}</TableCell>
-                  <TableCell align="center" className="admin-table-cell">{user.name || '-'}</TableCell>
-                  <TableCell align="center" className="admin-table-cell">{user.email}</TableCell>
-                  <TableCell align="center" className="admin-table-cell">{user.phone || '-'}</TableCell>
-                  <TableCell align="center" className="admin-table-cell">{user.gender || '-'}</TableCell>
-                  <TableCell align="center" className="admin-table-cell">{user.birthday ? new Date(user.birthday).toLocaleDateString() : '-'}</TableCell>
-                  <TableCell align="center" className="admin-table-cell">{user.role}</TableCell>
-                  <TableCell align="center" className="admin-table-cell">
-                    <button onClick={() => handleDelete(user._id)} className="admin-table-delete-btn" title="Xóa"><span role="img" aria-label="delete">🗑️</span></button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {users.map((user, idx) => {
+                let avatarUrl = user.avatar;
+                if (avatarUrl && avatarUrl.startsWith('/uploads/')) {
+                  avatarUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${avatarUrl}`;
+                }
+                return (
+                  <TableRow key={user._id} className={idx % 2 === 0 ? 'admin-table-row-even' : 'admin-table-row-odd'}>
+                    <TableCell align="center" className="admin-table-cell">
+                      <img src={avatarUrl || '/default-avatar.png'} alt="avatar" style={{ width: 38, height: 38, borderRadius: '50%', objectFit: 'cover', boxShadow: '0 2px 8px #1976d211', border: '2px solid #e3eafc' }} />
+                    </TableCell>
+                    <TableCell align="center" className="admin-table-cell">{user.username}</TableCell>
+                    <TableCell align="center" className="admin-table-cell">{user.name || '-'}</TableCell>
+                    <TableCell align="center" className="admin-table-cell">{user.email}</TableCell>
+                    <TableCell align="center" className="admin-table-cell">{user.phone || '-'}</TableCell>
+                    <TableCell align="center" className="admin-table-cell">{user.gender || '-'}</TableCell>
+                    <TableCell align="center" className="admin-table-cell">{user.birthday ? new Date(user.birthday).toLocaleDateString() : '-'}</TableCell>
+                    <TableCell align="center" className="admin-table-cell">{user.role}</TableCell>
+                    <TableCell align="center" className="admin-table-cell">
+                      <button onClick={() => handleDelete(user._id)} className="admin-table-delete-btn" title="Xóa"><span role="img" aria-label="delete">🗑️</span></button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>
