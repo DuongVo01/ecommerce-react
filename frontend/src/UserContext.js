@@ -11,9 +11,22 @@ export const UserProvider = ({ children }) => {
     if (avatarUrl && avatarUrl.startsWith('/uploads/')) {
       avatarUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${avatarUrl}`;
     }
-    const userWithAvatar = { ...userData, avatar: avatarUrl };
-    setUser(userWithAvatar);
-    localStorage.setItem('user', JSON.stringify(userWithAvatar));
+    // Đảm bảo đầy đủ các trường cần thiết
+    const userWithFullFields = {
+      _id: userData._id || userData.id || '',
+      username: userData.username || '',
+      name: userData.name || '',
+      email: userData.email || '',
+      phone: userData.phone || '',
+      gender: userData.gender || '',
+      birthday: userData.birthday || '',
+      addresses: userData.addresses || [],
+      avatar: avatarUrl || '',
+      role: userData.role || 'user',
+      // Thêm các trường khác nếu cần
+    };
+    setUser(userWithFullFields);
+    localStorage.setItem('user', JSON.stringify(userWithFullFields));
   };
 
   const logoutUser = () => {
@@ -29,7 +42,21 @@ export const UserProvider = ({ children }) => {
       if (avatarUrl && avatarUrl.startsWith('/uploads/')) {
         avatarUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${avatarUrl}`;
       }
-      setUser({ ...userData, avatar: avatarUrl });
+      // Đảm bảo đầy đủ các trường cần thiết
+      const userWithFullFields = {
+        _id: userData._id || userData.id || '',
+        username: userData.username || '',
+        name: userData.name || '',
+        email: userData.email || '',
+        phone: userData.phone || '',
+        gender: userData.gender || '',
+        birthday: userData.birthday || '',
+        addresses: userData.addresses || [],
+        avatar: avatarUrl || '',
+        role: userData.role || 'user',
+        // Thêm các trường khác nếu cần
+      };
+      setUser(userWithFullFields);
     }
   }, []);
 

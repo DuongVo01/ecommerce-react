@@ -28,7 +28,23 @@ exports.login = async (req, res) => {
     if (!user) return res.status(400).json({ error: 'Invalid credentials' });
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
-    res.json({ message: 'Login successful', user: { id: user._id, username: user.username, email: user.email, role: user.role } });
+    // Trả về đầy đủ thông tin user
+    res.json({
+      message: 'Login successful',
+      user: {
+        id: user._id,
+        username: user.username,
+        name: user.name || '',
+        email: user.email,
+        phone: user.phone || '',
+        gender: user.gender || '',
+        birthday: user.birthday || '',
+        addresses: user.addresses || [],
+        avatar: user.avatar || '',
+        role: user.role || 'user',
+        createdAt: user.createdAt,
+      }
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
