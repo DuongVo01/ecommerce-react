@@ -26,6 +26,9 @@ router.delete('/:id', productController.deleteProduct);
 router.get('/:id/reviews', productController.getProductReviews);
 router.post('/:id/reviews', productController.addProductReview);
 router.put('/:id/reviews/:reviewId', productController.updateProductReview);
+
+// Like/unlike review
+router.post('/:id/reviews/:reviewId/like', productController.likeProductReview);
 router.delete('/:id/reviews/:reviewId', productController.deleteProductReview);
 
 module.exports = router;

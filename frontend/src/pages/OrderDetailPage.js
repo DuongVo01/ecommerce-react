@@ -136,7 +136,7 @@ const OrderDetailPage = () => {
           </span>
         </div>
         <div>
-          <strong>Tổng tiền:</strong> <span className="order-detail-total">{Number(order.total).toLocaleString()}₫</span>
+          <strong>Tổng tiền:</strong> <span className="order-detail-total">{Number(order.total).toLocaleString('vi-VN')}₫</span>
         </div>
       </div>
       <h3 className="order-detail-products-title">Sản phẩm</h3>

@@ -58,3 +58,7 @@ export const removeFromCart = (userId, productId) => api.delete(`/cart/${userId}
 export const getOrders = (userId) => api.get(`/orders/${userId}`);
 export const createOrder = (userId, data) => api.post(`/orders/${userId}`, data);
 export const updateOrderStatus = (orderId, status) => api.put(`/orders/${orderId}`, { status });
+
+// Like/unlike review
+export const likeReview = (productId, reviewId, user) =>
+  api.post(`/products/${productId}/reviews/${reviewId}/like`, { user });

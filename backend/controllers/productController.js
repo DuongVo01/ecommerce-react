@@ -147,3 +147,32 @@ exports.addProductReview = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
+// Like/unlike một review sản phẩm
+exports.likeProductReview = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    const reviewId = req.params.reviewId;
+    const { user } = req.body; // user là username hoặc userId
+    if (!user) return res.status(400).json({ error: 'Missing user' });
+    const review = product.reviews.id(reviewId) || product.reviews.find(r => r._id?.toString() === reviewId);
+    if (!review) return res.status(404).json({ error: 'Review not found' });
+    if (!review.likes) review.likes = [];
+    const idx = review.likes.indexOf(user);
+    let liked;
+    if (idx === -1) {
+      // Chưa like, thêm vào
+      review.likes.push(user);
+      liked = true;
+    } else {
+      // Đã like, unlike
+      review.likes.splice(idx, 1);
+      liked = false;
+    }
+    await product.save();
+    res.json({ likes: review.likes.length, liked });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};

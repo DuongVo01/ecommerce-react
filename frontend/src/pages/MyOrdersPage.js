@@ -30,75 +30,44 @@ const MyOrdersPage = () => {
     switch (activeTab) {
       case 'orders':
         return (
-          <div style={{ maxWidth: 900, margin: '40px auto', background: '#fff', borderRadius: 16, boxShadow: '0 8px 32px #1976d233', padding: 36 }}>
-            <h2 style={{ color: '#1976d2', marginBottom: 28, textAlign: 'center', fontWeight: 700, fontSize: '2rem' }}>Đơn mua của tôi</h2>
+          <div className="myorders-wrapper">
+            <div className="myorders-header">
+              <span className="myorders-title">Đơn mua của tôi</span>
+              <span className="myorders-count">{orders.length} đơn hàng</span>
+            </div>
             {orders.length === 0 ? (
-              <div style={{ textAlign: 'center', marginTop: 40, color: '#64748b', fontSize: '1.1rem' }}>Bạn chưa có đơn hàng nào.</div>
+              <div className="myorders-empty">Bạn chưa có đơn hàng nào.</div>
             ) : (
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0, marginTop: 16, fontSize: '1rem' }}>
+              <div className="myorders-table-wrap">
+                <table className="myorders-table">
                   <thead>
-                    <tr style={{ background: 'linear-gradient(90deg, #e3eafc 60%, #fff 100%)', color: '#1976d2', fontWeight: 700 }}>
-                      <th style={{ padding: 14, borderTopLeftRadius: 12 }}>Mã đơn</th>
-                      <th style={{ padding: 14 }}>Ngày đặt</th>
-                      <th style={{ padding: 14 }}>Tổng tiền</th>
-                      <th style={{ padding: 14 }}>Trạng thái</th>
-                      <th style={{ padding: 14, borderTopRightRadius: 12 }}>Chi tiết</th>
+                    <tr>
+                      <th>Mã đơn</th>
+                      <th>Ngày đặt</th>
+                      <th>Tổng tiền</th>
+                      <th>Trạng thái</th>
+                      <th>Chi tiết</th>
                     </tr>
                   </thead>
                   <tbody>
                     {orders.map(order => (
-                      <tr
-                        key={order._id || order.id}
-                        style={{
-                          background: '#fff',
-                          borderBottom: '1px solid #e3eafc',
-                          transition: 'background 0.2s',
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
-                        onMouseLeave={e => e.currentTarget.style.background = '#fff'}
-                      >
-                        <td style={{ padding: 12, fontWeight: 500 }}>{order._id || order.id}</td>
-                        <td style={{ padding: 12 }}>{order.createdAt ? new Date(order.createdAt).toLocaleString() : '-'}</td>
-                        <td style={{ padding: 12, color: '#ff9800', fontWeight: 700 }}>{Number(order.total).toLocaleString()}₫</td>
-                        <td style={{ padding: 12 }}>
-                          <span style={{
-                            display: 'inline-block',
-                            padding: '4px 12px',
-                            borderRadius: 8,
-                            fontWeight: 600,
-                            background: order.status === 'completed' ? '#e0f7fa'
-                              : order.status === 'shipping' ? '#fffde7'
-                              : order.status === 'waiting' ? '#e3fcec'
-                              : order.status === 'pending' ? '#e3fcec'
-                              : '#fbe9e7',
-                            color: order.status === 'completed' ? '#009688'
-                              : order.status === 'shipping' ? '#fbc02d'
-                              : order.status === 'waiting' ? '#388e3c'
-                              : order.status === 'pending' ? '#388e3c'
-                              : '#d84315',
-                          }}>
-                            {order.status === 'completed' && 'Đã giao'}
-                            {order.status === 'shipping' && 'Đang vận chuyển'}
-                            {order.status === 'waiting' && 'Chờ giao hàng'}
-                            {order.status === 'pending' && 'Chờ xác nhận'}
-                            {order.status === 'cancelled' && 'Đã hủy'}
+                      <tr key={order._id || order.id}>
+                        <td>{order._id || order.id}</td>
+                        <td>{order.createdAt ? new Date(order.createdAt).toLocaleString() : '-'}</td>
+                        <td className="myorders-money">{Number(order.total).toLocaleString('vi-VN')}₫</td>
+                        <td>
+                          <span className={`myorders-status myorders-status-${order.status}`}>
+                            {order.status === 'completed' && <><span className="myorders-status-icon">✔️</span> Đã giao</>}
+                            {order.status === 'shipping' && <><span className="myorders-status-icon">🚚</span> Đang vận chuyển</>}
+                            {order.status === 'waiting' && <><span className="myorders-status-icon">⏳</span> Chờ giao hàng</>}
+                            {order.status === 'pending' && <><span className="myorders-status-icon">🕒</span> Chờ xác nhận</>}
+                            {order.status === 'cancelled' && <><span className="myorders-status-icon">❌</span> Đã hủy</>}
                             {['completed','shipping','waiting','pending','cancelled'].indexOf(order.status) === -1 && order.status}
                           </span>
                         </td>
-                        <td style={{ padding: 12 }}>
+                        <td>
                           <button
-                            style={{
-                              background: 'linear-gradient(90deg, #1976d2 60%, #2196f3 100%)',
-                              color: '#fff',
-                              border: 'none',
-                              borderRadius: 8,
-                              padding: '7px 20px',
-                              cursor: 'pointer',
-                              fontWeight: 600,
-                              boxShadow: '0 2px 8px #1976d233',
-                              transition: 'background 0.2s',
-                            }}
+                            className="myorders-detail-btn"
                             onClick={() => navigate('/order-detail', { state: { orderId: order._id || order.id } })}
                           >Xem</button>
                         </td>
@@ -143,7 +112,7 @@ const MyOrdersPage = () => {
   };
 
   return (
-    <div className="orders-container">
+    <div className="orders-container myorders-page">
       {/* Sidebar */}
       <aside className="orders-sidebar">
         <div
@@ -191,3 +160,111 @@ const MyOrdersPage = () => {
 };
 
 export default MyOrdersPage;
+
+// CSS hiện đại cho MyOrdersPage
+// Thêm vào file MyOrdersPage.css nếu chưa có
+/*
+.myorders-page {
+  background: #f3f6fa;
+  min-height: 100vh;
+}
+.myorders-wrapper {
+  max-width: 950px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px #1976d233;
+  padding: 40px 32px 32px 32px;
+}
+.myorders-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+.myorders-title {
+  color: #1976d2;
+  font-size: 2.1rem;
+  font-weight: 800;
+}
+.myorders-count {
+  color: #64748b;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+.myorders-empty {
+  text-align: center;
+  margin-top: 40px;
+  color: #64748b;
+  font-size: 1.1rem;
+}
+.myorders-table-wrap {
+  overflow-x: auto;
+}
+.myorders-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 1rem;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px #1976d211;
+}
+.myorders-table th, .myorders-table td {
+  padding: 15px 12px;
+  text-align: left;
+}
+.myorders-table th {
+  background: linear-gradient(90deg, #e3eafc 60%, #fff 100%);
+  color: #1976d2;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.myorders-table tr {
+  transition: background 0.18s;
+}
+.myorders-table tr:hover {
+  background: #f1f5f9;
+}
+.myorders-money {
+  color: #ff9800;
+  font-weight: 700;
+}
+.myorders-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+}
+.myorders-status-completed { background: #e0f7fa; color: #009688; }
+.myorders-status-shipping { background: #fffde7; color: #fbc02d; }
+.myorders-status-waiting { background: #e3fcec; color: #388e3c; }
+.myorders-status-pending { background: #e3fcec; color: #388e3c; }
+.myorders-status-cancelled { background: #fbe9e7; color: #d84315; }
+.myorders-status-icon { font-size: 1.1em; margin-right: 2px; }
+.myorders-detail-btn {
+  background: linear-gradient(90deg, #1976d2 60%, #2196f3 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 22px;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 2px 8px #1976d233;
+  transition: background 0.2s;
+  font-size: 1rem;
+}
+.myorders-detail-btn:hover {
+  background: #1565c0;
+}
+@media (max-width: 700px) {
+  .myorders-wrapper { padding: 18px 2vw; }
+  .myorders-title { font-size: 1.3rem; }
+  .myorders-header { flex-direction: column; gap: 8px; align-items: flex-start; }
+  .myorders-table th, .myorders-table td { padding: 10px 6px; font-size: 0.98rem; }
+}
+*/

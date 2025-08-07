@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { FaEllipsisV } from 'react-icons/fa';
 import { useParams, Link } from 'react-router-dom';
+import { FaThumbsUp } from 'react-icons/fa';
 import ProductCard from '../components/ProductCard';
 import { useCart } from '../CartContext';
 import { useToast } from '../ToastContext';
@@ -67,8 +68,38 @@ const ProductDetailPage = () => {
   const [reviewList, setReviewList] = useState([]);
   const [newRating, setNewRating] = useState(5);
   const [newComment, setNewComment] = useState("");
+  // Like state: { [reviewId]: true }
+  const [likedMap, setLikedMap] = useState({});
   // Giả sử có context người dùng
-  const user = JSON.parse(localStorage.getItem('user')) || { username: 'Ẩn danh', role: 'user' };
+  const user = useMemo(() => {
+    return JSON.parse(localStorage.getItem('user')) || { username: 'Ẩn danh', role: 'user' };
+  }, []);
+
+  // Khi reviewList thay đổi, đồng bộ likedMap dựa trên review.likes từ backend
+  useEffect(() => {
+    if (reviewList && user && user.username) {
+      const newLikedMap = {};
+      reviewList.forEach(r => {
+        if (Array.isArray(r.likes) && r.likes.includes(user.username)) {
+          newLikedMap[r._id || r.id] = true;
+        }
+      });
+      setLikedMap(newLikedMap);
+    }
+  }, [reviewList, user, user.username]);
+
+  // Hàm xử lý like/unlike review (gọi backend)
+  const handleLikeReview = async (reviewId) => {
+    try {
+      // Gọi API backend để like/unlike
+      await import('../services/api').then(api => api.likeReview(id, reviewId, user.username));
+      // Sau khi like/unlike, lấy lại danh sách review mới nhất
+      const res = await import('../services/api').then(api => api.getReviews(id));
+      setReviewList(res.data || []);
+    } catch (err) {
+      showToast('Lỗi khi like đánh giá!');
+    }
+  };
 
   useEffect(() => {
     if (reviewList && reviewList.length > 0) {
@@ -239,19 +270,19 @@ const ProductDetailPage = () => {
             {filteredReviews().map(review => {
               const reviewId = review._id || review.id;
               return (
-                <li key={reviewId} className="review-item" style={{position:'relative'}}>
-                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <li key={reviewId} className="review-item" style={{position:'relative', marginBottom: 12}}>
+                  <div>
                     <div className="review-user">{review.user} <span style={{color:'#64748b', fontSize:'0.9em', marginLeft:'8px'}}>{review.date ? review.date : ''}</span></div>
-                    <button
-                      style={{background:'none',border:'none',cursor:'pointer',padding:'4px'}}
-                      onClick={()=>setOpenMenuReviewId(openMenuReviewId===reviewId?null:reviewId)}
-                      aria-label="Tùy chọn đánh giá"
-                    >
-                      <FaEllipsisV size={18} color="#64748b" />
-                    </button>
+                    <div style={{marginTop:2, marginBottom:2}}>
+                      {[1,2,3,4,5].map(star => (
+                        <span key={star} style={{color: star <= review.rating ? '#f59e0b' : '#e5e7eb', fontSize: '1.1em'}}>
+                          ★
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                  <div className="review-rating">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</div>
                   {editingReviewId === reviewId ? (
+                    // ...existing code for edit form...
                     <form
                       style={{marginTop:'0.5rem'}}
                       onSubmit={async e => {
@@ -266,9 +297,7 @@ const ProductDetailPage = () => {
                           const res = await getReviews(id);
                           // Đảm bảo chỉ có 1 đánh giá cho user này
                           setReviewList(prev => {
-                            // Nếu backend trả về đúng 1 review/user thì dùng luôn
                             if (res.data.filter(r => r.user === user.username).length === 1) return res.data;
-                            // Nếu backend trả về nhiều review cho user (lỗi), chỉ giữ review mới nhất
                             const others = res.data.filter(r => r.user !== user.username);
                             const myReview = res.data.filter(r => r.user === user.username).slice(-1);
                             return [...myReview, ...others];
@@ -291,74 +320,123 @@ const ProductDetailPage = () => {
                       <button type="button" className="btn-cancel-review" onClick={()=>setEditingReviewId(null)}>Hủy</button>
                     </form>
                   ) : (
-                    <pre className="review-comment" style={{whiteSpace:'pre-line',margin:0}}>{review.comment}</pre>
+                    <pre className="review-comment" style={{whiteSpace:'pre-line',margin:0, marginBottom:8}}>{review.comment}</pre>
                   )}
-                  {/* Menu tuỳ chọn đánh giá */}
-                  <div className={"review-menu" + (openMenuReviewId === reviewId ? " open" : "") }>
-                    {review.user !== user.username && (
+                  <div style={{display:'flex',alignItems:'center',marginTop:4}}>
+                    <button
+                      style={{
+                        background: likedMap[reviewId] ? '#e0eaff' : '#f3f4f6',
+                        color: likedMap[reviewId] ? '#1976d2' : '#64748b',
+                        border: 'none',
+                        borderRadius: 6,
+                        padding: '4px 12px',
+                        fontWeight: 600,
+                        cursor: review.user === user.username ? 'not-allowed' : 'pointer',
+                        display: 'flex', alignItems: 'center', gap: 6,
+                        fontSize: 15,
+                        marginRight: 'auto',
+                        opacity: review.user === user.username ? 0.7 : 1
+                      }}
+                      onClick={() => review.user !== user.username && handleLikeReview(reviewId)}
+                      title={review.user === user.username ? 'Bạn không thể tự like đánh giá của mình' : (likedMap[reviewId] ? 'Bạn đã thích đánh giá này' : 'Thích đánh giá này')}
+                      disabled={review.user === user.username}
+                    >
+                      <FaThumbsUp style={{marginRight:2}} />
+                      {Array.isArray(review.likes) ? review.likes.length : (review.likes || 0)}
+                    </button>
+                    <div style={{position:'relative', marginLeft:'auto', display:'flex', alignItems:'center'}}>
                       <button
-                        onClick={()=>{
-                          setReportCommentId(reviewId);
-                          setReportOpen(true);
-                          setOpenMenuReviewId(null);
-                        }}
-                      >Báo cáo</button>
-                    )}
-                    {(review.user === user.username && editingReviewId !== reviewId) && (
-                      <>
-                        <button
-                          onClick={()=>{
-                            setEditingReviewId(reviewId);
-                            setEditRating(review.rating);
-                            setEditComment(review.comment);
-                            setOpenMenuReviewId(null);
+                        style={{background:'none',border:'none',cursor:'pointer',padding:'4px'}}
+                        onClick={()=>setOpenMenuReviewId(openMenuReviewId===reviewId?null:reviewId)}
+                        aria-label="Tùy chọn đánh giá"
+                      >
+                        <FaEllipsisV size={18} color="#64748b" />
+                      </button>
+                      {openMenuReviewId === reviewId && (
+                        <div
+                          className="review-menu open"
+                          style={{
+                            position: 'absolute',
+                            top: '100%',
+                            right: 0,
+                            zIndex: 10,
+                            background: '#fff',
+                            border: '1px solid #e2e8f0',
+                            borderRadius: 8,
+                            minWidth: 120,
+                            boxShadow: '0 4px 16px #0001',
+                            padding: 8,
+                            marginTop: 4
                           }}
-                        >Sửa</button>
-                        <button
-                          onClick={async()=>{
-                            if(window.confirm('Bạn có chắc muốn xóa đánh giá này?')){
-                              try {
-                                await deleteReview(id, reviewId, { user: user.username });
-                                const res = await getReviews(id);
-                                setReviewList(res.data);
-                                showToast('Đã xóa đánh giá!');
-                              } catch {
-                                showToast('Lỗi khi xóa đánh giá!');
-                              }
-                              setOpenMenuReviewId(null);
-                            }
-                          }}
-                        >Xóa</button>
-                      </>
-                    )}
-                    {user.role === 'admin' && review.user !== user.username && (
-                      <button
-                        onClick={async()=>{
-                          if(window.confirm('Admin: Bạn có chắc muốn xóa đánh giá này?')){
-                            try {
-                              await deleteReview(id, reviewId, { user: user.username, admin: true });
-                              const res = await getReviews(id);
-                              setReviewList(res.data);
-                              showToast('Admin đã xóa đánh giá!');
-                            } catch {
-                              showToast('Lỗi khi admin xóa đánh giá!');
-                            }
-                            setOpenMenuReviewId(null);
-                          }
-                        }}
-                      >Admin Xóa</button>
-                    )}
+                        >
+                          {review.user !== user.username && (
+                            <button
+                              onClick={()=>{
+                                setReportCommentId(reviewId);
+                                setReportOpen(true);
+                                setOpenMenuReviewId(null);
+                              }}
+                            >Báo cáo</button>
+                          )}
+                          {(review.user === user.username && editingReviewId !== reviewId) && (
+                            <>
+                              <button
+                                onClick={()=>{
+                                  setEditingReviewId(reviewId);
+                                  setEditRating(review.rating);
+                                  setEditComment(review.comment);
+                                  setOpenMenuReviewId(null);
+                                }}
+                              >Sửa</button>
+                              <button
+                                onClick={async()=>{
+                                  if(window.confirm('Bạn có chắc muốn xóa đánh giá này?')){
+                                    try {
+                                      await deleteReview(id, reviewId, { user: user.username });
+                                      const res = await getReviews(id);
+                                      setReviewList(res.data);
+                                      showToast('Đã xóa đánh giá!');
+                                    } catch {
+                                      showToast('Lỗi khi xóa đánh giá!');
+                                    }
+                                    setOpenMenuReviewId(null);
+                                  }
+                                }}
+                              >Xóa</button>
+                            </>
+                          )}
+                          {user.role === 'admin' && review.user !== user.username && (
+                            <button
+                              onClick={async()=>{
+                                if(window.confirm('Admin: Bạn có chắc muốn xóa đánh giá này?')){
+                                  try {
+                                    await deleteReview(id, reviewId, { user: user.username, admin: true });
+                                    const res = await getReviews(id);
+                                    setReviewList(res.data);
+                                    showToast('Admin đã xóa đánh giá!');
+                                  } catch {
+                                    showToast('Lỗi khi admin xóa đánh giá!');
+                                  }
+                                  setOpenMenuReviewId(null);
+                                }
+                              }}
+                            >Admin Xóa</button>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
+                  {/* Đã render comment ở trên, không lặp lại ở đây nữa */}
                 </li>
               );
             })}
-      {/* Modal báo cáo comment */}
-      <ReportCommentModal
-        open={reportOpen}
-        onClose={()=>setReportOpen(false)}
-        onSubmit={handleReportSubmit}
-        commentId={reportCommentId}
-      />
+            {/* Modal báo cáo comment */}
+            <ReportCommentModal
+              open={reportOpen}
+              onClose={()=>setReportOpen(false)}
+              onSubmit={handleReportSubmit}
+              commentId={reportCommentId}
+            />
           </ul>
         )}
       </div>
