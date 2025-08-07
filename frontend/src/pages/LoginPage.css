@@ -1,0 +1,199 @@
+.login-page {
+  max-width: 420px;
+  margin: 40px auto;
+  padding: 32px;
+  border: 1px solid #e3eafc;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(25, 118, 210, 0.12);
+  background: linear-gradient(135deg, #e3eafc 0%, #fff 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Thêm hiệu ứng subtle cho background */
+.login-page::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(25, 118, 210, 0.03) 0%, transparent 70%);
+  z-index: 0;
+}
+
+.login-page > * {
+  position: relative;
+  z-index: 1;
+}
+
+.login-page h1 {
+  text-align: center;
+  font-weight: 700;
+  font-size: 2.2rem;
+  color: #1976d2;
+  margin-bottom: 32px;
+  text-shadow: 0 2px 4px rgba(25, 118, 210, 0.1);
+}
+
+.login-page form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-page .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login-page label {
+  font-weight: 600;
+  color: #1976d2;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+}
+
+.login-page input[type="text"],
+.login-page input[type="password"] {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e3eafc;
+  border-radius: 10px;
+  font-size: 1rem;
+  outline: none;
+  background: #f8fafc;
+  color: #334155;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.login-page input[type="text"]:focus,
+.login-page input[type="password"]:focus {
+  border-color: #1976d2;
+  background: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.15);
+}
+
+.login-page input[type="text"]:hover,
+.login-page input[type="password"]:hover {
+  border-color: #2196f3;
+  background: #fff;
+}
+
+/* Placeholder styling */
+.login-page input::placeholder {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.login-page button[type="submit"] {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #1976d2 0%, #2196f3 100%);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.3);
+  margin-top: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.login-page button[type="submit"]:hover {
+  background: linear-gradient(135deg, #1565c0 0%, #1e88e5 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(25, 118, 210, 0.4);
+}
+
+.login-page button[type="submit"]:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+}
+
+.login-page .register-link {
+  color: #1976d2;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.login-page .register-link:hover {
+  color: #1565c0;
+  text-decoration: underline;
+  transform: translateX(2px);
+}
+
+.login-page .admin-note {
+  margin-top: 20px;
+  padding: 12px;
+  color: #d32f2f;
+  font-weight: 600;
+  text-align: center;
+  font-size: 0.95rem;
+  background: rgba(211, 47, 47, 0.1);
+  border: 1px solid rgba(211, 47, 47, 0.2);
+  border-radius: 8px;
+  animation: pulse-warning 2s infinite;
+}
+
+@keyframes pulse-warning {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+  .login-page {
+    margin: 20px auto;
+    padding: 24px;
+    max-width: 90%;
+  }
+  
+  .login-page h1 {
+    font-size: 1.8rem;
+    margin-bottom: 24px;
+  }
+  
+  .login-page input[type="text"],
+  .login-page input[type="password"] {
+    padding: 12px 14px;
+  }
+  
+  .login-page button[type="submit"] {
+    padding: 14px;
+    font-size: 1rem;
+  }
+}
+
+/* Loading state cho button */
+.login-page button[type="submit"]:disabled {
+  background: linear-gradient(135deg, #90a4ae 0%, #b0bec5 100%);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.login-page button[type="submit"].loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin: auto;
+  border: 2px solid transparent;
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
