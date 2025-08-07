@@ -3,7 +3,6 @@ import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { UserContext } from "../UserContext";
-import { updateUser } from "../services/api";
 import "./AccountPage.css";
 
 const AccountPage = () => {
@@ -21,9 +20,14 @@ const AccountPage = () => {
   const [addressForm, setAddressForm] = useState({ name: '', phone: '', address: '' });
   const [editAddressId, setEditAddressId] = useState(null);
   // Avatar
-  const [avatar, setAvatar] = useState(user?.avatar || null);
-  const [avatarPreview, setAvatarPreview] = useState(user?.avatar || null);
-  const [avatarUploading, setAvatarUploading] = useState(false);
+  // Always store avatar as File only when uploading, and avatarPreview as a string URL
+  const [avatar, setAvatar] = useState(null);
+  // Normalize avatar URL for preview
+  let initialAvatarUrl = user?.avatar || null;
+  if (initialAvatarUrl && initialAvatarUrl.startsWith('/uploads/')) {
+    initialAvatarUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${initialAvatarUrl}`;
+  }
+  const [avatarPreview, setAvatarPreview] = useState(initialAvatarUrl);
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
@@ -33,33 +37,7 @@ const AccountPage = () => {
     }
   };
 
-  const handleAvatarUpload = async () => {
-    if (!avatar) return;
-    setAvatarUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append('avatar', avatar);
-      formData.append('name', name);
-      formData.append('phone', phone);
-      formData.append('gender', gender);
-      formData.append('birthday', birthday);
-      // Gửi lên backend
-      const updatedUser = await (await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/user/${user._id || user.id}`, {
-        method: 'PUT',
-        body: formData,
-      })).json();
-      if (updatedUser && updatedUser.avatar) {
-        loginUser({ ...user, ...updatedUser });
-        setAvatarPreview(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${updatedUser.avatar}`);
-      }
-      setAvatarUploading(false);
-      setAvatar(null);
-      alert("Đã cập nhật thông tin và ảnh đại diện!");
-    } catch (err) {
-      setAvatarUploading(false);
-      alert("Cập nhật thất bại!");
-    }
-  };
+  // ...
   if (user === undefined) {
     return <div style={{ textAlign: 'center', padding: 48, fontSize: 18, color: '#1976d2' }}>Đang tải thông tin tài khoản...</div>;
   }
@@ -98,6 +76,7 @@ const AccountPage = () => {
         }
         loginUser({ ...updatedUser, avatar: avatarUrl });
         setAvatarPreview(avatarUrl || '/default-avatar.png');
+        setEditMode(false); // Chuyển về chế độ xem sau khi lưu thành công
       }
       setSaving(false);
       setAvatar(null);
@@ -151,8 +130,10 @@ const AccountPage = () => {
                 <div className="account-row"><strong>Ngày sinh:</strong>
                   <input className="account-input" type="date" value={birthday} onChange={e => setBirthday(e.target.value)} required />
                 </div>
-                <button type="submit" className="account-btn" disabled={saving}>{saving ? "Đang lưu..." : "Lưu thông tin"}</button>
-                <button type="button" className="account-btn" style={{ background: '#e3eafc', color: '#1976d2', marginLeft: 12 }} onClick={() => setEditMode(false)}>Hủy</button>
+                <div style={{ display: 'flex', gap: 12, marginTop: 18, justifyContent: 'flex-end' }}>
+                  <button type="submit" className="account-btn" disabled={saving}>{saving ? "Đang lưu..." : "Lưu thông tin"}</button>
+                  <button type="button" className="account-btn" style={{ background: '#e3eafc', color: '#1976d2' }} onClick={() => setEditMode(false)}>Hủy</button>
+                </div>
               </form>
             )}
             {/* Vertical divider */}

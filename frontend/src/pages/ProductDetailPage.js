@@ -179,57 +179,59 @@ const ProductDetailPage = () => {
             </label>
           </div>
         </div>
-        <form
-          style={{ marginBottom: "2rem", background: "#f8fafc", padding: "1rem", borderRadius: "12px", border: "1px solid #e2e8f0" }}
-          onSubmit={async e => {
-            e.preventDefault();
-            if (!newComment.trim()) return;
-            // Kiểm tra nếu user đã có đánh giá cho sản phẩm này
-            const hasReviewed = reviewList.some(r => r.user === user.username);
-            if (hasReviewed) {
-              showToast("Bạn chỉ được gửi một đánh giá cho mỗi sản phẩm!");
-              return;
-            }
-            const reviewData = {
-              user: user.username,
-              rating: newRating,
-              comment: newComment,
-              date: new Date().toLocaleString('vi-VN')
-            };
-            try {
-              await addReview(id, reviewData);
-              // Lấy lại danh sách đánh giá mới nhất
-              const res = await getReviews(id);
-              setReviewList(res.data);
-              setNewComment("");
-              setNewRating(5);
-              showToast("Cảm ơn bạn đã đánh giá!");
-            } catch {
-              showToast("Lỗi khi gửi đánh giá!");
-            }
-          }}
-        >
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <span>Đánh giá:</span>
-              {[1,2,3,4,5].map(star => (
-                <span
-                  key={star}
-                  style={{ cursor: "pointer", color: star <= newRating ? "#f59e0b" : "#e5e7eb", fontSize: "1.3rem" }}
-                  onClick={() => setNewRating(star)}
-                >★</span>
-              ))}
+        {/* Chỉ hiển thị form nếu user chưa gửi đánh giá */}
+        {reviewList.every(r => r.user !== user.username) && (
+          <form
+            style={{ marginBottom: "2rem", background: "#f8fafc", padding: "1rem", borderRadius: "12px", border: "1px solid #e2e8f0" }}
+            onSubmit={async e => {
+              e.preventDefault();
+              if (!newComment.trim()) return;
+              // Kiểm tra nếu user đã có đánh giá cho sản phẩm này
+              const hasReviewed = reviewList.some(r => r.user === user.username);
+              if (hasReviewed) {
+                showToast("Bạn chỉ được gửi một đánh giá cho mỗi sản phẩm!");
+                return;
+              }
+              const reviewData = {
+                user: user.username,
+                rating: newRating,
+                comment: newComment,
+                date: new Date().toLocaleString('vi-VN')
+              };
+              try {
+                await addReview(id, reviewData);
+                // Hiển thị ngay đánh giá mới ở đầu danh sách
+                setReviewList(prev => [reviewData, ...prev]);
+                setNewComment("");
+                setNewRating(5);
+                showToast("Cảm ơn bạn đã đánh giá!");
+              } catch {
+                showToast("Lỗi khi gửi đánh giá!");
+              }
+            }}
+          >
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <span>Đánh giá:</span>
+                {[1,2,3,4,5].map(star => (
+                  <span
+                    key={star}
+                    style={{ cursor: "pointer", color: star <= newRating ? "#f59e0b" : "#e5e7eb", fontSize: "1.3rem" }}
+                    onClick={() => setNewRating(star)}
+                  >★</span>
+                ))}
+              </div>
+              <textarea
+                placeholder="Nhận xét của bạn"
+                value={newComment}
+                onChange={e => setNewComment(e.target.value)}
+                style={{ padding: "0.5rem", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "1rem", minHeight: "60px" }}
+                required
+              />
+              <button type="submit" className="btn-submit-review">Gửi đánh giá</button>
             </div>
-            <textarea
-              placeholder="Nhận xét của bạn"
-              value={newComment}
-              onChange={e => setNewComment(e.target.value)}
-              style={{ padding: "0.5rem", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "1rem", minHeight: "60px" }}
-              required
-            />
-            <button type="submit" className="btn-submit-review">Gửi đánh giá</button>
-          </div>
-        </form>
+          </form>
+        )}
         {filteredReviews().length === 0 ? (
           <p>Không có đánh giá phù hợp.</p>
         ) : (
@@ -260,8 +262,17 @@ const ProductDetailPage = () => {
                             rating: editRating,
                             comment: editComment
                           });
+                          // Lấy lại danh sách đánh giá mới nhất
                           const res = await getReviews(id);
-                          setReviewList(res.data);
+                          // Đảm bảo chỉ có 1 đánh giá cho user này
+                          setReviewList(prev => {
+                            // Nếu backend trả về đúng 1 review/user thì dùng luôn
+                            if (res.data.filter(r => r.user === user.username).length === 1) return res.data;
+                            // Nếu backend trả về nhiều review cho user (lỗi), chỉ giữ review mới nhất
+                            const others = res.data.filter(r => r.user !== user.username);
+                            const myReview = res.data.filter(r => r.user === user.username).slice(-1);
+                            return [...myReview, ...others];
+                          });
                           setEditingReviewId(null);
                           showToast('Đã cập nhật đánh giá!');
                         } catch {
