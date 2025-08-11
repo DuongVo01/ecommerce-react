@@ -137,9 +137,13 @@ exports.addProductReview = async (req, res) => {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ error: 'Product not found' });
     const review = req.body;
-    if (!review || !review.rating || !review.comment) {
-      return res.status(400).json({ error: 'Missing rating or comment' });
+    if (!review || !review.rating || !review.comment || !review.user) {
+      return res.status(400).json({ error: 'Missing rating, comment, or user' });
     }
+    // Lấy avatar từ User
+    const User = require('../models/User');
+    const userDoc = await User.findOne({ username: review.user });
+    review.avatar = userDoc && userDoc.avatar ? userDoc.avatar : '';
     product.reviews.push(review);
     await product.save();
     res.status(201).json(review);

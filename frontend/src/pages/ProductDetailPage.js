@@ -271,15 +271,31 @@ const ProductDetailPage = () => {
               const reviewId = review._id || review.id;
               return (
                 <li key={reviewId} className="review-item" style={{position:'relative', marginBottom: 12}}>
-                  <div>
-                    <div className="review-user">{review.user} <span style={{color:'#64748b', fontSize:'0.9em', marginLeft:'8px'}}>{review.date ? review.date : ''}</span></div>
-                    <div style={{marginTop:2, marginBottom:2}}>
-                      {[1,2,3,4,5].map(star => (
-                        <span key={star} style={{color: star <= review.rating ? '#f59e0b' : '#e5e7eb', fontSize: '1.1em'}}>
-                          ★
-                        </span>
-                      ))}
+                  <div style={{display: 'flex', alignItems: 'center', gap: 10}}>
+                    {(() => {
+                      let avatarUrl = review.avatar;
+                      if (avatarUrl && avatarUrl.startsWith('/uploads/')) {
+                        avatarUrl = `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${avatarUrl}`;
+                      }
+                      return (
+                        <img
+                          src={avatarUrl || '/default-avatar.png'}
+                          alt="avatar"
+                          style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', marginRight: 8, border: '1.5px solid #e3eafc' }}
+                        />
+                      );
+                    })()}
+                    <div className="review-user">
+                      {review.user}
+                      <span style={{color:'#64748b', fontSize:'0.9em', marginLeft:'8px'}}>{review.date ? review.date : ''}</span>
                     </div>
+                  </div>
+                  <div style={{marginTop:2, marginBottom:2}}>
+                    {[1,2,3,4,5].map(star => (
+                      <span key={star} style={{color: star <= review.rating ? '#f59e0b' : '#e5e7eb', fontSize: '1.1em'}}>
+                        ★
+                      </span>
+                    ))}
                   </div>
                   {editingReviewId === reviewId ? (
                     // ...existing code for edit form...

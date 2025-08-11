@@ -12,6 +12,7 @@ const productSchema = new mongoose.Schema({
   reviews: [
     {
       user: String,
+      avatar: String, // avatar của user tại thời điểm đánh giá
       rating: { type: Number, min: 1, max: 5 },
       comment: String,
       date: String,
