@@ -62,3 +62,111 @@ export const updateOrderStatus = (orderId, status) => api.put(`/orders/${orderId
 // Like/unlike review
 export const likeReview = (productId, reviewId, user) =>
   api.post(`/products/${productId}/reviews/${reviewId}/like`, { user });
+
+// Notification APIs
+export const getNotifications = async (page = 1, limit = 20, unreadOnly = false) => {
+  const token = localStorage.getItem('token');
+  const params = new URLSearchParams({ page, limit, unreadOnly });
+  
+  const response = await fetch(`${API_BASE_URL}/notifications/user?${params}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch notifications');
+  }
+  
+  return response.json();
+};
+
+export const getUnreadCount = async () => {
+  const token = localStorage.getItem('token');
+  
+  const response = await fetch(`${API_BASE_URL}/notifications/unread-count`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to fetch unread count');
+  }
+  
+  return response.json();
+};
+
+export const markNotificationAsRead = async (notificationId) => {
+  const token = localStorage.getItem('token');
+  
+  const response = await fetch(`${API_BASE_URL}/notifications/${notificationId}/read`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to mark notification as read');
+  }
+  
+  return response.json();
+};
+
+export const markAllNotificationsAsRead = async () => {
+  const token = localStorage.getItem('token');
+  
+  const response = await fetch(`${API_BASE_URL}/notifications/mark-all-read`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to mark all notifications as read');
+  }
+  
+  return response.json();
+};
+
+export const deleteNotification = async (notificationId) => {
+  const token = localStorage.getItem('token');
+  
+  const response = await fetch(`${API_BASE_URL}/notifications/${notificationId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to delete notification');
+  }
+  
+  return response.json();
+};
+
+export const deleteReadNotifications = async () => {
+  const token = localStorage.getItem('token');
+  
+  const response = await fetch(`${API_BASE_URL}/notifications/delete-read`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error('Failed to delete read notifications');
+  }
+  
+  return response.json();
+};

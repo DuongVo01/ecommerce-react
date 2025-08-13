@@ -18,6 +18,7 @@ import './ProductDetailPage.css';
 // Xóa đánh giá mẫu, khởi tạo reviewList là mảng rỗng
 
 const ProductDetailPage = () => {
+  // ...existing code...
   // State cho báo cáo comment
   const [reportOpen, setReportOpen] = useState(false);
   const [reportCommentId, setReportCommentId] = useState(null);
@@ -68,6 +69,26 @@ const ProductDetailPage = () => {
   const [reviewList, setReviewList] = useState([]);
   const [newRating, setNewRating] = useState(5);
   const [newComment, setNewComment] = useState("");
+  // Đóng dropdown menu đánh giá khi click ra ngoài
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Nếu có menu đang mở và click không phải vào menu hoặc nút mở menu
+      if (openMenuReviewId !== null) {
+        const menu = document.querySelector('.review-menu.open');
+        const btns = document.querySelectorAll('[aria-label="Tùy chọn đánh giá"]');
+        if (
+          menu && !menu.contains(event.target) &&
+          !Array.from(btns).some(btn => btn.contains(event.target))
+        ) {
+          setOpenMenuReviewId(null);
+        }
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openMenuReviewId]);
   // Like state: { [reviewId]: true }
   const [likedMap, setLikedMap] = useState({});
   // Giả sử có context người dùng

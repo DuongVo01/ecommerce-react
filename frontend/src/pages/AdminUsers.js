@@ -30,7 +30,10 @@ const AdminUsers = () => {
       navigate('/');
       return;
     }
-    axios.get(API)
+    const token = localStorage.getItem('token');
+    axios.get(API, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
       .then(res => {
         setUsers(res.data);
         setLoading(false);

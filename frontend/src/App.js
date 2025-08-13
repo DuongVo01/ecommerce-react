@@ -22,6 +22,7 @@ import AdminProducts from './pages/AdminProducts';
 import AdminCategories from './pages/AdminCategories';
 import AdminOrders from './pages/AdminOrders';
 import AdminUsers from './pages/AdminUsers';
+import AdminNotifications from './pages/AdminNotifications';
 import './ToastContext.css';
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/banners" element={<AdminBannerPage />} />
               <Route path="/admin/reports" element={<AdminReportPage />} />
+              <Route path="/admin/notifications" element={<AdminNotifications />} />
               <Route path="/admin/products" element={<AdminProducts />} />
               <Route path="/admin/categories" element={<AdminCategories />} />
               <Route path="/admin/orders" element={<AdminOrders />} />

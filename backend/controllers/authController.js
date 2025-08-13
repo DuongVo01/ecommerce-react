@@ -13,6 +13,7 @@ exports.register = async (req, res) => {
   }
 };
 
+const jwt = require('jsonwebtoken');
 exports.login = async (req, res) => {
   try {
     const { login, email, username, password } = req.body;
@@ -28,9 +29,23 @@ exports.login = async (req, res) => {
     if (!user) return res.status(400).json({ error: 'Invalid credentials' });
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
-    // Trả về đầy đủ thông tin user
+
+    // Tạo token JWT
+    const token = jwt.sign(
+      {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '7d' }
+    );
+
+    // Trả về đầy đủ thông tin user và token
     res.json({
       message: 'Login successful',
+      token,
       user: {
         id: user._id,
         username: user.username,

@@ -14,6 +14,10 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       const res = await login({ login: loginField, password });
+      // Lưu token vào localStorage để các API sau gửi đúng Authorization
+      if (res.data.token) {
+        localStorage.setItem('token', res.data.token);
+      }
       console.log('User login:', res.data.user);
       loginUser(res.data.user);
       if (res.data.user.role === 'admin') {

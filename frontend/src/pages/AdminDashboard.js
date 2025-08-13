@@ -8,7 +8,7 @@ import './AdminDashboard.css';
 const AdminDashboard = () => {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
-  const [stats, setStats] = useState({ products: 0, categories: 0, users: 0, orders: 0 });
+  const [stats, setStats] = useState({ products: 0, categories: 0, users: 0, orders: 0, notifications: 0 });
   const [loadingStats, setLoadingStats] = useState(true);
 
   useEffect(() => {
@@ -32,13 +32,27 @@ const AdminDashboard = () => {
       .then(res => setStats(prev => ({ ...prev, categories: res.data.length })))
       .catch(() => {});
     // Lấy tổng số người dùng
-    axios.get('http://localhost:5000/api/auth/users')
-      .then(res => setStats(prev => ({ ...prev, users: res.data.length })))
-      .catch(() => {});
+    const tokenUser = localStorage.getItem('token');
+    if (tokenUser) {
+      axios.get('http://localhost:5000/api/auth/users', {
+        headers: { Authorization: `Bearer ${tokenUser}` }
+      })
+        .then(res => setStats(prev => ({ ...prev, users: res.data.length })))
+        .catch(() => {});
+    }
     // Lấy tổng số đơn hàng
     axios.get('http://localhost:5000/api/orders/admin')
       .then(res => setStats(prev => ({ ...prev, orders: res.data.length })))
       .catch(() => {});
+    // Lấy tổng số thông báo
+    const token = localStorage.getItem('token');
+    if (token) {
+      axios.get('http://localhost:5000/api/notifications/admin/all', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => setStats(prev => ({ ...prev, notifications: res.data.data?.length || 0 })))
+      .catch(() => {});
+    }
   }, []);
 
 
@@ -78,6 +92,11 @@ const AdminDashboard = () => {
           <div className="admin-dashboard-label">Banner trang chủ</div>
           <div className="admin-dashboard-value">{banners.length}</div>
           {/* <div className="admin-dashboard-link banners">Quản lý Banner</div> */}
+        </Link>
+        <Link to="/admin/notifications" className="admin-dashboard-card" style={{textDecoration:'none',color:'inherit'}}>
+          <span className="admin-dashboard-icon admin-dashboard-notifications" style={{fontSize:28}}>🔔</span>
+          <div className="admin-dashboard-label">Thông báo</div>
+          <div className="admin-dashboard-value">{loadingStats ? '...' : stats.notifications}</div>
         </Link>
         <Link to="/admin/products" className="admin-dashboard-card" style={{textDecoration:'none',color:'inherit'}}>
           <span className="admin-dashboard-icon admin-dashboard-products">📦</span>
