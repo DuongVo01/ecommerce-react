@@ -1,9 +1,8 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { register } from '../services/api';
+import { register } from '../../services/api';
 import './RegisterPage.css';
-
 const RegisterPage = () => {
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
@@ -12,8 +11,8 @@ const RegisterPage = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
 
   const navigate = useNavigate();
-  const { loginUser } = React.useContext(require('../UserContext').UserContext);
-  const { login } = require('../services/api');
+  const { loginUser } = React.useContext(require('../../UserContext').UserContext);
+  const { login } = require('../../services/api');
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {

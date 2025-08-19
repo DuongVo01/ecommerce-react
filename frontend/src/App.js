@@ -2,27 +2,29 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
-import MyOrdersPage from './pages/MyOrdersPage';
-import OrderDetailPage from './pages/OrderDetailPage';
+import MyOrdersPage from './pages/MyOrdersPage/MyOrdersPage';
+import OrderDetailPage from './pages/OrderDetailPage/OrderDetailPage';
+import HomePage from './pages/HomePage/HomePage';
+import ProductListPage from './pages/ProductListPage/ProductListPage';
+import ProductDetailPage from './pages/ProductDetailPage/ProductDetailPage';
+import CategoryProductsPage from './pages/CategoryProductsPage/CategoryProductsPage';
+import CartPage from './pages/CartPage/CartPage';
+import LoginPage from './pages/LoginPage/LoginPage';
+import RegisterPage from './pages/RegisterPage/RegisterPage';
+import AdminDashboard from './pages/AdminDashboard/AdminDashboard';
+import AdminBannerPage from './pages/AdminBannerPage/AdminBannerPage';
+import AdminReportPage from './pages/AdminReportPage/AdminReportPage';
+import AdminProducts from './pages/AdminProducts/AdminProducts';
+import AdminCategories from './pages/AdminCategories/AdminCategories';
+import AdminOrders from './pages/AdminOrders/AdminOrders';
+import AdminUsers from './pages/AdminUsers/AdminUsers';
+import AdminNotifications from './pages/AdminNotifications/AdminNotifications';
+import AccountPage from './pages/AccountPage/AccountPage';
+
 import Footer from './components/Footer';
-import HomePage from './pages/HomePage';
-import ProductListPage from './pages/ProductListPage';
-import ProductDetailPage from './pages/ProductDetailPage';
-import CategoryProductsPage from './pages/CategoryProductsPage';
-import CartPage from './pages/CartPage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
 import { CartProvider } from './CartContext';
 import { UserProvider } from './UserContext';
 import { ToastProvider } from './ToastContext';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminBannerPage from './pages/AdminBannerPage';
-import AdminReportPage from './pages/AdminReportPage';
-import AdminProducts from './pages/AdminProducts';
-import AdminCategories from './pages/AdminCategories';
-import AdminOrders from './pages/AdminOrders';
-import AdminUsers from './pages/AdminUsers';
-import AdminNotifications from './pages/AdminNotifications';
 import './ToastContext.css';
 
 function App() {
@@ -42,7 +44,7 @@ function App() {
               <Route path="/my-orders" element={<MyOrdersPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
-              <Route path="/account" element={React.createElement(require('./pages/AccountPage').default)} />
+              <Route path="/account" element={<AccountPage />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/banners" element={<AdminBannerPage />} />
               <Route path="/admin/reports" element={<AdminReportPage />} />

@@ -1,10 +1,9 @@
-
 import React, { useEffect, useState, useContext } from 'react';
 import './AdminCategories.css';
 import { FaBoxOpen, FaSearch, FaSignOutAlt, FaHome, FaShoppingCart, FaHeadset, FaListAlt, FaUser } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { UserContext } from '../UserContext';
-import { useToast } from '../ToastContext';
+import { UserContext } from '../../UserContext';
+import { useToast } from '../../ToastContext';
 import axios from 'axios';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button
@@ -78,10 +77,6 @@ const AdminCategories = () => {
     }
   };
 
-  const handleEdit = cat => {
-    setEditId(cat._id);
-    setForm({ name: cat.name, image: null });
-  };
 
   const handleDelete = async id => {
     if (!window.confirm('Bạn có chắc muốn xóa danh mục này?')) return;

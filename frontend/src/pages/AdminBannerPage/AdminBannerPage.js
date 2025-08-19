@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
-import './AdminDashboard.css';
+import '../AdminDashboard/AdminDashboard.css';
 import { useNavigate } from 'react-router-dom';
-import { UserContext } from '../UserContext';
+import { UserContext } from '../../UserContext';
 
 
 const AdminBannerPage = () => {

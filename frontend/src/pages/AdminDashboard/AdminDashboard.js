@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { UserContext } from '../UserContext';
-import { fetchProducts } from '../services/api';
+import { UserContext } from '../../UserContext';
+import { fetchProducts } from '../../services/api';
 import axios from 'axios';
 import './AdminDashboard.css';
 

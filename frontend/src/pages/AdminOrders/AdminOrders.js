@@ -1,12 +1,7 @@
-
-
-
-
-
 import React, { useEffect, useState, useContext } from 'react';
 import './AdminOrders.css';
 import { useNavigate } from 'react-router-dom';
-import { UserContext } from '../UserContext';
+import { UserContext } from '../../UserContext';
 import axios from 'axios';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,

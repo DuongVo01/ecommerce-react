@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { login } from '../services/api';
+import { login } from '../../services/api';
 import './LoginPage.css';
 
 const LoginPage = () => {
@@ -9,7 +8,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
 
   const navigate = useNavigate();
-  const { loginUser } = React.useContext(require('../UserContext').UserContext);
+  const { loginUser } = React.useContext(require('../../UserContext').UserContext);
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {

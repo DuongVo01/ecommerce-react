@@ -1,5 +1,3 @@
-import React from 'react';
-
 const CheckoutPage = () => {
   return (
     <div style={{ minHeight: '70vh', padding: '2rem 0', textAlign: 'center' }}>

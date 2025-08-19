@@ -2,9 +2,9 @@ import React, { useEffect, useState, useContext } from 'react';
 import './AdminProducts.css';
 import { FaBoxOpen, FaSearch, FaSignOutAlt, FaHome, FaShoppingCart, FaHeadset, FaListAlt, FaUser } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { UserContext } from '../UserContext';
-import { useToast } from '../ToastContext';
-import { fetchProducts, createProduct, updateProduct, deleteProduct, fetchCategories } from '../services/api';
+import { UserContext } from '../../UserContext';
+import { useToast } from '../../ToastContext';
+import { fetchProducts, createProduct, updateProduct, deleteProduct, fetchCategories } from '../../services/api';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   Button

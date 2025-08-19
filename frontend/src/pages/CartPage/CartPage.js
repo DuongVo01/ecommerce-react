@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
-import { useCart } from '../CartContext';
-import { UserContext } from '../UserContext';
-import { createOrder } from '../services/api';
+import { useCart } from '../../CartContext';
+import { UserContext } from '../../UserContext';
+import { createOrder } from '../../services/api';
 import { Link, useNavigate } from 'react-router-dom';
 import './CartPage.css';
 

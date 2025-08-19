@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import ProductCard from '../components/ProductCard';
-import { fetchProducts } from '../services/api';
-import './ProductListPage.css';
+import ProductCard from '../../components/ProductCard';
+import { fetchProducts } from '../../services/api';
+import '../ProductListPage/ProductListPage.css';
 
 const CategoryProductsPage = () => {
   const { name } = useParams();

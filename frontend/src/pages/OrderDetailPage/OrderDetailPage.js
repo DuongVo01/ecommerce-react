@@ -1,8 +1,8 @@
 import { useRef } from 'react';
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { UserContext } from '../UserContext';
-import { getOrders } from '../services/api';
+import { UserContext } from '../../UserContext';
+import { getOrders } from '../../services/api';
 import './OrderDetailPage.css';
 
 const OrderDetailPage = () => {

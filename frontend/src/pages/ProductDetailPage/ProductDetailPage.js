@@ -2,15 +2,15 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { FaEllipsisV } from 'react-icons/fa';
 import { useParams, Link } from 'react-router-dom';
 import { FaThumbsUp } from 'react-icons/fa';
-import ProductCard from '../components/ProductCard';
-import { useCart } from '../CartContext';
-import { useToast } from '../ToastContext';
-import { fetchProductById, fetchProducts } from '../services/api';
-import { getReviews, addReview } from '../services/api';
-import { updateReview, deleteReview } from '../services/api';
+import ProductCard from '../../components/ProductCard';
+import { useCart } from '../../CartContext';
+import { useToast } from '../../ToastContext';
+import { fetchProductById, fetchProducts } from '../../services/api';
+import { getReviews, addReview } from '../../services/api';
+import { updateReview, deleteReview } from '../../services/api';
 
 
-import ReportCommentModal from '../components/ReportCommentModal';
+import ReportCommentModal from '../../components/ReportCommentModal';
 import axios from 'axios';
 import './ProductDetailPage.css';
 
@@ -113,9 +113,9 @@ const ProductDetailPage = () => {
   const handleLikeReview = async (reviewId) => {
     try {
       // Gọi API backend để like/unlike
-      await import('../services/api').then(api => api.likeReview(id, reviewId, user.username));
+      await import('../../services/api').then(api => api.likeReview(id, reviewId, user.username));
       // Sau khi like/unlike, lấy lại danh sách review mới nhất
-      const res = await import('../services/api').then(api => api.getReviews(id));
+      const res = await import('../../services/api').then(api => api.getReviews(id));
       setReviewList(res.data || []);
     } catch (err) {
       showToast('Lỗi khi like đánh giá!');

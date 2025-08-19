@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { UserContext } from '../UserContext';
+import { UserContext } from '../../UserContext';
 import axios from 'axios';
-import './AdminDashboard.css';
+
 
 const AdminReportPage = () => {
   const [reports, setReports] = useState([]);

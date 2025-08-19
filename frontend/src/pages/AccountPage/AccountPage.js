@@ -1,10 +1,10 @@
-
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { UserContext } from "../UserContext";
+import { UserContext } from "../../UserContext";
 import "./AccountPage.css";
 
+  
 const AccountPage = () => {
   const [editMode, setEditMode] = useState(false);
   const { user, loginUser } = useContext(UserContext);
