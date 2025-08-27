@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { FaEllipsisV } from 'react-icons/fa';
 import { useParams, Link } from 'react-router-dom';
 import { FaThumbsUp } from 'react-icons/fa';
-import ProductCard from '../../components/ProductCard';
+import ProductCard from '../../components/ProductCard/ProductCard';
 import { useCart } from '../../CartContext';
 import { useToast } from '../../ToastContext';
 import { fetchProductById, fetchProducts } from '../../services/api';

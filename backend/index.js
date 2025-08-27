@@ -49,6 +49,30 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/ecommerce',
 })
 .then(() => {
   console.log('MongoDB connected');
+
+  // On startup, detect and remove any TTL indexes on notifications
+  (async () => {
+    try {
+      const db = mongoose.connection.db;
+      const collection = db.collection('notifications');
+      const indexes = await collection.indexes();
+      const ttlIndexes = indexes.filter((idx) => typeof idx.expireAfterSeconds === 'number');
+      for (const idx of ttlIndexes) {
+        try {
+          console.log(`[notifications] Dropping TTL index: ${idx.name} (expireAfterSeconds=${idx.expireAfterSeconds})`);
+          await collection.dropIndex(idx.name);
+        } catch (dropErr) {
+          console.warn(`[notifications] Failed to drop index ${idx.name}:`, dropErr.message);
+        }
+      }
+      if (ttlIndexes.length === 0) {
+        console.log('[notifications] No TTL indexes found');
+      }
+    } catch (e) {
+      console.warn('[notifications] Could not inspect/drop TTL indexes:', e.message);
+    }
+  })();
+
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 })
 .catch((err) => {

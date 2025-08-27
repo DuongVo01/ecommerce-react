@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
-import Navbar from './components/Navbar';
+import Navbar from './components/Navbar/Navbar';
 import MyOrdersPage from './pages/MyOrdersPage/MyOrdersPage';
 import OrderDetailPage from './pages/OrderDetailPage/OrderDetailPage';
 import HomePage from './pages/HomePage/HomePage';
@@ -20,8 +20,9 @@ import AdminOrders from './pages/AdminOrders/AdminOrders';
 import AdminUsers from './pages/AdminUsers/AdminUsers';
 import AdminNotifications from './pages/AdminNotifications/AdminNotifications';
 import AccountPage from './pages/AccountPage/AccountPage';
+import NotificationsPage from './pages/NotificationsPage/NotificationsPage';
 
-import Footer from './components/Footer';
+import Footer from './components/Footer/Footer';
 import { CartProvider } from './CartContext';
 import { UserProvider } from './UserContext';
 import { ToastProvider } from './ToastContext';
@@ -53,6 +54,7 @@ function App() {
               <Route path="/admin/categories" element={<AdminCategories />} />
               <Route path="/admin/orders" element={<AdminOrders />} />
               <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
             </Routes>
             <Footer />
           </Router>

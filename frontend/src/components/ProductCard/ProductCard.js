@@ -7,8 +7,8 @@
 import React from 'react';
 import './ProductCard.css';
 import { useNavigate } from 'react-router-dom';
-import { useCart } from '../CartContext';
-import { useToast } from '../ToastContext';
+import { useCart } from '../../CartContext';
+import { useToast } from '../../ToastContext';
 
 const ProductCard = ({ product }) => {
   const { addToCart } = useCart();

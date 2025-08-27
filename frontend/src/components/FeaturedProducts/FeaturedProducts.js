@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { fetchProducts } from '../services/api';
-import ProductCard from './ProductCard';
+import { fetchProducts } from '../../services/api';
+import ProductCard from '../ProductCard/ProductCard';
 import './FeaturedProducts.css';
 
 const FeaturedProducts = () => {

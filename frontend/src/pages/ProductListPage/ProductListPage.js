@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box, Grid, TextField, Select, MenuItem, FormControl, InputLabel, useTheme, Pagination, Typography
 } from '@mui/material';
-import ProductCard from '../../components/ProductCard';
+import ProductCard from '../../components/ProductCard/ProductCard';
 import { fetchProducts } from '../../services/api';
 import { grey } from '@mui/material/colors';
 

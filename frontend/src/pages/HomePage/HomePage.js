@@ -1,8 +1,8 @@
 import BannerSlider from '../../components/BannerSlider';
-import HeroBanner from '../../components/HeroBanner';
-import CategoryList from '../../components/CategoryList';
-import PromotionBanner from '../../components/PromotionBanner';
-import FeaturedProducts from '../../components/FeaturedProducts';
+import HeroBanner from '../../components/HeroBanner/HeroBanner';
+import CategoryList from '../../components/CategoryList/CategoryList';
+import PromotionBanner from '../../components/PromotionBanner/PromotionBanner';
+import FeaturedProducts from '../../components/FeaturedProducts/FeaturedProducts';
 
 const HomePage = () => {
   return (
