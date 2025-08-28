@@ -79,35 +79,25 @@ const MyOrdersPage = () => {
             )}
           </div>
         );
+        break;
       case 'profile':
         navigate('/account');
         return null;
+        break;
       case 'address':
-        return (
-          <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px #0001', padding: 32, maxWidth: 500, width: '100%', textAlign: 'center' }}>
-            <h2 className="account-title">Địa chỉ</h2>
-            <div className="account-desc">Quản lý địa chỉ nhận hàng của bạn tại đây.</div>
-            <div style={{ color: '#888', marginTop: 24 }}>Chức năng này sẽ được phát triển sau.</div>
-          </div>
-        );
+        navigate('/account');
+        return null;
+        break;
       case 'privacy':
-        return (
-          <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px #0001', padding: 32, maxWidth: 500, width: '100%', textAlign: 'center' }}>
-            <h2 className="account-title">Thiết Lập Riêng Tư</h2>
-            <div className="account-desc">Quản lý các thiết lập bảo mật và quyền riêng tư.</div>
-            <div style={{ color: '#888', marginTop: 24 }}>Chức năng này sẽ được phát triển sau.</div>
-          </div>
-        );
+        navigate('/account');
+        return null;
       case 'info':
-        return (
-          <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px #0001', padding: 32, maxWidth: 500, width: '100%', textAlign: 'center' }}>
-            <h2 className="account-title">Thông tin cá nhân</h2>
-            <div className="account-desc">Xem thông tin cá nhân của bạn.</div>
-            <div style={{ color: '#888', marginTop: 24 }}>Chức năng này sẽ được phát triển sau.</div>
-          </div>
-        );
+        navigate('/account');
+        return null;
+        break;
       default:
         return null;
+        break;
     }
   };
 
