@@ -10,6 +10,17 @@ router.put('/:id', upload.single('avatar'), async (req, res) => {
     if (req.file) {
       updateData.avatar = `/uploads/${req.file.filename}`;
     }
+    
+    // Xử lý đặc biệt cho addresses nếu có
+    if (req.body.addresses) {
+      try {
+        updateData.addresses = JSON.parse(req.body.addresses);
+      } catch (e) {
+        // Nếu không parse được JSON, giữ nguyên giá trị
+        updateData.addresses = req.body.addresses;
+      }
+    }
+    
     const user = await User.findByIdAndUpdate(
       req.params.id,
       updateData,

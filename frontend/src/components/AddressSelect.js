@@ -1,56 +1,151 @@
-import React, { useState } from 'react';
-
-const addressData = {
-  'Hà Nội': {
-    'Ba Đình': ['Phúc Xá', 'Trúc Bạch'],
-    'Hoàn Kiếm': ['Hàng Bạc', 'Hàng Đào'],
-    'Cầu Giấy': ['Dịch Vọng', 'Nghĩa Tân'],
-  },
-  'Hồ Chí Minh': {
-    'Quận 1': ['Bến Nghé', 'Bến Thành'],
-    'Quận 3': ['Phường 1', 'Phường 2'],
-    'Quận 7': ['Tân Phong', 'Tân Quy'],
-  },
-  'Đà Nẵng': {
-    'Hải Châu': ['Thạch Thang', 'Hải Châu 1'],
-    'Thanh Khê': ['Thanh Khê Đông', 'Thanh Khê Tây'],
-  },
-};
+import React, { useState, useEffect } from 'react';
+import vietnamAdminData from '../data/vietnam_admin.json';
 
 export default function AddressSelect({ value, onChange }) {
-  const [city, setCity] = useState(value?.city || '');
-  const [district, setDistrict] = useState(value?.district || '');
-  const [ward, setWard] = useState(value?.ward || '');
+  const [loading, setLoading] = useState(false);
+  const [selectedProvince, setSelectedProvince] = useState(value?.province || '');
+  const [selectedDistrict, setSelectedDistrict] = useState(value?.district || '');
+  const [selectedWard, setSelectedWard] = useState(value?.ward || '');
+  
+  // Filtered data based on selections
+  const [filteredDistricts, setFilteredDistricts] = useState([]);
+  const [filteredWards, setFilteredWards] = useState([]);
 
-  const handleCity = e => {
-    setCity(e.target.value);
-    setDistrict('');
-    setWard('');
-    onChange({ city: e.target.value, district: '', ward: '' });
+  // Find selected province data
+  const selectedProvinceData = vietnamAdminData.find(
+    province => province.name === selectedProvince
+  );
+
+  // Find selected district data
+  const selectedDistrictData = selectedProvinceData?.districts?.find(
+    district => district.name === selectedDistrict
+  );
+
+  // Update filtered districts when province changes
+  useEffect(() => {
+    if (selectedProvinceData) {
+      setFilteredDistricts(selectedProvinceData.districts || []);
+    } else {
+      setFilteredDistricts([]);
+    }
+    setSelectedDistrict('');
+    setSelectedWard('');
+    setFilteredWards([]);
+  }, [selectedProvinceData]);
+
+  // Update filtered wards when district changes
+  useEffect(() => {
+    if (selectedDistrictData) {
+      setFilteredWards(selectedDistrictData.wards || []);
+    } else {
+      setFilteredWards([]);
+    }
+    setSelectedWard('');
+  }, [selectedDistrictData]);
+
+  const handleProvinceChange = (e) => {
+    const provinceName = e.target.value;
+    setSelectedProvince(provinceName);
+    setSelectedDistrict('');
+    setSelectedWard('');
+    onChange({ 
+      province: provinceName, 
+      district: '', 
+      ward: '' 
+    });
   };
-  const handleDistrict = e => {
-    setDistrict(e.target.value);
-    setWard('');
-    onChange({ city, district: e.target.value, ward: '' });
+
+  const handleDistrictChange = (e) => {
+    const districtName = e.target.value;
+    setSelectedDistrict(districtName);
+    setSelectedWard('');
+    onChange({ 
+      province: selectedProvince, 
+      district: districtName, 
+      ward: '' 
+    });
   };
-  const handleWard = e => {
-    setWard(e.target.value);
-    onChange({ city, district, ward: e.target.value });
+
+  const handleWardChange = (e) => {
+    const wardName = e.target.value;
+    setSelectedWard(wardName);
+    onChange({ 
+      province: selectedProvince, 
+      district: selectedDistrict, 
+      ward: wardName 
+    });
   };
+
+  const selectStyle = {
+    marginBottom: 8,
+    width: '100%',
+    padding: 10,
+    borderRadius: 6,
+    border: '1px solid #dbeafe',
+    fontSize: 15,
+    backgroundColor: '#fff',
+    cursor: 'pointer'
+  };
+
+  const disabledStyle = {
+    ...selectStyle,
+    backgroundColor: '#f8f9fa',
+    cursor: 'not-allowed',
+    color: '#6c757d'
+  };
+
+  if (loading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '20px', color: '#6c757d' }}>
+        Đang tải dữ liệu địa chỉ...
+      </div>
+    );
+  }
 
   return (
     <div>
-      <select value={city} onChange={handleCity} style={{ marginBottom: 8, width: '100%', padding: 10, borderRadius: 6, border: '1px solid #dbeafe', fontSize: 15 }}>
+      {/* Province/Thành phố Dropdown */}
+      <select 
+        value={selectedProvince} 
+        onChange={handleProvinceChange} 
+        style={selectStyle}
+      >
         <option value="">Chọn Tỉnh/Thành phố</option>
-        {Object.keys(addressData).map(c => <option key={c} value={c}>{c}</option>)}
+        {vietnamAdminData.map(province => (
+          <option key={province.code} value={province.name}>
+            {province.name}
+          </option>
+        ))}
       </select>
-      <select value={district} onChange={handleDistrict} disabled={!city} style={{ marginBottom: 8, width: '100%', padding: 10, borderRadius: 6, border: '1px solid #dbeafe', fontSize: 15 }}>
+
+      {/* District/Quận/Huyện Dropdown */}
+      <select 
+        value={selectedDistrict} 
+        onChange={handleDistrictChange} 
+        disabled={!selectedProvince}
+        style={selectedProvince ? selectStyle : disabledStyle}
+      >
         <option value="">Chọn Quận/Huyện</option>
-        {city && Object.keys(addressData[city]).map(d => <option key={d} value={d}>{d}</option>)}
+        {filteredDistricts.map(district => (
+          <option key={district.code} value={district.name}>
+            {district.name}
+          </option>
+        ))}
       </select>
-      <select value={ward} onChange={handleWard} disabled={!district} style={{ marginBottom: 8, width: '100%', padding: 10, borderRadius: 6, border: '1px solid #dbeafe', fontSize: 15 }}>
+
+      {/* Ward/Phường/Xã Dropdown */}
+      <select 
+        value={selectedWard} 
+        onChange={handleWardChange} 
+        disabled={!selectedDistrict}
+        style={selectedDistrict ? selectStyle : disabledStyle}
+      >
         <option value="">Chọn Phường/Xã</option>
-        {city && district && addressData[city][district].map(w => <option key={w} value={w}>{w}</option>)}
+        {filteredWards.map(ward => (
+          <option key={ward.code} value={ward.name}>
+            {ward.name}
+          </option>
+        ))}
       </select>
     </div>
   );

@@ -9,6 +9,20 @@ export const api = axios.create({
   },
 });
 
+// Add request interceptor to automatically add auth token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // Chỉnh sửa và xóa đánh giá sản phẩm
 export const updateReview = (productId, reviewId, data) => api.put(`/products/${productId}/reviews/${reviewId}`, data);
 export const deleteReview = (productId, reviewId, data) => api.delete(`/products/${productId}/reviews/${reviewId}`, { data });

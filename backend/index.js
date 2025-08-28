@@ -33,6 +33,8 @@ app.use('/api/notifications', require('./routes/notifications'));
 
 // User routes
 app.use('/api/user', require('./routes/user'));
+// Address routes
+app.use('/api/addresses', require('./routes/addresses'));
 // Auth routes
 app.use('/api/auth', require('./routes/auth'));
 

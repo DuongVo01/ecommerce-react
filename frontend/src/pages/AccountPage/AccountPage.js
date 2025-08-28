@@ -1,7 +1,9 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { UserContext } from "../../UserContext";
+import AddressSelect from "../../components/AddressSelect";
+import { addressService } from "../../services/addressService";
 import "./AccountPage.css";
 
   
@@ -17,8 +19,43 @@ const AccountPage = () => {
   const [activeTab, setActiveTab] = useState('profile');
   // Địa chỉ
   const [addresses, setAddresses] = useState(user?.addresses || []);
-  const [addressForm, setAddressForm] = useState({ name: '', phone: '', address: '' });
+  const [addressForm, setAddressForm] = useState({ 
+    name: '', 
+    phone: '', 
+    province: '', 
+    district: '', 
+    ward: '',
+    detailAddress: '',
+    addressType: 'Nhà Riêng',
+    isDefault: false
+  });
   const [editAddressId, setEditAddressId] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  // Load addresses từ backend khi component mount
+  useEffect(() => {
+    if (user && user.id) {
+      loadAddresses();
+    }
+  }, [user?.id]); // Chỉ chạy khi user.id thay đổi
+
+  const loadAddresses = useCallback(async () => {
+    try {
+      setLoading(true);
+      const addressesData = await addressService.getAddresses();
+      setAddresses(addressesData);
+      // Không cập nhật user context ở đây để tránh vòng lặp vô hạn
+    } catch (error) {
+      console.error('Failed to load addresses:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Callback cho AddressSelect onChange
+  const handleAddressSelectChange = useCallback(({ province, district, ward }) => {
+    setAddressForm(prev => ({ ...prev, province, district, ward }));
+  }, []);
   // Avatar
   // Always store avatar as File only when uploading, and avatarPreview as a string URL
   const [avatar, setAvatar] = useState(null);
@@ -156,41 +193,216 @@ const AccountPage = () => {
         );
       case 'address':
         return (
-          <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px #0001', padding: 32, maxWidth: 500, width: '100%', textAlign: 'center' }}>
+                      <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px #0001', padding: 32, maxWidth: 500, width: '100%', textAlign: 'center' }}>
             <h2 className="account-title">Địa chỉ nhận hàng</h2>
             <div className="account-desc">Quản lý địa chỉ nhận hàng của bạn tại đây.</div>
-            {/* Danh sách địa chỉ */}
-            <ul style={{ listStyle: 'none', padding: 0, margin: '24px 0' }}>
-              {addresses.length === 0 && <li style={{ color: '#888', marginBottom: 12 }}>Chưa có địa chỉ nào.</li>}
-              {addresses.map((addr, idx) => (
-                <li key={idx} style={{ background: '#f8fafc', borderRadius: 8, padding: '10px 16px', marginBottom: 10, boxShadow: '0 1px 4px #1976d211', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ textAlign: 'left' }}>
-                    <div><strong>{addr.name}</strong> <span style={{ color: '#1976d2', fontWeight: 500 }}>{addr.phone}</span></div>
-                    <div style={{ color: '#374151', fontSize: 15 }}>{addr.address}</div>
-                  </div>
-                  <div>
-                    <button style={{ background: '#e3eafc', color: '#1976d2', border: 'none', borderRadius: 6, padding: '6px 14px', marginRight: 8, cursor: 'pointer', fontWeight: 500 }} onClick={() => { setEditAddressId(idx); setAddressForm(addr); }}>Sửa</button>
-                    <button style={{ background: '#fdecea', color: '#d32f2f', border: 'none', borderRadius: 6, padding: '6px 14px', cursor: 'pointer', fontWeight: 500 }} onClick={() => {
-                      setAddresses(addresses.filter((_, i) => i !== idx));
-                      if (user) loginUser({ ...user, addresses: addresses.filter((_, i) => i !== idx) });
-                    }}>Xóa</button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            {loading && <div style={{ color: '#1976d2', marginTop: 10 }}>Đang tải...</div>}
+                         {/* Danh sách địa chỉ */}
+             <ul style={{ listStyle: 'none', padding: 0, margin: '24px 0' }}>
+               {addresses.length === 0 && <li style={{ color: '#888', marginBottom: 12, fontStyle: 'italic' }}>Chưa có địa chỉ nào. Hãy thêm địa chỉ mới bên dưới.</li>}
+               {addresses.map((addr, idx) => (
+                                  <li key={addr._id || idx} className="address-card" style={{ 
+                   background: '#f9f9f9', 
+                   borderRadius: 12, 
+                   padding: '16px 20px', 
+                   marginBottom: 16, 
+                   boxShadow: '0 2px 8px rgba(0,0,0,0.08)', 
+                   border: '1px solid #e8e8e8'
+                 }}>
+                   {/* Header row with name, phone, and buttons */}
+                   <div className="address-card-header" style={{ 
+                     display: 'flex', 
+                     justifyContent: 'space-between', 
+                     alignItems: 'center', 
+                     marginBottom: 8,
+                     flexWrap: 'wrap',
+                     gap: 8
+                   }}>
+                     <div className="address-card-name-phone" style={{ 
+                       display: 'flex', 
+                       alignItems: 'center', 
+                       gap: 12,
+                       flexWrap: 'wrap'
+                     }}>
+                       <strong style={{ fontSize: 16, color: '#2c3e50' }}>{addr.name}</strong>
+                       <span style={{ color: '#1976d2', fontWeight: 500, fontSize: 15 }}>{addr.phone}</span>
+                       {addr.addressType && (
+                         <span style={{ 
+                           background: addr.addressType === 'Nhà Riêng' ? '#e8f5e8' : '#fff3e0',
+                           color: addr.addressType === 'Nhà Riêng' ? '#2e7d32' : '#f57c00',
+                           padding: '4px 8px',
+                           borderRadius: 12,
+                           fontSize: 12,
+                           fontWeight: 500,
+                           border: `1px solid ${addr.addressType === 'Nhà Riêng' ? '#c8e6c9' : '#ffe0b2'}`
+                         }}>
+                           {addr.addressType}
+                         </span>
+                       )}
+                       {addr.isDefault && (
+                         <span style={{ 
+                           background: '#fff3e0',
+                           color: '#f57c00',
+                           padding: '4px 8px',
+                           borderRadius: 12,
+                           fontSize: 12,
+                           fontWeight: 500,
+                           border: '1px solid #ffe0b2'
+                         }}>
+                           Mặc định
+                         </span>
+                       )}
+                     </div>
+                     
+                     {/* Button group */}
+                     <div className="address-card-buttons" style={{ 
+                       display: 'flex', 
+                       gap: 8, 
+                       alignItems: 'center' 
+                     }}>
+                       <button 
+                         style={{ 
+                           background: '#e3eafc', 
+                           color: '#1976d2', 
+                           border: 'none', 
+                           borderRadius: 6, 
+                           padding: '8px 16px', 
+                           cursor: 'pointer', 
+                           fontWeight: 500,
+                           fontSize: 14,
+                           minHeight: 36,
+                           transition: 'all 0.2s ease'
+                         }} 
+                         onMouseOver={(e) => e.target.style.background = '#d1e7ff'}
+                         onMouseOut={(e) => e.target.style.background = '#e3eafc'}
+                         onClick={() => { setEditAddressId(addr._id); setAddressForm(addr); }}
+                       >
+                         Sửa
+                       </button>
+                       <button 
+                         style={{ 
+                           background: '#fdecea', 
+                           color: '#d32f2f', 
+                           border: 'none', 
+                           borderRadius: 6, 
+                           padding: '8px 16px', 
+                           cursor: 'pointer', 
+                           fontWeight: 500,
+                           fontSize: 14,
+                           minHeight: 36,
+                           transition: 'all 0.2s ease'
+                         }}
+                         onMouseOver={(e) => e.target.style.background = '#ffcdd2'}
+                         onMouseOut={(e) => e.target.style.background = '#fdecea'}
+                         onClick={async () => {
+                           if (window.confirm('Bạn có chắc muốn xóa địa chỉ này?')) {
+                             try {
+                               setLoading(true);
+                               console.log('Deleting address with ID:', addr._id);
+                               console.log('Address object:', addr);
+                               
+                               if (!addr._id) {
+                                 // Nếu không có _id, reload lại danh sách địa chỉ từ backend
+                                 console.log('No _id found, reloading addresses...');
+                                 await loadAddresses();
+                                 alert('Đã tải lại danh sách địa chỉ. Vui lòng thử xóa lại.');
+                                 return;
+                               }
+                               
+                               await addressService.deleteAddress(addr._id);
+                               // Cập nhật state local thay vì reload toàn bộ
+                               setAddresses(prevAddresses => prevAddresses.filter(a => a._id !== addr._id));
+                               alert('Xóa địa chỉ thành công!');
+                             } catch (error) {
+                               console.error('Delete address failed:', error);
+                               console.error('Error details:', {
+                                 message: error.message,
+                                 response: error.response?.data,
+                                 status: error.response?.status
+                               });
+                               
+                               let errorMessage = 'Có lỗi xảy ra khi xóa địa chỉ.';
+                               if (error.response?.data?.error) {
+                                 errorMessage = error.response.data.error;
+                               } else if (error.message) {
+                                 errorMessage = error.message;
+                               }
+                               
+                               alert(errorMessage);
+                               
+                               // Nếu lỗi 404 (Address not found), reload lại danh sách
+                               if (error.response?.status === 404) {
+                                 console.log('Address not found, reloading addresses...');
+                                 await loadAddresses();
+                               }
+                             } finally {
+                               setLoading(false);
+                             }
+                           }
+                         }}
+                       >
+                         Xóa
+                       </button>
+                     </div>
+                   </div>
+                   
+                   {/* Address details */}
+                   <div style={{ color: '#374151', fontSize: 15, lineHeight: 1.4 }}>
+                     {/* First line: Detailed address */}
+                     <div style={{ marginBottom: 4 }}>
+                       {addr.detailAddress}
+                     </div>
+                     {/* Second line: Administrative divisions */}
+                     <div style={{ 
+                       color: '#6b7280', 
+                       fontSize: 14,
+                       fontStyle: 'italic'
+                     }}>
+                       {[addr.ward, addr.district, addr.province].filter(Boolean).join(', ')}
+                     </div>
+                   </div>
+                 </li>
+               ))}
+             </ul>
             {/* Form thêm/sửa địa chỉ */}
-            <form style={{ marginTop: 12 }} onSubmit={e => {
+            <form style={{ marginTop: 12 }} onSubmit={async e => {
               e.preventDefault();
-              if (editAddressId !== null) {
-                const newList = addresses.map((a, i) => i === editAddressId ? addressForm : a);
-                setAddresses(newList);
-                if (user) loginUser({ ...user, addresses: newList });
-                setEditAddressId(null);
-              } else {
-                setAddresses([...addresses, addressForm]);
-                if (user) loginUser({ ...user, addresses: [...addresses, addressForm] });
+              
+              // Validation
+              if (!addressForm.province || !addressForm.district || !addressForm.ward) {
+                alert('Vui lòng chọn đầy đủ Tỉnh/Thành phố, Quận/Huyện và Phường/Xã');
+                return;
               }
-              setAddressForm({ name: '', phone: '', address: '' });
+              
+              try {
+                setLoading(true);
+                
+                if (editAddressId !== null) {
+                  // Cập nhật địa chỉ
+                  const updatedAddress = await addressService.updateAddress(editAddressId, addressForm);
+                  // Cập nhật state local
+                  setAddresses(prevAddresses => 
+                    prevAddresses.map(addr => 
+                      addr._id === editAddressId ? { ...addr, ...addressForm } : addr
+                    )
+                  );
+                  alert('Cập nhật địa chỉ thành công!');
+                  setEditAddressId(null);
+                                 } else {
+                   // Thêm địa chỉ mới
+                   const newAddress = await addressService.addAddress(addressForm);
+                   // Cập nhật state local với địa chỉ có _id từ backend
+                   setAddresses(prevAddresses => [...prevAddresses, newAddress.address]);
+                   alert('Thêm địa chỉ thành công!');
+                 }
+                
+                                 setAddressForm({ name: '', phone: '', province: '', district: '', ward: '', detailAddress: '', addressType: 'Nhà Riêng', isDefault: false });
+              } catch (error) {
+                console.error('Address operation failed:', error);
+                alert(error.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
+              } finally {
+                setLoading(false);
+              }
             }}>
               <h3 style={{ color: '#1976d2', fontWeight: 600, marginBottom: 10 }}>{editAddressId !== null ? 'Cập nhật địa chỉ' : 'Thêm địa chỉ mới'}</h3>
               <input
@@ -210,18 +422,120 @@ const AccountPage = () => {
                 pattern="[0-9]{10,11}"
                 style={{ marginBottom: 8, width: '100%', padding: 10, borderRadius: 6, border: '1px solid #dbeafe', fontSize: 15 }}
               />
-              <input
-                type="text"
-                placeholder="Địa chỉ nhận hàng"
-                value={addressForm.address}
-                onChange={e => setAddressForm({ ...addressForm, address: e.target.value })}
-                required
-                style={{ marginBottom: 8, width: '100%', padding: 10, borderRadius: 6, border: '1px solid #dbeafe', fontSize: 15 }}
-              />
-              <div style={{ display: 'flex', gap: 12, marginTop: 8, justifyContent: 'center' }}>
-                <button type="submit" className="account-btn" style={{ minWidth: 120 }}>{editAddressId !== null ? 'Cập nhật' : 'Thêm mới'}</button>
+              <div style={{ marginBottom: 8 }}>
+                <label style={{ display: 'block', marginBottom: 4, fontSize: 14, fontWeight: 500, color: '#374151' }}>
+                  Tỉnh/Thành phố - Quận/Huyện - Phường/Xã
+                </label>
+                <AddressSelect
+                  value={{ 
+                    province: addressForm.province, 
+                    district: addressForm.district, 
+                    ward: addressForm.ward 
+                  }}
+                  onChange={handleAddressSelectChange}
+                />
+              </div>
+                             <input
+                 type="text"
+                 placeholder="Địa chỉ chi tiết (số nhà, tên đường, tòa nhà...)"
+                 value={addressForm.detailAddress}
+                 onChange={e => setAddressForm({ ...addressForm, detailAddress: e.target.value })}
+                 required
+                 style={{ marginBottom: 16, width: '100%', padding: 10, borderRadius: 6, border: '1px solid #dbeafe', fontSize: 15 }}
+               />
+               
+               {/* Address Type Selection */}
+               <div style={{ marginBottom: 16 }}>
+                 <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 500, color: '#374151' }}>
+                   Loại địa chỉ:
+                 </label>
+                 <div style={{ display: 'flex', gap: 8 }}>
+                   <button
+                     type="button"
+                     onClick={() => setAddressForm({ ...addressForm, addressType: 'Nhà Riêng' })}
+                     style={{
+                       flex: 1,
+                       padding: '10px 16px',
+                       borderRadius: 6,
+                       border: addressForm.addressType === 'Nhà Riêng' ? '2px solid #d32f2f' : '1px solid #d1d5db',
+                       background: addressForm.addressType === 'Nhà Riêng' ? '#fef2f2' : '#ffffff',
+                       color: addressForm.addressType === 'Nhà Riêng' ? '#d32f2f' : '#374151',
+                       fontWeight: addressForm.addressType === 'Nhà Riêng' ? 600 : 500,
+                       fontSize: 14,
+                       cursor: 'pointer',
+                       transition: 'all 0.2s ease'
+                     }}
+                   >
+                     Nhà Riêng
+                   </button>
+                   <button
+                     type="button"
+                     onClick={() => setAddressForm({ ...addressForm, addressType: 'Văn Phòng' })}
+                     style={{
+                       flex: 1,
+                       padding: '10px 16px',
+                       borderRadius: 6,
+                       border: addressForm.addressType === 'Văn Phòng' ? '2px solid #d32f2f' : '1px solid #d1d5db',
+                       background: addressForm.addressType === 'Văn Phòng' ? '#fef2f2' : '#ffffff',
+                       color: addressForm.addressType === 'Văn Phòng' ? '#d32f2f' : '#374151',
+                       fontWeight: addressForm.addressType === 'Văn Phòng' ? 600 : 500,
+                       fontSize: 14,
+                       cursor: 'pointer',
+                       transition: 'all 0.2s ease'
+                     }}
+                   >
+                     Văn Phòng
+                   </button>
+                 </div>
+               </div>
+               
+               {/* Default Address Checkbox */}
+               <div style={{ marginBottom: 16 }}>
+                 <label style={{ 
+                   display: 'flex', 
+                   alignItems: 'center', 
+                   gap: 8, 
+                   cursor: 'pointer',
+                   opacity: (!addressForm.name || !addressForm.phone || !addressForm.province || !addressForm.district || !addressForm.ward || !addressForm.detailAddress) ? 0.5 : 1
+                 }}>
+                   <div style={{
+                     width: 18,
+                     height: 18,
+                     border: addressForm.isDefault ? '2px solid #d32f2f' : '2px solid #d1d5db',
+                     borderRadius: 3,
+                     background: addressForm.isDefault ? '#d32f2f' : '#ffffff',
+                     display: 'flex',
+                     alignItems: 'center',
+                     justifyContent: 'center',
+                     transition: 'all 0.2s ease'
+                   }}>
+                     {addressForm.isDefault && (
+                       <span style={{ color: '#ffffff', fontSize: 12, fontWeight: 'bold' }}>✓</span>
+                     )}
+                   </div>
+                   <span style={{ 
+                     fontSize: 14, 
+                     color: '#374151',
+                     fontWeight: 500
+                   }}>
+                     Đặt làm địa chỉ mặc định
+                   </span>
+                 </label>
+                 <input
+                   type="checkbox"
+                   checked={addressForm.isDefault}
+                   onChange={(e) => setAddressForm({ ...addressForm, isDefault: e.target.checked })}
+                   disabled={!addressForm.name || !addressForm.phone || !addressForm.province || !addressForm.district || !addressForm.ward || !addressForm.detailAddress}
+                   style={{ display: 'none' }}
+                 />
+               </div>
+               
+               <div style={{ display: 'flex', gap: 12, marginTop: 8, justifyContent: 'center' }}>
+                <button type="submit" className="account-btn" style={{ minWidth: 120 }} disabled={loading}>
+                  {loading ? 'Đang xử lý...' : (editAddressId !== null ? 'Cập nhật' : 'Thêm mới')}
+                </button>
                 {editAddressId !== null && (
-                  <button type="button" className="account-btn" style={{ background: '#e3eafc', color: '#1976d2', minWidth: 80 }} onClick={() => { setEditAddressId(null); setAddressForm({ name: '', phone: '', address: '' }); }}>Hủy</button>
+                                     <button type="button" className="account-btn" style={{ background: '#e3eafc', color: '#1976d2', minWidth: 80 }} onClick={() => { setEditAddressId(null); setAddressForm({ name: '', phone: '', province: '', district: '', ward: '', detailAddress: '', addressType: 'Nhà Riêng', isDefault: false }); }}>Hủy</button>
                 )}
               </div>
             </form>

@@ -219,3 +219,41 @@
     font-size: 0.9rem;
   }
 }
+
+/* Address card responsive styles */
+@media (max-width: 768px) {
+  .address-card {
+    padding: 12px 16px !important;
+    margin-bottom: 12px !important;
+  }
+  
+  .address-card-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+  
+  .address-card-buttons {
+    width: 100% !important;
+    justify-content: flex-end !important;
+  }
+  
+  .address-card-name-phone {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 4px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .address-card {
+    padding: 10px 12px !important;
+    border-radius: 8px !important;
+  }
+  
+  .address-card-buttons button {
+    padding: 6px 12px !important;
+    font-size: 13px !important;
+    min-height: 32px !important;
+  }
+}
