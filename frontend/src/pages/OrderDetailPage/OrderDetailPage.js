@@ -8,13 +8,12 @@ import './OrderDetailPage.css';
 const OrderDetailPage = () => {
   // Lưu trữ trạng thái đã đánh giá từ backend cho từng sản phẩm
   const [productReviewedMap, setProductReviewedMap] = useState({});
-  // Gửi đánh giá sản phẩm (API addReview)
-  const addReview = async (productId, reviewData) => {
+  // Upload ảnh và gửi đánh giá sản phẩm (FormData)
+  const addReviewWithImages = async (productId, formData) => {
     try {
       const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/products/${productId}/reviews`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(reviewData)
+        body: formData
       });
       if (!res.ok) throw new Error('Lỗi khi gửi đánh giá');
       return await res.json();
@@ -26,6 +25,8 @@ const OrderDetailPage = () => {
   const [reviewingProduct, setReviewingProduct] = useState(null);
   const [reviewContent, setReviewContent] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
+  const [selectedImages, setSelectedImages] = useState([]); // File[]
+  const [imagePreviews, setImagePreviews] = useState([]); // string[]
   const reviewTextareaRef = useRef(null);
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
@@ -181,6 +182,8 @@ const OrderDetailPage = () => {
                     setShowReviewModal(true);
                     setReviewContent(userReview.comment);
                     setReviewRating(userReview.rating);
+                    setSelectedImages([]);
+                    setImagePreviews([]);
                     setTimeout(() => { reviewTextareaRef.current && reviewTextareaRef.current.focus(); }, 100);
                   }}
                 >Sửa đánh giá</button>
@@ -203,6 +206,8 @@ const OrderDetailPage = () => {
                     setShowReviewModal(true);
                     setReviewContent('');
                     setReviewRating(5);
+                    setSelectedImages([]);
+                    setImagePreviews([]);
                     setTimeout(() => { reviewTextareaRef.current && reviewTextareaRef.current.focus(); }, 100);
                   }}
                 >Đánh giá</button>
@@ -272,38 +277,122 @@ const OrderDetailPage = () => {
                   date: new Date().toLocaleString('vi-VN')
                 };
                 try {
-                  // Nếu đã có review, gọi API updateReview, ngược lại gọi addReview
+                  // Nếu đã có review, gọi API updateReview; ngược lại gửi mới + ảnh
                   if (productReviewedMap[productId]) {
-                    // Sửa đánh giá
                     const reviewId = productReviewedMap[productId]._id || productReviewedMap[productId].id;
-                    const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/products/${productId}/reviews/${reviewId}`, {
-                      method: 'PUT',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify(reviewData)
-                    });
-                    if (!res.ok) throw new Error('Lỗi khi sửa đánh giá');
-                    // Cập nhật lại trạng thái đã đánh giá
-                    setProductReviewedMap(prev => ({
-                      ...prev,
-                      [productId]: { ...reviewData, _id: reviewId }
-                    }));
+                    if (selectedImages.length > 0) {
+                      const form = new FormData();
+                      form.append('user', reviewData.user);
+                      form.append('rating', String(reviewData.rating));
+                      form.append('comment', reviewData.comment);
+                      for (const file of selectedImages) form.append('images', file);
+                      const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/products/${productId}/reviews/${reviewId}`, {
+                        method: 'PUT',
+                        body: form
+                      });
+                      if (!res.ok) throw new Error('Lỗi khi sửa đánh giá');
+                    } else {
+                      const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/products/${productId}/reviews/${reviewId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(reviewData)
+                      });
+                      if (!res.ok) throw new Error('Lỗi khi sửa đánh giá');
+                    }
+                    // Refresh reviewed review from backend
+                    try {
+                      const ref = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/products/${productId}/reviews`);
+                      if (ref.ok) {
+                        const list = await ref.json();
+                        const mine = Array.isArray(list) ? list.find(r => r.user === user.username) : null;
+                        setProductReviewedMap(prev => ({ ...prev, [productId]: mine || reviewData }));
+                      }
+                    } catch {}
                     alert('Đã cập nhật đánh giá!');
                   } else {
-                    // Gửi mới
-                    await addReview(productId, reviewData);
-                    setProductReviewedMap(prev => ({
-                      ...prev,
-                      [productId]: reviewData
-                    }));
+                    const form = new FormData();
+                    form.append('user', reviewData.user);
+                    form.append('rating', String(reviewData.rating));
+                    form.append('comment', reviewData.comment);
+                    form.append('date', reviewData.date);
+                    for (const file of selectedImages) form.append('images', file);
+                    await addReviewWithImages(productId, form);
+                    // Refresh reviewed map from backend
+                    try {
+                      const ref = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/products/${productId}/reviews`);
+                      if (ref.ok) {
+                        const list = await ref.json();
+                        const mine = Array.isArray(list) ? list.find(r => r.user === user.username) : null;
+                        setProductReviewedMap(prev => ({ ...prev, [productId]: mine || reviewData }));
+                      }
+                    } catch {}
                     alert('Đã gửi đánh giá thành công!');
                   }
                   setShowReviewModal(false);
+                  setSelectedImages([]);
+                  setImagePreviews([]);
                 } catch (err) {
                   alert('Lỗi khi gửi/sửa đánh giá!');
                 }
               }}
               disabled={reviewContent.trim().length === 0}
             >Gửi đánh giá</button>
+            {/* Image upload UI */}
+            <div style={{ marginTop: 12 }}>
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: '#1976d2', fontWeight: 600 }}>
+                <span role="img" aria-label="camera">📷</span>
+                Thêm ảnh (tối đa 5)
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/jpg"
+                  multiple
+                  style={{ display: 'none' }}
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files || []);
+                    // Validate count
+                    if (files.length + selectedImages.length > 5) {
+                      alert('Chỉ được chọn tối đa 5 ảnh.');
+                      return;
+                    }
+                    // Validate size and type
+                    const valid = [];
+                    for (const f of files) {
+                      if (f.size > 2 * 1024 * 1024) { alert('Ảnh vượt quá 2MB: ' + f.name); continue; }
+                      const typeOk = ['image/jpeg','image/png','image/webp','image/jpg'].includes(f.type);
+                      if (!typeOk) { alert('Định dạng không hợp lệ: ' + f.name); continue; }
+                      valid.push(f);
+                    }
+                    const newFiles = [...selectedImages, ...valid];
+                    const newPreviews = newFiles.map(file => URL.createObjectURL(file));
+                    setSelectedImages(newFiles);
+                    setImagePreviews(newPreviews);
+                  }}
+                />
+              </label>
+              {imagePreviews.length > 0 && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginTop: 10 }}>
+                  {imagePreviews.map((src, idx) => (
+                    <div key={idx} style={{ position: 'relative' }}>
+                      <img src={src} alt={`preview-${idx}`} style={{ width: '100%', height: 60, objectFit: 'cover', borderRadius: 8, border: '1px solid #e3eafc' }} />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const files = [...selectedImages];
+                          files.splice(idx, 1);
+                          const previews = [...imagePreviews];
+                          const [removed] = previews.splice(idx, 1);
+                          if (removed && removed.startsWith('blob:')) URL.revokeObjectURL(removed);
+                          setSelectedImages(files);
+                          setImagePreviews(previews);
+                        }}
+                        title="Xóa ảnh"
+                        style={{ position: 'absolute', top: -8, right: -8, background: '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: 22, height: 22, fontWeight: 700, cursor: 'pointer', boxShadow: '0 1px 3px #0003' }}
+                      >×</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

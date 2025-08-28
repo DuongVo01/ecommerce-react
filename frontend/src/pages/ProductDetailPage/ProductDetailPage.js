@@ -59,6 +59,8 @@ const ProductDetailPage = () => {
   const [editingReviewId, setEditingReviewId] = useState(null);
   const [editRating, setEditRating] = useState(5);
   const [editComment, setEditComment] = useState("");
+  const [editImages, setEditImages] = useState([]);
+  const [editImagePreviews, setEditImagePreviews] = useState([]);
   const { id } = useParams();
   const { addToCart } = useCart();
   const { showToast } = useToast();
@@ -69,6 +71,8 @@ const ProductDetailPage = () => {
   const [reviewList, setReviewList] = useState([]);
   const [newRating, setNewRating] = useState(5);
   const [newComment, setNewComment] = useState("");
+  const [newImages, setNewImages] = useState([]); // File[]
+  const [newImagePreviews, setNewImagePreviews] = useState([]); // string[]
   // Đóng dropdown menu đánh giá khi click ra ngoài
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -251,11 +255,27 @@ const ProductDetailPage = () => {
                 date: new Date().toLocaleString('vi-VN')
               };
               try {
-                await addReview(id, reviewData);
-                // Hiển thị ngay đánh giá mới ở đầu danh sách
-                setReviewList(prev => [reviewData, ...prev]);
+                if (newImages.length > 0) {
+                  const form = new FormData();
+                  form.append('user', reviewData.user);
+                  form.append('rating', String(reviewData.rating));
+                  form.append('comment', reviewData.comment);
+                  form.append('date', reviewData.date);
+                  for (const f of newImages) form.append('images', f);
+                  await import('../../services/api').then(api => api.addReview(id, form, true));
+                } else {
+                  await addReview(id, reviewData);
+                }
+                // Refresh list to get avatar and images from backend
+                const refreshed = await getReviews(id);
+                const allReviews = refreshed.data || [];
+                const myReview = allReviews.filter(r => r.user === user.username);
+                const otherReviews = allReviews.filter(r => r.user !== user.username);
+                setReviewList([...myReview, ...otherReviews]);
                 setNewComment("");
                 setNewRating(5);
+                setNewImages([]);
+                setNewImagePreviews([]);
                 showToast("Cảm ơn bạn đã đánh giá!");
               } catch {
                 showToast("Lỗi khi gửi đánh giá!");
@@ -280,6 +300,57 @@ const ProductDetailPage = () => {
                 style={{ padding: "0.5rem", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "1rem", minHeight: "60px" }}
                 required
               />
+              {/* Image upload UI */}
+              <div>
+                <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer', color: '#1976d2', fontWeight: 600 }}>
+                  <span role="img" aria-label="camera">📷</span>
+                  Thêm ảnh (tối đa 5)
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/jpg"
+                    multiple
+                    style={{ display: 'none' }}
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      if (files.length + newImages.length > 5) { showToast('Chỉ được chọn tối đa 5 ảnh.'); return; }
+                      const valid = [];
+                      for (const f of files) {
+                        if (f.size > 2 * 1024 * 1024) { showToast('Ảnh vượt quá 2MB: ' + f.name); continue; }
+                        const ok = ['image/jpeg','image/png','image/webp','image/jpg'].includes(f.type);
+                        if (!ok) { showToast('Định dạng không hợp lệ: ' + f.name); continue; }
+                        valid.push(f);
+                      }
+                      const all = [...newImages, ...valid];
+                      const previews = all.map(file => URL.createObjectURL(file));
+                      setNewImages(all);
+                      setNewImagePreviews(previews);
+                    }}
+                  />
+                </label>
+                {newImagePreviews.length > 0 && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8, marginTop: 8 }}>
+                    {newImagePreviews.map((src, idx) => (
+                      <div key={idx} style={{ position: 'relative' }}>
+                        <img src={src} alt={`preview-${idx}`} style={{ width: '100%', height: 60, objectFit: 'cover', borderRadius: 8, border: '1px solid #e3eafc' }} />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const files = [...newImages];
+                            files.splice(idx, 1);
+                            const previews = [...newImagePreviews];
+                            const [removed] = previews.splice(idx, 1);
+                            if (removed && removed.startsWith('blob:')) URL.revokeObjectURL(removed);
+                            setNewImages(files);
+                            setNewImagePreviews(previews);
+                          }}
+                          title="Xóa ảnh"
+                          style={{ position: 'absolute', top: -8, right: -8, background: '#ef4444', color: '#fff', border: 'none', borderRadius: '50%', width: 22, height: 22, fontWeight: 700, cursor: 'pointer', boxShadow: '0 1px 3px #0003' }}
+                        >×</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               <button type="submit" className="btn-submit-review">Gửi đánh giá</button>
             </div>
           </form>
@@ -325,20 +396,26 @@ const ProductDetailPage = () => {
                       onSubmit={async e => {
                         e.preventDefault();
                         try {
-                          await updateReview(id, reviewId, {
-                            user: user.username,
-                            rating: editRating,
-                            comment: editComment
-                          });
-                          // Lấy lại danh sách đánh giá mới nhất
-                          const res = await getReviews(id);
-                          // Đảm bảo chỉ có 1 đánh giá cho user này
-                          setReviewList(prev => {
-                            if (res.data.filter(r => r.user === user.username).length === 1) return res.data;
-                            const others = res.data.filter(r => r.user !== user.username);
-                            const myReview = res.data.filter(r => r.user === user.username).slice(-1);
-                            return [...myReview, ...others];
-                          });
+                          if (editImages.length > 0) {
+                            const form = new FormData();
+                            form.append('user', user.username);
+                            form.append('rating', String(editRating));
+                            form.append('comment', editComment);
+                            for (const f of editImages) form.append('images', f);
+                            await updateReview(id, reviewId, form, true);
+                          } else {
+                            await updateReview(id, reviewId, {
+                              user: user.username,
+                              rating: editRating,
+                              comment: editComment
+                            });
+                          }
+                          // Refresh list to ensure avatar/images are current
+                          const refreshed = await getReviews(id);
+                          const allReviews = refreshed.data || [];
+                          const myReview = allReviews.filter(r => r.user === user.username);
+                          const otherReviews = allReviews.filter(r => r.user !== user.username);
+                          setReviewList([...myReview, ...otherReviews]);
                           setEditingReviewId(null);
                           showToast('Đã cập nhật đánh giá!');
                         } catch {
@@ -353,11 +430,75 @@ const ProductDetailPage = () => {
                         ))}
                       </div>
                       <textarea value={editComment} onChange={e=>setEditComment(e.target.value)} style={{padding:'0.5rem',borderRadius:'8px',border:'1px solid #e2e8f0',fontSize:'1rem',minHeight:'110px',minWidth:'320px',width:'100%',margin:'0.5rem 0',resize:'vertical'}} required />
+                      {Array.isArray(review.images) && review.images.length > 0 && editImages.length === 0 && (
+                        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:8, margin:'8px 0' }}>
+                          {review.images.map((img, i) => {
+                            const base = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+                            const src = img.startsWith('/uploads') ? `${base}${img}` : img;
+                            return <img key={i} src={src} alt={`cur-${i}`} style={{ width:'100%', height:80, objectFit:'cover', borderRadius:8, border:'1px solid #e3eafc' }} />
+                          })}
+                        </div>
+                      )}
+                      <div style={{ margin:'8px 0' }}>
+                        <label style={{ display:'inline-flex', alignItems:'center', gap:8, cursor:'pointer', color:'#1976d2', fontWeight:600 }}>
+                          <span role="img" aria-label="camera">📷</span>
+                          Thay ảnh (tối đa 5)
+                          <input type="file" accept="image/jpeg,image/png,image/webp,image/jpg" multiple style={{ display:'none' }} onChange={(e)=>{
+                            const files = Array.from(e.target.files || []);
+                            if (files.length > 5) { showToast('Chỉ được chọn tối đa 5 ảnh.'); return; }
+                            const valid=[];
+                            for (const f of files) {
+                              if (f.size > 2*1024*1024) { showToast('Ảnh vượt quá 2MB: '+f.name); continue; }
+                              const ok=['image/jpeg','image/png','image/webp','image/jpg'].includes(f.type);
+                              if (!ok) { showToast('Định dạng không hợp lệ: '+f.name); continue; }
+                              valid.push(f);
+                            }
+                            setEditImages(valid);
+                            setEditImagePreviews(valid.map(f=>URL.createObjectURL(f)));
+                          }} />
+                        </label>
+                        {editImagePreviews.length>0 && (
+                          <div style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:8, marginTop:8 }}>
+                            {editImagePreviews.map((src, idx)=>(
+                              <div key={idx} style={{ position:'relative' }}>
+                                <img src={src} alt={`edit-${idx}`} style={{ width:'100%', height:60, objectFit:'cover', borderRadius:8, border:'1px solid #e3eafc' }} />
+                                <button type="button" onClick={()=>{
+                                  const files=[...editImages]; files.splice(idx,1);
+                                  const previews=[...editImagePreviews]; const [removed]=previews.splice(idx,1);
+                                  if (removed && removed.startsWith('blob:')) URL.revokeObjectURL(removed);
+                                  setEditImages(files); setEditImagePreviews(previews);
+                                }} title="Xóa ảnh" style={{ position:'absolute', top:-8, right:-8, background:'#ef4444', color:'#fff', border:'none', borderRadius:'50%', width:22, height:22, fontWeight:700, cursor:'pointer', boxShadow:'0 1px 3px #0003' }}>×</button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                       <button type="submit" className="btn-save-review">Lưu</button>
                       <button type="button" className="btn-cancel-review" onClick={()=>setEditingReviewId(null)}>Hủy</button>
                     </form>
                   ) : (
                     <pre className="review-comment" style={{whiteSpace:'pre-line',margin:0, marginBottom:8}}>{review.comment}</pre>
+                  )}
+                  {/* Images grid */}
+                  {Array.isArray(review.images) && review.images.length > 0 && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 8 }}>
+                      {review.images.map((img, i) => {
+                        const base = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+                        const src = img.startsWith('/uploads') ? `${base}${img}` : img;
+                        return (
+                          <img
+                            key={i}
+                            src={src}
+                            alt={`review-${i}`}
+                            style={{ width: '100%', height: 90, objectFit: 'cover', borderRadius: 8, cursor: 'pointer', border: '1px solid #e3eafc' }}
+                            onClick={() => {
+                              const win = window.open();
+                              if (win) win.document.write(`<img src='${src}' style='max-width:100%;height:auto'/>`);
+                            }}
+                          />
+                        );
+                      })}
+                    </div>
                   )}
                   <div style={{display:'flex',alignItems:'center',marginTop:4}}>
                     <button
@@ -422,6 +563,8 @@ const ProductDetailPage = () => {
                                   setEditingReviewId(reviewId);
                                   setEditRating(review.rating);
                                   setEditComment(review.comment);
+                                  setEditImages([]);
+                                  setEditImagePreviews([]);
                                   setOpenMenuReviewId(null);
                                 }}
                               >Sửa</button>

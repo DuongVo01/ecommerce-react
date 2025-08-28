@@ -24,12 +24,26 @@ api.interceptors.request.use(
 );
 
 // Chỉnh sửa và xóa đánh giá sản phẩm
-export const updateReview = (productId, reviewId, data) => api.put(`/products/${productId}/reviews/${reviewId}`, data);
+export const updateReview = (productId, reviewId, data, isFormData = false) => {
+  if (isFormData) {
+    return api.put(`/products/${productId}/reviews/${reviewId}`, data, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  }
+  return api.put(`/products/${productId}/reviews/${reviewId}`, data);
+};
 export const deleteReview = (productId, reviewId, data) => api.delete(`/products/${productId}/reviews/${reviewId}`, { data });
 
 // Đánh giá sản phẩm
 export const getReviews = (productId) => api.get(`/products/${productId}/reviews`);
-export const addReview = (productId, data) => api.post(`/products/${productId}/reviews`, data);
+export const addReview = (productId, data, isFormData = false) => {
+  if (isFormData) {
+    return api.post(`/products/${productId}/reviews`, data, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  }
+  return api.post(`/products/${productId}/reviews`, data);
+};
 
 // Lấy danh mục sản phẩm
 export const fetchCategories = async () => {

@@ -11,6 +11,14 @@ exports.updateProductReview = async (req, res) => {
     review.rating = req.body.rating;
     review.comment = req.body.comment;
     review.date = new Date().toLocaleString('vi-VN');
+    // Update images if provided
+    if (Array.isArray(req.files) && req.files.length > 0) {
+      review.images = req.files.map(f => `/uploads/reviews/${f.filename}`);
+    } else if (typeof req.body.clearImages !== 'undefined') {
+      // If client requests to clear images
+      const shouldClear = String(req.body.clearImages) === 'true';
+      if (shouldClear) review.images = [];
+    }
     await product.save();
     res.json(review);
   } catch (err) {
@@ -136,9 +144,16 @@ exports.addProductReview = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ error: 'Product not found' });
-    const review = req.body;
+    const review = req.body || {};
     if (!review || !review.rating || !review.comment || !review.user) {
       return res.status(400).json({ error: 'Missing rating, comment, or user' });
+    }
+    // Attach uploaded images if any
+    if (Array.isArray(req.files) && req.files.length > 0) {
+      review.images = req.files.map(f => `/uploads/reviews/${f.filename}`);
+    } else if (Array.isArray(review.images)) {
+      // keep client-provided images if already URLs
+      review.images = review.images;
     }
     // Lấy avatar từ User
     const User = require('../models/User');
@@ -146,7 +161,8 @@ exports.addProductReview = async (req, res) => {
     review.avatar = userDoc && userDoc.avatar ? userDoc.avatar : '';
     product.reviews.push(review);
     await product.save();
-    res.status(201).json(review);
+    const savedReview = product.reviews[product.reviews.length - 1];
+    res.status(201).json(savedReview);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

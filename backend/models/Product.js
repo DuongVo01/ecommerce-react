@@ -16,7 +16,8 @@ const productSchema = new mongoose.Schema({
       rating: { type: Number, min: 1, max: 5 },
       comment: String,
       date: String,
-      likes: [String] // danh sách username/userId đã like
+      likes: [String], // danh sách username/userId đã like
+      images: [String] // danh sách URL ảnh đính kèm review
     }
   ]
 });
