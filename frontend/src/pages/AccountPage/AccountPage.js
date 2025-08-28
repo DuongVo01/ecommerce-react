@@ -394,7 +394,7 @@ const AccountPage = () => {
 
                 {!loading && addresses.length > 0 && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                    {addresses.map((addr, idx) => (
+              {addresses.map((addr, idx) => (
                       <div key={addr._id || idx} style={{ 
                         background: '#f9f9f9', 
                         borderRadius: 12, 
@@ -547,8 +547,8 @@ const AccountPage = () => {
                               Xóa
                             </button>
                           </div>
-                        </div>
-                      </div>
+                  </div>
+                  </div>
                     ))}
                   </div>
                 )}
@@ -579,12 +579,12 @@ const AccountPage = () => {
                       <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 500, color: '#374151' }}>
                         Họ và tên *
                       </label>
-                      <input
-                        type="text"
+              <input
+                type="text"
                         placeholder="Nhập họ và tên người nhận"
-                        value={addressForm.name}
-                        onChange={e => setAddressForm({ ...addressForm, name: e.target.value })}
-                        required
+                value={addressForm.name}
+                onChange={e => setAddressForm({ ...addressForm, name: e.target.value })}
+                required
                         style={{ 
                           width: '100%', 
                           padding: 12, 
@@ -601,13 +601,13 @@ const AccountPage = () => {
                       <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 500, color: '#374151' }}>
                         Số điện thoại *
                       </label>
-                      <input
-                        type="tel"
+              <input
+                type="tel"
                         placeholder="Nhập số điện thoại"
-                        value={addressForm.phone}
-                        onChange={e => setAddressForm({ ...addressForm, phone: e.target.value })}
-                        required
-                        pattern="[0-9]{10,11}"
+                value={addressForm.phone}
+                onChange={e => setAddressForm({ ...addressForm, phone: e.target.value })}
+                required
+                pattern="[0-9]{10,11}"
                         style={{ 
                           width: '100%', 
                           padding: 12, 
@@ -639,12 +639,12 @@ const AccountPage = () => {
                       <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 500, color: '#374151' }}>
                         Địa chỉ chi tiết *
                       </label>
-                      <input
-                        type="text"
+              <input
+                type="text"
                         placeholder="Số nhà, tên đường, tòa nhà..."
                         value={addressForm.detailAddress}
                         onChange={e => setAddressForm({ ...addressForm, detailAddress: e.target.value })}
-                        required
+                required
                         style={{ 
                           width: '100%', 
                           padding: 12, 
@@ -784,8 +784,8 @@ const AccountPage = () => {
                         {loading ? 'Đang xử lý...' : 'Lưu'}
                       </button>
                     </div>
-                  </div>
-                </form>
+              </div>
+            </form>
               </div>
             )}
           </div>

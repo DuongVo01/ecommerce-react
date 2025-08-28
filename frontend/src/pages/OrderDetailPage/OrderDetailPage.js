@@ -157,11 +157,26 @@ const OrderDetailPage = () => {
           return (
             <li key={idx} className="order-detail-product-item" style={{ gap: 16 }}>
               {imgUrl ? (
-                <img src={imgUrl} alt="Sản phẩm" style={{ width: 54, height: 54, objectFit: 'cover', borderRadius: 8, boxShadow: '0 1px 4px #1976d211' }} />
+                <img
+                  src={imgUrl}
+                  alt="Sản phẩm"
+                  style={{ width: 54, height: 54, objectFit: 'cover', borderRadius: 8, boxShadow: '0 1px 4px #1976d211', cursor: 'pointer' }}
+                  onClick={() => navigate(`/product/${productId}`)}
+                  title="Xem chi tiết sản phẩm"
+                />
               ) : (
-                <span style={{ color: '#bbb', fontSize: 13, width: 54, height: 54, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#f3f6fa', borderRadius: 8 }}>Không có ảnh</span>
+                <span
+                  style={{ color: '#bbb', fontSize: 13, width: 54, height: 54, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#f3f6fa', borderRadius: 8, cursor: 'pointer' }}
+                  onClick={() => navigate(`/product/${productId}`)}
+                  title="Xem chi tiết sản phẩm"
+                >Không có ảnh</span>
               )}
-              <span className="order-detail-product-name">{item.productId?.name || item.productName || item.productId}</span>
+              <span
+                className="order-detail-product-name"
+                style={{ cursor: 'pointer' }}
+                onClick={() => navigate(`/product/${productId}`)}
+                title="Xem chi tiết sản phẩm"
+              >{item.productId?.name || item.productName || item.productId}</span>
               <span className="order-detail-product-qty">x {item.quantity}</span>
               {userReview ? (
                 <button
