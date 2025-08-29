@@ -136,10 +136,32 @@ const OrderDetailPage = () => {
             {['completed','shipping','waiting','pending','cancelled'].indexOf(order.status) === -1 && order.status}
           </span>
         </div>
+        <div className="order-detail-summary-row">
+          <strong>Phương thức thanh toán:</strong> {order.paymentMethod === 'COD' ? 'Thanh toán khi nhận hàng' : 'Thanh toán trực tuyến'}
+        </div>
         <div>
           <strong>Tổng tiền:</strong> <span className="order-detail-total">{Number(order.total).toLocaleString('vi-VN')}₫</span>
         </div>
       </div>
+
+      {/* Address Information */}
+      {order.addressId && (
+        <div className="order-detail-section">
+          <h3 className="order-detail-section-title">Địa chỉ giao hàng</h3>
+          <div className="order-detail-address">
+            <div className="address-info">
+              <div className="address-header">
+                <span className="address-name">{order.addressId.name}</span>
+                <span className="address-phone">{order.addressId.phone}</span>
+              </div>
+              <div className="address-details">
+                <p>{order.addressId.detailAddress}</p>
+                <p>{order.addressId.ward}, {order.addressId.district}, {order.addressId.province}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <h3 className="order-detail-products-title">Sản phẩm</h3>
       <ul className="order-detail-products-list">
         {order.items.map((item, idx) => {

@@ -79,8 +79,10 @@ export const updateUser = (userId, data) => api.put(`/user/${userId}`, data);
 
 // Cart APIs
 export const getCart = (userId) => api.get(`/cart/${userId}`);
+export const getCheckoutItems = (userId) => api.get(`/cart/${userId}/checkout`);
 export const addToCart = (userId, data) => api.post(`/cart/${userId}`, data);
 export const removeFromCart = (userId, productId) => api.delete(`/cart/${userId}/${productId}`);
+export const clearCart = (userId) => api.delete(`/cart/${userId}/clear`);
 
 // Order APIs
 export const getOrders = (userId) => api.get(`/orders/${userId}`);

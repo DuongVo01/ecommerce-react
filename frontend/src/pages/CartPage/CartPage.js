@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { useCart } from '../../CartContext';
 import { UserContext } from '../../UserContext';
-import { createOrder } from '../../services/api';
 import { Link, useNavigate } from 'react-router-dom';
 import './CartPage.css';
 
@@ -18,37 +17,24 @@ const CartPage = () => {
   };
 
   // Xác nhận khi xóa toàn bộ giỏ hàng
-  const handleClear = () => {
+  const handleClear = async () => {
     if (window.confirm('Bạn có chắc chắn muốn xóa toàn bộ giỏ hàng?')) {
-      clearCart();
+      try {
+        await clearCart();
+      } catch (error) {
+        console.error('Error clearing cart:', error);
+      }
     }
   };
 
   // Chuyển sang trang thanh toán
-  // Xử lý đặt hàng khi thanh toán
-  const handleCheckout = async () => {
-    const userId = user?._id || user?.id;
-    if (!user || !userId) {
+  const handleCheckout = () => {
+    if (!user) {
       alert('Bạn cần đăng nhập để thanh toán!');
       navigate('/login');
       return;
     }
-    try {
-      const orderData = {
-        items: cartItems.map(item => ({
-          productId: item._id || item.id,
-          quantity: item.quantity
-        })),
-        total: getTotal(),
-        userId: userId
-      };
-      const res = await createOrder(userId, orderData);
-      const orderId = res.data._id || res.data.id;
-      clearCart();
-      navigate('/order-detail', { state: { orderId } });
-    } catch (err) {
-      alert('Có lỗi khi đặt hàng, vui lòng thử lại!');
-    }
+    navigate('/checkout');
   };
 
   return (
