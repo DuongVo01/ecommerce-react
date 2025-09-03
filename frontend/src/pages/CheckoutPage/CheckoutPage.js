@@ -18,6 +18,16 @@ const CheckoutPage = () => {
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('COD');
+  const [addressForm, setAddressForm] = useState({
+    name: '',
+    phone: '',
+    province: '',
+    district: '',
+    ward: '',
+    detailAddress: '',
+    addressType: 'Nhà Riêng',
+    isDefault: false
+  });
   const [voucherCode, setVoucherCode] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [total, setTotal] = useState(0);
@@ -75,23 +85,96 @@ const CheckoutPage = () => {
     setShowAddressModal(false);
   };
 
-  const handleAddNewAddress = async (addressData) => {
+  const handleAddressSelectChange = ({ province, district, ward }) => {
+    setAddressForm(prev => ({ ...prev, province, district, ward }));
+  };
+
+  const handleAddNewAddress = () => {
+    setShowAddressForm(true);
+    setShowAddressModal(false);
+    setAddressForm({
+      name: '',
+      phone: '',
+      province: '',
+      district: '',
+      ward: '',
+      detailAddress: '',
+      addressType: 'Nhà Riêng',
+      isDefault: false
+    });
+  };
+
+  const handleCancelAddressForm = () => {
+    setShowAddressForm(false);
+    setAddressForm({
+      name: '',
+      phone: '',
+      province: '',
+      district: '',
+      ward: '',
+      detailAddress: '',
+      addressType: 'Nhà Riêng',
+      isDefault: false
+    });
+  };
+
+  const validatePhone = (phone) => {
+    const phoneRegex = /^[0-9]{10}$/;
+    return phoneRegex.test(phone);
+  };
+
+  const handleSaveAddress = async (e) => {
+    e.preventDefault();
+
+    // Validation
+    if (!addressForm.name || !addressForm.phone || !addressForm.province || 
+        !addressForm.district || !addressForm.ward || !addressForm.detailAddress) {
+      alert('Vui lòng điền đầy đủ thông tin địa chỉ');
+      return;
+    }
+
+    if (!validatePhone(addressForm.phone)) {
+      alert('Số điện thoại không hợp lệ. Vui lòng nhập 10 chữ số.');
+      return;
+    }
+
     try {
-      const response = await addressService.addAddress(addressData);
-      const newAddress = response.address;
+      setLoading(true);
+      const newAddress = await addressService.addAddress(addressForm);
       
-      // Update addresses list
-      setUserAddresses(prev => [...prev, newAddress]);
-      
-      // If this is the first address or marked as default, select it
-      if (userAddresses.length === 0 || newAddress.isDefault) {
-        setSelectedAddress(newAddress);
+      // Nếu thêm địa chỉ thành công, cập nhật UI
+      if (newAddress && newAddress._id) {
+        // Update addresses list
+        setUserAddresses(prev => [...prev, newAddress]);
+        
+        // If this is the first address or marked as default, select it
+        if (userAddresses.length === 0 || newAddress.isDefault) {
+          setSelectedAddress(newAddress);
+        }
+
+        // Refresh address list
+        await loadCheckoutData();
+        
+        alert('Thêm địa chỉ thành công!');
+        setShowAddressForm(false);
+      } else {
+        // Nếu không có _id trong response, vẫn refresh để lấy dữ liệu mới nhất
+        await loadCheckoutData();
+        alert('Thêm địa chỉ thành công!');
+        setShowAddressForm(false);
       }
-      
-      setShowAddressForm(false);
     } catch (error) {
       console.error('Error adding address:', error);
-      alert('Có lỗi khi thêm địa chỉ mới');
+      // Vì địa chỉ có thể đã được lưu thành công, refresh lại dữ liệu
+      try {
+        await loadCheckoutData();
+        alert('Thêm địa chỉ thành công!');
+        setShowAddressForm(false);
+      } catch (refreshError) {
+        alert('Có lỗi khi tải lại danh sách địa chỉ');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -365,17 +448,112 @@ const CheckoutPage = () => {
             <div className="modal-header">
               <h3>Thêm địa chỉ mới</h3>
               <button 
-                onClick={() => setShowAddressForm(false)}
+                onClick={handleCancelAddressForm}
                 className="modal-close"
               >
                 ×
               </button>
             </div>
             <div className="modal-body">
-              <AddressSelect 
-                mode="create"
-                onChange={handleAddNewAddress}
-              />
+              <form onSubmit={handleSaveAddress} className="address-form">
+                {/* Name Input */}
+                <div className="form-group">
+                  <label>Họ và tên *</label>
+                  <input
+                    type="text"
+                    value={addressForm.name}
+                    onChange={(e) => setAddressForm(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="Nhập họ và tên"
+                    required
+                  />
+                </div>
+
+                {/* Phone Input */}
+                <div className="form-group">
+                  <label>Số điện thoại *</label>
+                  <input
+                    type="tel"
+                    value={addressForm.phone}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === '' || /^\d+$/.test(value)) {
+                        setAddressForm(prev => ({ ...prev, phone: value }));
+                      }
+                    }}
+                    placeholder="Nhập số điện thoại (10 số)"
+                    maxLength={10}
+                    required
+                  />
+                </div>
+
+                {/* Province/City, District, Ward Selects */}
+                <div className="form-group">
+                  <label>Địa chỉ *</label>
+                  <AddressSelect
+                    value={{
+                      province: addressForm.province,
+                      district: addressForm.district,
+                      ward: addressForm.ward
+                    }}
+                    onChange={handleAddressSelectChange}
+                  />
+                </div>
+
+                {/* Detail Address */}
+                <div className="form-group">
+                  <label>Địa chỉ chi tiết *</label>
+                  <input
+                    type="text"
+                    value={addressForm.detailAddress}
+                    onChange={(e) => setAddressForm(prev => ({ ...prev, detailAddress: e.target.value }))}
+                    placeholder="Số nhà, tên đường, tòa nhà..."
+                    required
+                  />
+                </div>
+
+                {/* Address Type */}
+                <div className="form-group">
+                  <label>Loại địa chỉ</label>
+                  <div className="address-type-buttons">
+                    <button
+                      type="button"
+                      onClick={() => setAddressForm(prev => ({ ...prev, addressType: 'Nhà Riêng' }))}
+                      className={`type-btn ${addressForm.addressType === 'Nhà Riêng' ? 'active' : ''}`}
+                    >
+                      Nhà Riêng
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAddressForm(prev => ({ ...prev, addressType: 'Văn Phòng' }))}
+                      className={`type-btn ${addressForm.addressType === 'Văn Phòng' ? 'active' : ''}`}
+                    >
+                      Văn Phòng
+                    </button>
+                  </div>
+                </div>
+
+                {/* Default Address Checkbox */}
+                <div className="form-group checkbox-group">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={addressForm.isDefault}
+                      onChange={(e) => setAddressForm(prev => ({ ...prev, isDefault: e.target.checked }))}
+                    />
+                    <span>Đặt làm địa chỉ mặc định</span>
+                  </label>
+                </div>
+
+                {/* Form Actions */}
+                <div className="form-actions">
+                  <button type="button" onClick={handleCancelAddressForm} className="btn-cancel">
+                    Hủy
+                  </button>
+                  <button type="submit" className="btn-save">
+                    {loading ? 'Đang lưu...' : 'Lưu địa chỉ'}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>

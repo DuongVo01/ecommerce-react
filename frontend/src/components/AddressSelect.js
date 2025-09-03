@@ -162,11 +162,35 @@ export default function AddressSelect({ value, onChange, mode = 'select' }) {
     onChange(addressData);
   };
 
+  // Validate phone number
+  const validatePhone = (phoneNumber) => {
+    const phoneRegex = /^[0-9]{10}$/;
+    return phoneRegex.test(phoneNumber);
+  };
+
+  // Validate detail address
+  const validateDetailAddress = (address) => {
+    return address.trim().length >= 5; // Minimum 5 characters
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Required fields validation
     if (!name || !phone || !selectedProvince || !selectedDistrict || !selectedWard || !detailAddress) {
       alert('Vui lòng điền đầy đủ thông tin địa chỉ');
+      return;
+    }
+
+    // Phone number validation
+    if (!validatePhone(phone)) {
+      alert('Số điện thoại không hợp lệ. Vui lòng nhập 10 chữ số.');
+      return;
+    }
+
+    // Detail address validation
+    if (!validateDetailAddress(detailAddress)) {
+      alert('Vui lòng nhập địa chỉ chi tiết (tối thiểu 5 ký tự)');
       return;
     }
 
@@ -176,7 +200,7 @@ export default function AddressSelect({ value, onChange, mode = 'select' }) {
       province: selectedProvince,
       district: selectedDistrict,
       ward: selectedWard,
-      detailAddress,
+      detailAddress: detailAddress.trim(),
       addressType,
       isDefault
     };
@@ -187,6 +211,18 @@ export default function AddressSelect({ value, onChange, mode = 'select' }) {
     } catch (error) {
       console.error('Error adding address:', error);
       alert('Có lỗi khi thêm địa chỉ mới');
+    }
+  };
+
+  // Handle phone number input
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    // Only allow numbers
+    if (value === '' || /^\d+$/.test(value)) {
+      setPhone(value);
+      if (mode === 'create') {
+        updateAddressData();
+      }
     }
   };
 
@@ -255,20 +291,27 @@ export default function AddressSelect({ value, onChange, mode = 'select' }) {
           />
           <input
             type="tel"
-            placeholder="Số điện thoại"
+            placeholder="Số điện thoại (10 số)"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            style={inputStyle}
+            onChange={handlePhoneChange}
+            maxLength={10}
+            style={{
+              ...inputStyle,
+              borderColor: phone && !validatePhone(phone) ? '#ef4444' : '#dbeafe'
+            }}
             required
           />
         </div>
 
         <input
           type="text"
-          placeholder="Số nhà, đường, khu phố..."
+          placeholder="Số nhà, đường, khu phố... (tối thiểu 5 ký tự)"
           value={detailAddress}
           onChange={handleDetailAddressChange}
-          style={inputStyle}
+          style={{
+            ...inputStyle,
+            borderColor: detailAddress && !validateDetailAddress(detailAddress) ? '#ef4444' : '#dbeafe'
+          }}
           required
         />
 
