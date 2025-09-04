@@ -1,8 +1,12 @@
 import React from 'react';
 import { api } from '../../services/api';
+import { useNavigate } from 'react-router-dom';
 import './OrderCard.css';
 
 const OrderCard = ({ order, onStatusUpdate }) => {
+  const navigate = useNavigate();
+  console.log('Order data:', order);
+
   const handleCancelOrder = async () => {
     if (window.confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {
       try {
@@ -51,28 +55,51 @@ const OrderCard = ({ order, onStatusUpdate }) => {
       {/* Product list */}
       <div className="order-products">
         {order.items?.length > 0 ? (
-          order.items.map((item) => (
-            <div key={item._id} className="order-item">
-              <div className="order-item-image">
-                {item.productId?.images?.[0] ? (
-                  <img
-                    src={`http://localhost:5000/${item.productId.images[0]}`}
-                    alt={item.productId.name}
-                    onError={(e) => { e.target.src = 'https://via.placeholder.com/64'; }}
-                  />
-                ) : (
-                  <div className="no-image">No image</div>
-                )}
+          order.items.map((item) => {
+
+            
+            return (
+              <div key={item._id || item.productId} className="order-item">
+                <div 
+                  className="order-item-image" 
+                  onClick={() => item.productId?._id && navigate(`/product/${item.productId._id}`)}
+                  style={{ cursor: item.productId?._id ? 'pointer' : 'default' }}
+                >
+                  {item.productId?.image ? (
+                    <img
+                      src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${item.productId.image}`}
+                      alt={item.productId?.name}
+                      onError={(e) => { 
+                        console.log('Image load error for:', item.productId?.image);
+                        e.target.src = 'https://placehold.co/80x80/e5e7eb/a3a3a3?text=No+Image'; 
+                        e.target.onerror = null; 
+                      }}
+                    />
+                  ) : (
+                    <div className="no-image">Không có ảnh</div>
+                  )}
+                </div>
+                <div className="order-item-info">
+                  <p 
+                    className="product-name" 
+                    onClick={() => item.productId?._id && navigate(`/product/${item.productId._id}`)}
+                    style={{ cursor: item.productId?._id ? 'pointer' : 'default' }}
+                  >
+                    {item.productId?.name || 'Sản phẩm không tồn tại'}
+                  </p>
+                  <p className="product-qty">
+                    SL: {item.quantity} x {formatPrice(item.price)}
+                    {item.variant && (
+                      <span className="product-variant"> - {item.variant}</span>
+                    )}
+                  </p>
+                </div>
+                <div className="order-item-price">
+                  {formatPrice(item.quantity * item.price)}
+                </div>
               </div>
-              <div className="order-item-info">
-                <p className="product-name">{item.productId?.name || 'Sản phẩm không tồn tại'}</p>
-                <p className="product-qty">SL: {item.quantity} x {formatPrice(item.price)}</p>
-              </div>
-              <div className="order-item-price">
-                {formatPrice(item.quantity * item.price)}
-              </div>
-            </div>
-          ))
+            );
+          })
         ) : (
           <div className="order-empty">Không có sản phẩm nào trong đơn hàng</div>
         )}

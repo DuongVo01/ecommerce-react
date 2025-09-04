@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  User, 
+  User,
   MapPin, 
   Shield, 
   FileText,
@@ -16,7 +16,10 @@ import {
 import './Sidebar.css';
 
 const Sidebar = ({ activeTab, onTabChange }) => {
-  const [expandedSection, setExpandedSection] = useState('account');
+  const [expandedSection, setExpandedSection] = useState(() => {
+    // If URL contains '/my-orders', expand the orders section by default
+    return window.location.pathname.includes('/my-orders') ? 'orders' : 'account';
+  });
 
   const menuSections = {
     account: {
@@ -24,10 +27,10 @@ const Sidebar = ({ activeTab, onTabChange }) => {
       title: 'Tài khoản của tôi',
       icon: User,
       items: [
-        { id: 'profile', label: 'Hồ sơ', icon: User },
-        { id: 'address', label: 'Địa chỉ', icon: MapPin },
-        { id: 'privacy', label: 'Những Thiết Lập Riêng Tư', icon: Shield },
-        { id: 'info', label: 'Thông tin cá nhân', icon: FileText },
+        { id: 'profile', label: 'Hồ sơ', icon: User, href: '/account' },
+        { id: 'address', label: 'Địa chỉ', icon: MapPin, href: '/account?tab=address' },
+        { id: 'privacy', label: 'Những Thiết Lập Riêng Tư', icon: Shield, href: '/account?tab=privacy' },
+        { id: 'info', label: 'Thông tin cá nhân', icon: FileText, href: '/account?tab=info' },
       ],
     },
     orders: {

@@ -15,7 +15,11 @@ exports.deleteOrder = async (req, res) => {
 
 exports.getOrdersByUser = async (req, res) => {
   try {
-    const orders = await Order.find({ userId: req.params.userId }).populate('items.productId');
+    const orders = await Order.find({ userId: req.params.userId })
+      .populate({
+        path: 'items.productId',
+        select: 'name image price'
+      });
     
     // Get user to access addresses
     const user = await User.findById(req.params.userId);

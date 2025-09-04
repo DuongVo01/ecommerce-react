@@ -603,8 +603,10 @@ const Navbar = () => {
                     </li>
                     <li>
                       <Link 
-                        to="/my-orders" 
-                        onClick={() => setMenuOpen(false)}
+                        to="/my-orders?status=all" 
+                        onClick={() => {
+                          setMenuOpen(false);
+                        }}
                         style={{
                           display: 'flex',
                           alignItems: 'center',

@@ -1,259 +1,175 @@
-/* AccountPage - Profile Form Styles - Premium E-commerce Design */
-
-.account-container {
+/* === Layout chung === */
+.page-container {
+  display: flex;
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #eef2f7 0%, #ffffff 100%);
+  background-color: #f9fafb;
+}
+
+.page-main {
+  flex: 1;
   padding: 24px;
+  overflow: auto;
+}
+
+.page-wrapper {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* Paper container enhancements */
+.MuiPaper-root {
+  border-radius: 12px;
+  overflow: hidden; /* Ensure content fits within rounded corners */
+  transition: box-shadow 0.3s ease-in-out, transform 0.2s ease;
+}
+
+.MuiPaper-root:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); /* Enhanced shadow on hover */
+  transform: translateY(-2px); /* Slight lift effect */
+}
+
+/* Avatar styling for professional look */
+.avatar-container {
   position: relative;
-  overflow: hidden;
+  display: inline-block;
+  margin-bottom: 16px;
 }
 
-.account-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 200px;
-  background: linear-gradient(90deg, #1e40af, #3b82f6);
-  z-index: -1;
-  opacity: 0.1;
+.MuiAvatar-root {
+  width: 120px;
+  height: 120px;
+  border: 2px solid #e0e0e0;
+  transition: border-color 0.3s ease, transform 0.3s ease;
 }
 
-.account-form {
-  background: #ffffff;
-  border-radius: 20px;
-  box-shadow: 0 16px 32px rgba(30, 64, 175, 0.08);
-  padding: 48px;
-  text-align: left;
-  max-width: 500px;
-  width: 100%;
-  min-height: 400px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+.MuiAvatar-root:hover {
+  border-color: #1976d2; /* Match MUI primary color */
+  transform: scale(1.05); /* Zoom effect on hover */
 }
 
-.account-form:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(30, 64, 175, 0.12);
-}
-
-.account-title {
-  color: #1e40af;
-  margin-bottom: 20px;
-  font-weight: 800;
-  font-size: 1.8rem;
-  text-align: center;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-
-.account-desc {
-  color: #64748b;
-  font-size: 1.1rem;
-  text-align: center;
-  margin-bottom: 32px;
-  line-height: 1.6;
-  max-width: 80%;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.account-row {
-  margin-bottom: 24px;
-  font-size: 1.1rem;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.account-row strong {
-  min-width: 140px;
-  color: #374151;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-.account-input,
-.account-select {
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: 1px solid #e0e0e0;
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: #374151;
-  width: 100%;
-  box-sizing: border-box;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.account-input:focus,
-.account-select:focus {
-  border-color: #3b82f6;
-  outline: none;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
-}
-
-.account-input.error,
-.account-select.error {
-  border-color: #ef4444;
-  background-color: #fef2f2;
-}
-
-.account-select {
-  appearance: none;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%233b82f6' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") no-repeat right 14px center;
-  background-size: 14px;
-  padding-right: 40px;
-}
-
-.account-btn {
-  display: block;
-  margin: 40px auto 0 auto;
-  padding: 14px 40px;
-  background: linear-gradient(90deg, #1e40af 0%, #3b82f6 100%);
-  color: #ffffff;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 1.2rem;
-  border: none;
-  box-shadow: 0 6px 16px rgba(30, 64, 175, 0.2);
-  cursor: pointer;
-  width: 100%;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  transition: background 0.4s ease, transform 0.3s ease;
-}
-
-.account-btn:hover,
-.account-btn:focus {
-  background: linear-gradient(90deg, #1d4ed8 0%, #2563eb 100%);
-  transform: translateY(-3px);
-  outline: none;
-}
-
-.account-btn:disabled {
-  background: #a3bffa;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.account-btn:disabled::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 20px;
-  height: 20px;
-  border: 2px solid #ffffff;
-  border-top-color: transparent;
+.MuiIconButton-root {
+  background-color: #ffffff;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
-  transform: translate(-50%, -50%);
+  transition: background-color 0.3s ease;
 }
 
-.account-btn.loading {
-  pointer-events: none;
+.MuiIconButton-root:hover {
+  background-color: #e3f2fd; /* Light hover background */
 }
 
-@keyframes spin {
-  to { transform: translate(-50%, -50%) rotate(360deg); }
+/* Button styling for consistency and professionalism */
+.MuiButton-root {
+  text-transform: none; /* Remove default MUI uppercase */
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 6px 16px; /* Consistent padding */
+  min-width: 120px; /* Minimum width for buttons */
+}
+
+.MuiButton-containedPrimary {
+  background-color: #1976d2;
+  color: #ffffff;
+}
+
+.MuiButton-containedPrimary:hover {
+  background-color: #1565c0;
+}
+
+.MuiButton-outlinedPrimary {
+  border-color: #1976d2;
+  color: #1976d2;
+}
+
+.MuiButton-outlinedPrimary:hover {
+  border-color: #1565c0;
+  background-color: #e3f2fd;
+}
+
+/* Address list and form styling */
+.address-item {
+  padding: 16px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.3s ease;
+}
+
+.address-item:hover {
+  background-color: #f9f9f9; /* Subtle hover effect */
+}
+
+.address-item:last-child {
+  border-bottom: none;
+}
+
+.MuiToggleButtonGroup-root {
+  margin: 12px 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.MuiToggleButton-root {
+  border: none !important;
+  background-color: #f5f5f5;
+  color: #333;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.MuiToggleButton-root.Mui-selected {
+  background-color: #1976d2 !important;
+  color: #ffffff !important;
+}
+
+/* Snackbar customization */
+.MuiSnackbar-root .MuiAlert-root {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-weight: 500;
+}
+
+/* Responsive design */
+@media (max-width: 960px) {
+  .Sidebar {
+    position: relative;
+    top: 0;
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 16px;
+    box-shadow: none;
+  }
+
+  .orders-main {
+    padding-left: 0;
+    padding-top: 24px;
+  }
+
+  .MuiPaper-root {
+    margin: 0 auto;
+    max-width: 100%;
+  }
 }
 
 @media (max-width: 600px) {
-  .account-form {
-    padding: 30px;
-    max-width: 90vw;
+  .orders-container {
+    padding: 10px;
   }
 
-  .account-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+  .MuiPaper-root {
+    padding: 12px;
   }
 
-  .account-row strong {
-    min-width: auto;
-  }
-
-  .account-input,
-  .account-select {
+  .MuiButton-root {
     width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .account-title {
-    font-size: 1.5rem;
+    margin-bottom: 8px;
   }
 
-  .account-desc {
-    font-size: 1rem;
-    max-width: 100%;
+  .form-buttons {
+    flex-direction: column;
+    gap: 8px;
   }
 
-  .account-btn {
-    padding: 12px 30px;
-    font-size: 1.1rem;
-  }
-}
-
-@media (max-width: 400px) {
-  .account-form {
-    padding: 20px;
-    min-height: 350px;
-  }
-
-  .account-row {
-    margin-bottom: 16px;
-  }
-
-  .account-title {
-    font-size: 1.3rem;
-  }
-
-  .account-desc {
-    font-size: 0.9rem;
-  }
-}
-
-/* Address card responsive styles */
-@media (max-width: 768px) {
-  .address-card {
-    padding: 12px 16px !important;
-    margin-bottom: 12px !important;
-  }
-  
-  .address-card-header {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 12px !important;
-  }
-  
-  .address-card-buttons {
-    width: 100% !important;
-    justify-content: flex-end !important;
-  }
-  
-  .address-card-name-phone {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 4px !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .address-card {
-    padding: 10px 12px !important;
-    border-radius: 8px !important;
-  }
-  
-  .address-card-buttons button {
-    padding: 6px 12px !important;
-    font-size: 13px !important;
-    min-height: 32px !important;
+  .avatar-container .MuiAvatar-root {
+    width: 100px;
+    height: 100px;
   }
 }
