@@ -7,7 +7,10 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
 app.use(express.json());
 // Serve static files from uploads
 app.use('/uploads', express.static(require('path').join(__dirname, 'uploads')));

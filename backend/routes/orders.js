@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const orderController = require('../controllers/orderController');
+const { authenticateToken } = require('../middleware/auth');
 
 // Get all orders (admin)
 router.get('/admin', async (req, res) => {
@@ -15,9 +16,9 @@ router.get('/admin', async (req, res) => {
 
 
 // Get all orders for a user
-router.get('/:userId', orderController.getOrdersByUser);
+router.get('/:userId', authenticateToken, orderController.getOrdersByUser);
 // Create new order
-router.post('/:userId', orderController.createOrder);
+router.post('/:userId', authenticateToken, orderController.createOrder);
 
 // Delete order
 router.delete('/:orderId', orderController.deleteOrder);

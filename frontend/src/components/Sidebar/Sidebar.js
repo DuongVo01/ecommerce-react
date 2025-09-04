@@ -48,6 +48,13 @@ const Sidebar = ({ activeTab, onTabChange }) => {
     const navigate = useNavigate();
     const isActive = activeTab === item.id;
     const IconComponent = item.icon;
+
+    const handleClick = () => {
+      if (item.href) {
+        navigate(item.href);
+      }
+      onTabChange(item.id);
+    };
     
     return (
       <button

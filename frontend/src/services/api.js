@@ -7,6 +7,7 @@ export const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
 // Add request interceptor to automatically add auth token
@@ -85,7 +86,20 @@ export const removeFromCart = (userId, productId) => api.delete(`/cart/${userId}
 export const clearCart = (userId) => api.delete(`/cart/${userId}/clear`);
 
 // Order APIs
-export const getOrders = (userId) => api.get(`/orders/${userId}`);
+export const getOrders = async (userId) => {
+  const token = localStorage.getItem('token');
+  try {
+    const response = await api.get(`/orders/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return response;
+  } catch (error) {
+    console.error('Error in getOrders:', error);
+    throw error;
+  }
+};
 export const createOrder = (userId, data) => api.post(`/orders/${userId}`, data);
 export const updateOrderStatus = (orderId, status) => api.put(`/orders/${orderId}`, { status });
 

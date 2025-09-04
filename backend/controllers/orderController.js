@@ -112,13 +112,24 @@ exports.createOrder = async (req, res) => {
 exports.updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
-    const updatedOrder = await Order.findByIdAndUpdate(
-      req.params.orderId,
-      { status },
-      { new: true }
-    );
+    const order = await Order.findById(req.params.orderId);
     
-    if (!updatedOrder) return res.status(404).json({ error: 'Order not found' });
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    // Kiểm tra điều kiện hủy đơn hàng
+    if (status === 'cancelled') {
+      // Chỉ cho phép hủy đơn khi đơn hàng đang ở trạng thái pending
+      if (order.status !== 'pending') {
+        return res.status(400).json({ 
+          error: 'Không thể hủy đơn hàng này vì đã được xử lý' 
+        });
+      }
+    }
+
+    order.status = status;
+    const updatedOrder = await order.save();
     
     // Tạo thông báo cập nhật trạng thái đơn hàng
     try {
