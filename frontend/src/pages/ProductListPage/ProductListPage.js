@@ -1,26 +1,29 @@
-
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  Box, Grid, TextField, Select, MenuItem, FormControl, InputLabel, useTheme, Pagination, Typography
+  Box, Grid, TextField, Select, MenuItem, FormControl, InputLabel, Pagination, Typography, Skeleton
 } from '@mui/material';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import { fetchProducts } from '../../services/api';
-import { grey } from '@mui/material/colors';
+import './ProductListPage.css';
 
 const PRODUCTS_PER_PAGE = 20;
 
 const ProductListPage = () => {
-  const theme = useTheme();
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState('none');
   const [filterCategory, setFilterCategory] = useState('Tất cả');
-  const [filterPrice, setFilterPrice] = useState('');
+  const [filterPriceMin, setFilterPriceMin] = useState('');
+  const [filterPriceMax, setFilterPriceMax] = useState('');
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Fetch sản phẩm
   useEffect(() => {
+    setLoading(true);
     fetchProducts()
       .then(res => {
         setProducts(res.data);
@@ -33,21 +36,22 @@ const ProductListPage = () => {
   }, []);
 
   // Danh mục
-  const categories = ['Tất cả', ...Array.from(new Set(products.map(p => p.category)))];
+  const categories = useMemo(() => ['Tất cả', ...Array.from(new Set(products.map(p => p.category)))], [products]);
 
-  // Lọc & sắp xếp
+  // Xử lý lọc và sắp xếp
   const filteredProducts = useMemo(() => {
     let result = products.filter(p =>
       p.name.toLowerCase().includes(search.toLowerCase()) &&
       (filterCategory === 'Tất cả' || p.category === filterCategory) &&
-      (filterPrice === '' || p.price <= Number(filterPrice))
+      (filterPriceMin === '' || p.price >= Number(filterPriceMin)) &&
+      (filterPriceMax === '' || p.price <= Number(filterPriceMax))
     );
     if (sort === 'priceAsc') result.sort((a, b) => a.price - b.price);
     if (sort === 'priceDesc') result.sort((a, b) => b.price - a.price);
     if (sort === 'nameAsc') result.sort((a, b) => a.name.localeCompare(b.name));
-    if (sort === 'nameDesc') result.sort((a, b) => b.name.localeCompare(a.name));
+    if (sort === 'nameDesc') result.sort((a, b) => b.name.localeCompare(b.name));
     return result;
-  }, [products, search, sort, filterCategory, filterPrice]);
+  }, [products, search, sort, filterCategory, filterPriceMin, filterPriceMax]);
 
   // Phân trang
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
@@ -56,34 +60,30 @@ const ProductListPage = () => {
     page * PRODUCTS_PER_PAGE
   );
 
-  // Khi tìm kiếm hoặc lọc, reset về trang 1
+  // Reset trang khi thay đổi bộ lọc
   useEffect(() => {
     setPage(1);
-  }, [search, filterCategory, filterPrice]);
+  }, [search, filterCategory, filterPriceMin, filterPriceMax]);
 
-  if (loading) return <div>Đang tải sản phẩm...</div>;
-  if (error) return <div>{error}</div>;
+  // Xử lý điều hướng đến trang chi tiết sản phẩm
+  const handleProductClick = useCallback((productId) => {
+    navigate(`/products/${productId}`);
+  }, [navigate]);
 
   return (
-    <Box sx={{
-      bgcolor: theme.palette.mode === 'dark' ? grey[900] : '#f6f8fa',
-      minHeight: '100vh', p: { xs: 1, md: 4 }
-    }}>
-      <Typography variant="h4" fontWeight={700} mb={3} color="primary">
+    <Box className="product-list-page">
+      <Typography variant="h4" className="page-title">
         Danh sách sản phẩm
       </Typography>
-      <Box sx={{
-        display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3,
-        alignItems: 'center', bgcolor: theme.palette.background.paper, p: 2, borderRadius: 2, boxShadow: 1
-      }}>
+      <Box className="filter-container">
         <TextField
-          label="Tìm kiếm"
+          label="Tìm kiếm sản phẩm"
           variant="outlined"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          sx={{ minWidth: 180 }}
+          className="filter-input"
         />
-        <FormControl sx={{ minWidth: 140 }}>
+        <FormControl className="filter-input">
           <InputLabel>Danh mục</InputLabel>
           <Select
             value={filterCategory}
@@ -94,14 +94,22 @@ const ProductListPage = () => {
           </Select>
         </FormControl>
         <TextField
-          label="Lọc giá tối đa"
+          label="Giá tối thiểu"
           type="number"
           variant="outlined"
-          value={filterPrice}
-          onChange={e => setFilterPrice(e.target.value)}
-          sx={{ minWidth: 120 }}
+          value={filterPriceMin}
+          onChange={e => setFilterPriceMin(e.target.value)}
+          className="filter-input"
         />
-        <FormControl sx={{ minWidth: 160 }}>
+        <TextField
+          label="Giá tối đa"
+          type="number"
+          variant="outlined"
+          value={filterPriceMax}
+          onChange={e => setFilterPriceMax(e.target.value)}
+          className="filter-input"
+        />
+        <FormControl className="filter-input">
           <InputLabel>Sắp xếp</InputLabel>
           <Select
             value={sort}
@@ -116,21 +124,40 @@ const ProductListPage = () => {
           </Select>
         </FormControl>
       </Box>
-      <Grid container spacing={3} columns={{ xs: 1, sm: 2, md: 5 }}>
-        {paginatedProducts.map(product => (
-          <Grid item xs={12} sm={6} md={2.4} key={product._id || product.id}>
-            <ProductCard product={product}>
-              {product.shortDesc && (
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  {product.shortDesc}
-                </Typography>
-              )}
-            </ProductCard>
-          </Grid>
-        ))}
-      </Grid>
+      {loading ? (
+        <Grid container spacing={3} columns={{ xs: 1, sm: 2, md: 4 }}>
+          {[...Array(PRODUCTS_PER_PAGE)].map((_, index) => (
+            <Grid item xs={1} sm={1} md={1} key={index}>
+              <Skeleton variant="rectangular" height={300} />
+              <Skeleton variant="text" />
+              <Skeleton variant="text" width="60%" />
+            </Grid>
+          ))}
+        </Grid>
+      ) : error ? (
+        <Typography color="error">{error}</Typography>
+      ) : filteredProducts.length === 0 ? (
+        <Typography>Không tìm thấy sản phẩm phù hợp</Typography>
+      ) : (
+        <Grid container spacing={3} columns={{ xs: 1, sm: 2, md: 4 }}>
+          {paginatedProducts.map(product => (
+            <Grid item xs={1} sm={1} md={1} key={product._id || product.id} className="product-item">
+              <ProductCard 
+                product={product}
+                onClick={() => handleProductClick(product._id || product.id)}
+              >
+                {product.shortDesc && (
+                  <Typography variant="body2" color="text.secondary" className="product-desc">
+                    {product.shortDesc}
+                  </Typography>
+                )}
+              </ProductCard>
+            </Grid>
+          ))}
+        </Grid>
+      )}
       {totalPages > 1 && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <Box className="pagination-container">
           <Pagination
             count={totalPages}
             page={page}
