@@ -1,0 +1,116 @@
+/* Address List Styles */
+.address-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.address-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  transition: all 0.2s;
+}
+
+.address-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.address-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.name {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.phone {
+  color: #64748b;
+}
+
+.default-badge {
+  background: #e3eafc;
+  color: #2563eb;
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.address-details {
+  margin-bottom: 1rem;
+}
+
+.detail-text,
+.location-text {
+  color: #4b5563;
+  margin: 0.25rem 0;
+}
+
+.type-text {
+  color: #64748b;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.address-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+}
+
+.set-default-btn,
+.edit-btn,
+.delete-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.set-default-btn {
+  background: #e3eafc;
+  color: #2563eb;
+  border: none;
+}
+
+.set-default-btn:hover:not(:disabled) {
+  background: #c7d2fe;
+}
+
+.edit-btn {
+  background: white;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+}
+
+.edit-btn:hover:not(:disabled) {
+  background: #f8fafc;
+}
+
+.delete-btn {
+  background: white;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.delete-btn:hover:not(:disabled) {
+  background: #fef2f2;
+}
+
+.set-default-btn:disabled,
+.edit-btn:disabled,
+.delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

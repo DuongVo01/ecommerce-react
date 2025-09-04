@@ -1,9 +1,12 @@
-import React, { useContext, useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import { UserContext } from "../../UserContext";
-import AddressSelect from "../../components/AddressSelect";
 import { addressService } from "../../services/addressService";
+import ProfileForm from "../../components/Profile/ProfileForm";
+import AddressForm from "../../components/AddressManagement/AddressForm";
+import AddressList from "../../components/AddressManagement/AddressList";
+import { useNavigate, Link } from "react-router-dom";
+import AddressSelect from "../../components/AddressSelect";
+import AccountSidebar from "../../components/Sidebar/AccountSidebar";
 import "./AccountPage.css";
 
   
@@ -817,35 +820,7 @@ const AccountPage = () => {
 
   return (
     <div className="orders-container" style={{ display: 'flex', gap: 32 }}>
-      {/* Sidebar */}
-      <aside className="orders-sidebar">
-        <div
-          className="orders-sidebar-title"
-          onClick={() => setActiveTab('profile')}
-        >Tài khoản của tôi</div>
-        <div className="orders-sidebar-list">
-          <div
-            className={`orders-sidebar-item${activeTab === 'profile' ? ' active' : ''}`}
-            onClick={() => setActiveTab('profile')}
-          >Hồ sơ</div>
-          <div
-            className={`orders-sidebar-item${activeTab === 'address' ? ' active' : ''}`}
-            onClick={() => setActiveTab('address')}
-          >Địa chỉ</div>
-          <div
-            className={`orders-sidebar-item${activeTab === 'privacy' ? ' active' : ''}`}
-            onClick={() => setActiveTab('privacy')}
-          >Những Thiết Lập Riêng Tư</div>
-          <div
-            className={`orders-sidebar-item${activeTab === 'info' ? ' active' : ''}`}
-            onClick={() => setActiveTab('info')}
-          >Thông tin cá nhân</div>
-        </div>
-        <div
-          className="orders-sidebar-purchase"
-          onClick={() => navigate('/my-orders')}
-        >Đơn mua</div>
-      </aside>
+      <AccountSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
       {/* Main content: Tab content */}
       <div className="orders-main" style={{ flex: 1 }}>
         {renderTabContent()}
