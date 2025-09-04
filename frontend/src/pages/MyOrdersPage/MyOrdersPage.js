@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../../UserContext';
 import { getOrders } from '../../services/api';
-import OrdersSidebar from '../../components/Sidebar/OrdersSidebar';
+import Sidebar from '../../components/Sidebar/Sidebar';
 import './MyOrdersPage.css';
 
 const MyOrdersPage = () => {
@@ -104,45 +104,13 @@ const MyOrdersPage = () => {
 
   return (
     <div className="orders-container myorders-page">
-      {/* Sidebar */}
-      <aside className="orders-sidebar">
-        <div
-          className="orders-sidebar-title"
-          onClick={() => {
-            setActiveTab('profile');
-            setSidebarExpanded(true);
-          }}
-        >Tài khoản của tôi</div>
-        {sidebarExpanded && (
-          <div className="orders-sidebar-list">
-            <div
-              className={`orders-sidebar-item${activeTab === 'profile' ? ' active' : ''}`}
-              style={{ fontSize: 17, marginBottom: 8, fontWeight: 600 }}
-              onClick={() => setActiveTab('profile')}
-            >Hồ sơ</div>
-            <div
-              className={`orders-sidebar-item${activeTab === 'address' ? ' active' : ''}`}
-              onClick={() => setActiveTab('address')}
-            >Địa chỉ</div>
-            <div
-              className={`orders-sidebar-item${activeTab === 'privacy' ? ' active' : ''}`}
-              onClick={() => setActiveTab('privacy')}
-            >Những Thiết Lập Riêng Tư</div>
-            <div
-              className={`orders-sidebar-item${activeTab === 'info' ? ' active' : ''}`}
-              onClick={() => setActiveTab('info')}
-            >Thông tin cá nhân</div>
-          </div>
-        )}
-        <div
-          className="orders-sidebar-purchase"
-          onClick={() => {
-            setActiveTab('orders');
-            setSidebarExpanded(true); // xổ lại sidebar khi nhấn Đơn mua
-          }}
-        >Đơn mua</div>
-      </aside>
-      {/* Main content: Tab content */}
+      <Sidebar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onNavigate={(path) => navigate(path)}
+        collapsed={!sidebarExpanded}
+        onToggleCollapse={() => setSidebarExpanded(!sidebarExpanded)}
+      />
       <div className="orders-main">
         {renderTabContent()}
       </div>

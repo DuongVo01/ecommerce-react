@@ -20,7 +20,7 @@ import AdminCategories from './pages/AdminCategories/AdminCategories';
 import AdminOrders from './pages/AdminOrders/AdminOrders';
 import AdminUsers from './pages/AdminUsers/AdminUsers';
 import AdminNotifications from './pages/AdminNotifications/AdminNotifications';
-import AccountPage from './pages/AccountPage/AccountPage';
+import AccountPage from './pages/AccountPage/AccountPage.js';
 import NotificationsPage from './pages/NotificationsPage/NotificationsPage';
 
 import Footer from './components/Footer/Footer';

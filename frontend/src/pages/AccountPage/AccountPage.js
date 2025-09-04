@@ -6,7 +6,7 @@ import AddressForm from "../../components/AddressManagement/AddressForm";
 import AddressList from "../../components/AddressManagement/AddressList";
 import { useNavigate, Link } from "react-router-dom";
 import AddressSelect from "../../components/AddressSelect";
-import AccountSidebar from "../../components/Sidebar/AccountSidebar";
+import Sidebar from "../../components/Sidebar/Sidebar";
 import "./AccountPage.css";
 
   
@@ -820,7 +820,11 @@ const AccountPage = () => {
 
   return (
     <div className="orders-container" style={{ display: 'flex', gap: 32 }}>
-      <AccountSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Sidebar 
+        activeTab={activeTab} 
+        onTabChange={setActiveTab}
+        onNavigateOrders={() => navigate('/my-orders')}
+      />
       {/* Main content: Tab content */}
       <div className="orders-main" style={{ flex: 1 }}>
         {renderTabContent()}
