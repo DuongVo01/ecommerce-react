@@ -10,15 +10,52 @@ exports.updateProductReview = async (req, res) => {
     if (review.user !== req.body.user) return res.status(403).json({ error: 'Bạn không có quyền sửa đánh giá này' });
     review.rating = req.body.rating;
     review.comment = req.body.comment;
-    review.date = new Date().toLocaleString('vi-VN');
-    // Update images if provided
+    review.date = new Date().toISOString();
+
+    // Handle image updates
     if (Array.isArray(req.files) && req.files.length > 0) {
+      console.log('Updating review with new images:', req.files);
+      
+      // Delete old images if they exist
+      if (review.images && review.images.length > 0) {
+        const fs = require('fs');
+        const path = require('path');
+        review.images.forEach(oldImage => {
+          try {
+            const oldPath = path.join(__dirname, '..', oldImage);
+            if (fs.existsSync(oldPath)) {
+              fs.unlinkSync(oldPath);
+              console.log('Deleted old image:', oldPath);
+            }
+          } catch (err) {
+            console.error('Error deleting old image:', err);
+          }
+        });
+      }
+
+      // Update with new image paths
       review.images = req.files.map(f => `/uploads/reviews/${f.filename}`);
-    } else if (typeof req.body.clearImages !== 'undefined') {
+      console.log('New image paths:', review.images);
+    } else if (req.body.clearImages === 'true') {
       // If client requests to clear images
-      const shouldClear = String(req.body.clearImages) === 'true';
-      if (shouldClear) review.images = [];
+      if (review.images && review.images.length > 0) {
+        const fs = require('fs');
+        const path = require('path');
+        review.images.forEach(image => {
+          try {
+            const imagePath = path.join(__dirname, '..', image);
+            if (fs.existsSync(imagePath)) {
+              fs.unlinkSync(imagePath);
+              console.log('Deleted cleared image:', imagePath);
+            }
+          } catch (err) {
+            console.error('Error deleting cleared image:', err);
+          }
+        });
+      }
+      review.images = [];
     }
+
     await product.save();
     res.json(review);
   } catch (err) {
@@ -31,14 +68,35 @@ exports.deleteProductReview = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) return res.status(404).json({ error: 'Product not found' });
+    
     const reviewId = req.params.reviewId;
-    const review = product.reviews.id(reviewId) || product.reviews.find(r => r._id?.toString() === reviewId);
-    if (!review) return res.status(404).json({ error: 'Review not found' });
-    // Nếu là admin thì cho phép xóa mọi đánh giá
+    const reviewIndex = product.reviews.findIndex(r => r._id.toString() === reviewId);
+    
+    if (reviewIndex === -1) {
+      return res.status(404).json({ error: 'Review not found' });
+    }
+
+    const review = product.reviews[reviewIndex];
+
+    // Kiểm tra quyền xóa
     if (!req.body.admin && review.user !== req.body.user) {
       return res.status(403).json({ error: 'Bạn không có quyền xóa đánh giá này' });
     }
-    product.reviews = product.reviews.filter(r => (r._id?.toString() || r.id) !== reviewId);
+
+    // Xóa các file ảnh nếu có
+    if (review.images && review.images.length > 0) {
+      const fs = require('fs');
+      const path = require('path');
+      review.images.forEach(imagePath => {
+        const fullPath = path.join(__dirname, '..', imagePath);
+        if (fs.existsSync(fullPath)) {
+          fs.unlinkSync(fullPath);
+        }
+      });
+    }
+
+    // Xóa review khỏi mảng
+    product.reviews.splice(reviewIndex, 1);
     await product.save();
 
     // Xóa report liên quan nếu có (file uploads/reports/reports.json)
@@ -78,6 +136,61 @@ exports.getProductById = async (req, res) => {
     res.json(product);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+// Get product reviews
+exports.getProductReviews = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    res.json(product.reviews.sort((a, b) => new Date(b.date) - new Date(a.date)));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Add review to product
+exports.addProductReview = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+
+    // Check if user has already reviewed this product
+    const existingReview = product.reviews.find(review => review.user === req.body.user);
+    if (existingReview) {
+      return res.status(400).json({ error: 'Bạn đã đánh giá sản phẩm này rồi' });
+    }
+
+    // Lấy avatar của user từ database
+    const User = require('../models/User');
+    const userDoc = await User.findOne({ username: req.body.user });
+    
+    const review = {
+      user: req.body.user,
+      rating: Number(req.body.rating),
+      comment: req.body.comment,
+      date: new Date().toISOString(),
+      avatar: userDoc?.avatar || null,  // Thêm avatar từ user document
+      images: [],
+      likes: []
+    };
+
+    // Handle uploaded images
+    if (req.files && req.files.length > 0) {
+      console.log('Received files:', req.files);
+      review.images = req.files.map(file => `/uploads/reviews/${file.filename}`);
+      console.log('Saved image paths:', review.images);
+    } else {
+      console.log('No files received');
+    }
+
+    product.reviews.unshift(review);
+    await product.save();
+
+    res.status(201).json(review);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 };
 

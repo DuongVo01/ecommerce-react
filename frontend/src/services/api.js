@@ -24,6 +24,63 @@ api.interceptors.request.use(
   }
 );
 
+// Add response interceptor to handle token errors
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    
+    if (error.response?.status === 401) {
+      // Handle specific token errors
+      const errorCode = error.response?.data?.code;
+      const errorMessage = error.response?.data?.message;
+
+      // Clear tokens and redirect to login if token is invalid or expired
+      if (errorCode === 'INVALID_TOKEN' || errorCode === 'TOKEN_EXPIRED' || 
+          errorCode === 'INVALID_TOKEN_FORMAT' || errorMessage?.includes('Invalid or expired token')) {
+        
+        // Clear authentication data
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        
+        // Save the current URL for redirect after login
+        const currentPath = window.location.pathname + window.location.search;
+        localStorage.setItem('loginRedirect', currentPath);
+        
+        // Redirect to login with error message
+        window.location.href = `/login?error=${encodeURIComponent(errorMessage)}&redirect=${encodeURIComponent(currentPath)}`;
+        return Promise.reject(error);
+      }
+
+      // Try to refresh token only if it's not already a refresh token request
+      if (!originalRequest._retry && !originalRequest.url.includes('/auth/refresh-token')) {
+        originalRequest._retry = true;
+        
+        try {
+          const response = await api.post('/auth/refresh-token');
+          const { token } = response.data;
+          
+          if (token) {
+            localStorage.setItem('token', token);
+            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return api(originalRequest);
+          }
+        } catch (refreshError) {
+          // If refresh fails, clear auth and redirect
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          const currentPath = window.location.pathname + window.location.search;
+          window.location.href = `/login?error=${encodeURIComponent('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.')}&redirect=${encodeURIComponent(currentPath)}`;
+          return Promise.reject(refreshError);
+        }
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
 // Chỉnh sửa và xóa đánh giá sản phẩm
 export const updateReview = (productId, reviewId, data, isFormData = false) => {
   if (isFormData) {
@@ -87,16 +144,32 @@ export const clearCart = (userId) => api.delete(`/cart/${userId}/clear`);
 
 // Order APIs
 export const getOrders = async (userId) => {
+  if (!userId) {
+    throw new Error('User ID is required');
+  }
+
   const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+
   try {
-    const response = await api.get(`/orders/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const response = await api.get(`/orders/${userId}`);
     return response;
   } catch (error) {
     console.error('Error in getOrders:', error);
+    
+    if (error.response?.status === 401) {
+      const errorCode = error.response?.data?.code;
+      const errorMessage = error.response?.data?.message;
+
+      if (errorCode === 'TOKEN_EXPIRED' || errorCode === 'INVALID_TOKEN' || 
+          errorCode === 'INVALID_TOKEN_FORMAT' || 
+          errorMessage?.includes('Invalid or expired token')) {
+        throw new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+      }
+    }
+    
     throw error;
   }
 };

@@ -12,8 +12,9 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
-// Serve static files from uploads
+// Serve static files from uploads and uploads/reviews
 app.use('/uploads', express.static(require('path').join(__dirname, 'uploads')));
+app.use('/uploads/reviews', express.static(require('path').join(__dirname, 'uploads/reviews')));
 
 
 // Product routes

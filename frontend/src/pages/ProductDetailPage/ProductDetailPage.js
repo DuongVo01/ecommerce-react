@@ -3,44 +3,42 @@ import { useParams } from 'react-router-dom';
 import { useCart } from '../../CartContext';
 import { useToast } from '../../ToastContext';
 import { api } from '../../services/api';
+import ReviewsSection from '../../components/ReviewsSection/ReviewsSection'; // 👈 thêm
 import './ProductDetailPage.css';
 
-/**
- * ProductDetailPage Component
- * Hiển thị chi tiết sản phẩm bao gồm hình ảnh, thông tin và chức năng thêm vào giỏ hàng
- */
 const ProductDetailPage = () => {
-  // Lấy id sản phẩm từ URL params
   const { id } = useParams();
-  
-  // State management
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [isImageZoomed, setIsImageZoomed] = useState(false);
-  
-  // Hooks
+  const [reviews, setReviews] = useState([]); // 👈 thêm state đánh giá
+
   const { addToCart } = useCart();
   const { showToast } = useToast();
 
-  // Fetch dữ liệu sản phẩm khi component mount hoặc id thay đổi
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchProductAndReviews = async () => {
       try {
-        const response = await api.get(`/products/${id}`);
-        setProduct(response.data);
+        setLoading(true);
+        // Fetch product details
+        const productResponse = await api.get(`/products/${id}`);
+        setProduct(productResponse.data);
+
+        // Fetch reviews
+        const reviewsResponse = await api.get(`/products/${id}/reviews`);
+        setReviews(reviewsResponse.data);
       } catch (error) {
-        console.error('Error fetching product:', error);
-        showToast('Không thể tải thông tin sản phẩm', 'error');
+        console.error('Error fetching data:', error);
+        showToast(error.response?.data?.message || 'Không thể tải thông tin sản phẩm', 'error');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProduct();
+    fetchProductAndReviews();
   }, [id, showToast]);
 
-  // Xử lý tăng giảm số lượng
   const handleQuantityChange = (change) => {
     const newQuantity = quantity + change;
     if (newQuantity >= 1 && newQuantity <= (product?.stock || 1)) {
@@ -48,31 +46,128 @@ const ProductDetailPage = () => {
     }
   };
 
-  // Xử lý thêm vào giỏ hàng
   const handleAddToCart = () => {
-    // Kiểm tra số lượng tồn kho
     if (quantity > (product?.stock || 0)) {
       showToast('Số lượng vượt quá tồn kho!', 'error');
       return;
     }
-
-    // Truyền sản phẩm và số lượng cần thêm
     addToCart(product, quantity);
     showToast(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
-    
-    // Log thông tin cho mục đích debug
-    console.log('Added to cart:', {
-      productId: product._id,
-      name: product.name,
-      quantity: quantity,
-      price: product.price
-    });
-
-    // Reset số lượng về 1 sau khi thêm thành công
     setQuantity(1);
   };
 
-  // Loading state
+  const handleAddReview = async (formData) => {
+    try {
+      // Convert FormData to proper structure for file upload
+      const reviewFormData = new FormData();
+      reviewFormData.append('rating', formData.get('rating'));
+      reviewFormData.append('comment', formData.get('comment'));
+      reviewFormData.append('user', formData.get('user'));
+
+      // Log the files being sent
+      const files = formData.getAll('images');
+      console.log('Files being sent:', files);
+
+      // Check if files are present
+      if (files && files.length > 0) {
+        files.forEach((file, index) => {
+          console.log(`Appending file ${index}:`, file.name);
+          reviewFormData.append('images', file);
+        });
+      }
+
+      const response = await api.post(
+        `/products/${id}/reviews`, 
+        reviewFormData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      // Refresh reviews after adding new one
+      const reviewsResponse = await api.get(`/products/${id}/reviews`);
+      setReviews(reviewsResponse.data);
+      showToast('Đánh giá của bạn đã được gửi thành công!', 'success');
+      return response.data;
+    } catch (error) {
+      console.error('Error adding review:', error);
+      showToast(
+        error.response?.data?.message || 'Không thể thêm đánh giá. Vui lòng thử lại.',
+        'error'
+      );
+      throw error;
+    }
+  };
+
+  const handleUpdateReview = async (reviewId, formData) => {
+    try {
+      // Convert FormData to proper structure for file upload
+      const reviewFormData = new FormData();
+      reviewFormData.append('rating', formData.get('rating'));
+      reviewFormData.append('comment', formData.get('comment'));
+      reviewFormData.append('user', formData.get('user'));
+
+      // Get and append files
+      const files = formData.getAll('images');
+      if (files && files.length > 0) {
+        console.log('Updating review with files:', files);
+        files.forEach(file => {
+          reviewFormData.append('images', file);
+        });
+      }
+
+      // Send update request with proper headers
+      await api.put(
+        `/products/${id}/reviews/${reviewId}`, 
+        reviewFormData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      // Refresh reviews after updating
+      const reviewsResponse = await api.get(`/products/${id}/reviews`);
+      setReviews(reviewsResponse.data);
+      showToast('Đánh giá đã được cập nhật thành công!', 'success');
+    } catch (error) {
+      console.error('Error updating review:', error);
+      showToast(
+        error.response?.data?.message || 'Không thể cập nhật đánh giá',
+        'error'
+      );
+      throw error;
+    }
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    try {
+      const userData = JSON.parse(localStorage.getItem('user'));
+      if (!userData) {
+        showToast('Vui lòng đăng nhập để thực hiện thao tác này', 'error');
+        return;
+      }
+
+      await api.delete(`/products/${id}/reviews/${reviewId}`, {
+        data: { user: userData.username }
+      });
+
+      // Refresh reviews after deleting
+      const reviewsResponse = await api.get(`/products/${id}/reviews`);
+      setReviews(reviewsResponse.data);
+      showToast('Đã xóa đánh giá thành công!', 'success');
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      showToast(
+        error.response?.data?.message || 'Không thể xóa đánh giá', 
+        'error'
+      );
+    }
+  };
+
   if (loading) {
     return (
       <div className="product-detail-page loading">
@@ -81,7 +176,6 @@ const ProductDetailPage = () => {
     );
   }
 
-  // Error state - sản phẩm không tồn tại
   if (!product) {
     return (
       <div className="product-detail-page error">
@@ -91,21 +185,21 @@ const ProductDetailPage = () => {
     );
   }
 
-  // Tính giá khuyến mãi nếu có
   const discountedPrice = product.discountPrice || product.price;
-  const hasDiscount = product.discountPrice && product.discountPrice < product.price;
+  const hasDiscount =
+    product.discountPrice && product.discountPrice < product.price;
 
   return (
     <div className="product-detail-page">
       <div className="product-detail-container">
-        {/* Phần hình ảnh */}
+        {/* Hình ảnh */}
         <div className="product-image-section">
-          <div 
+          <div
             className={`image-container ${isImageZoomed ? 'zoomed' : ''}`}
             onMouseEnter={() => setIsImageZoomed(true)}
             onMouseLeave={() => setIsImageZoomed(false)}
           >
-            <img 
+            <img
               src={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${product.image}`}
               alt={product.name}
               className="product-detail-image"
@@ -113,7 +207,7 @@ const ProductDetailPage = () => {
           </div>
         </div>
 
-        {/* Phần thông tin sản phẩm */}
+        {/* Thông tin sản phẩm */}
         <div className="product-info-section">
           <div className="product-header">
             <h1 className="product-title">{product.name}</h1>
@@ -122,7 +216,6 @@ const ProductDetailPage = () => {
             </div>
           </div>
 
-          {/* Phần giá */}
           <div className="product-price-section">
             <p className="product-price">
               {Number(discountedPrice).toLocaleString('vi-VN')}₫
@@ -134,29 +227,27 @@ const ProductDetailPage = () => {
             )}
           </div>
 
-          {/* Mô tả ngắn */}
           <div className="product-short-desc">
             <p>{product.shortDesc}</p>
           </div>
 
-          {/* Chọn số lượng và thêm vào giỏ */}
           <div className="product-actions">
             <div className="quantity-selector">
-              <button 
+              <button
                 onClick={() => handleQuantityChange(-1)}
                 disabled={quantity <= 1}
               >
                 -
               </button>
               <span>{quantity}</span>
-              <button 
+              <button
                 onClick={() => handleQuantityChange(1)}
                 disabled={quantity >= product.stock}
               >
                 +
               </button>
             </div>
-            <button 
+            <button
               className="add-to-cart-btn"
               onClick={handleAddToCart}
               disabled={product.stock <= 0}
@@ -165,19 +256,33 @@ const ProductDetailPage = () => {
             </button>
           </div>
 
-          {/* Tình trạng kho */}
           <div className="product-stock">
-            Tình trạng: <span className={product.stock > 0 ? 'in-stock' : 'out-of-stock'}>
-              {product.stock > 0 ? `Còn ${product.stock} sản phẩm` : 'Hết hàng'}
+            Tình trạng:{' '}
+            <span className={product.stock > 0 ? 'in-stock' : 'out-of-stock'}>
+              {product.stock > 0
+                ? `Còn ${product.stock} sản phẩm`
+                : 'Hết hàng'}
             </span>
           </div>
 
-          {/* Mô tả chi tiết */}
           <div className="product-description">
             <h3>Mô tả sản phẩm</h3>
             <p>{product.description}</p>
           </div>
         </div>
+      </div>
+
+      {/* Reviews Section */}
+      <div className="reviews-container">
+        <h2 className="section-title">Đánh giá sản phẩm</h2>
+        <ReviewsSection 
+          reviews={reviews} 
+          onAddReview={handleAddReview}
+          onUpdateReview={handleUpdateReview}
+          onDeleteReview={handleDeleteReview}
+          productId={id}
+          isLoading={loading}
+        />
       </div>
     </div>
   );

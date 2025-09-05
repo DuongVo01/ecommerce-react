@@ -122,13 +122,26 @@ const MyOrdersPage = () => {
 
   const fetchOrders = async () => {
     if (!user || !(user._id || user.id)) {
-      setError('Không tìm thấy thông tin người dùng');
-      setLoading(false);
+      navigate('/login', { 
+        state: { 
+          returnUrl: window.location.pathname + window.location.search,
+          message: 'Vui lòng đăng nhập để xem đơn hàng của bạn'
+        } 
+      });
       return;
     }
     try {
       setError(null);
+      setLoading(true);
+      
+      // Verify token first
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+      }
+
       const res = await getOrders(user._id || user.id);
+      
       if (Array.isArray(res.data)) {
         setOrders(res.data);
       } else {
@@ -136,7 +149,16 @@ const MyOrdersPage = () => {
       }
     } catch (error) {
       console.error('Error fetching orders:', error);
-      setError(error.response?.data?.message || 'Có lỗi xảy ra khi tải đơn hàng');
+      if (error.response?.status === 401) {
+        navigate('/login', { 
+          state: { 
+            returnUrl: window.location.pathname + window.location.search,
+            message: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'
+          } 
+        });
+      } else {
+        setError(error.response?.data?.message || 'Có lỗi xảy ra khi tải đơn hàng. Vui lòng thử lại sau.');
+      }
       setOrders([]);
     } finally {
       setLoading(false);

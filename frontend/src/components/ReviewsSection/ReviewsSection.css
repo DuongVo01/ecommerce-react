@@ -1,0 +1,222 @@
+.reviews-section {
+  padding: 24px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.reviews-title {
+  margin-bottom: 24px !important;
+  color: #1a1a1a;
+  font-weight: 600 !important;
+}
+
+.review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.review-rating {
+  margin-bottom: 8px;
+}
+
+.review-input {
+  width: 100%;
+}
+
+.error-message {
+  color: #d32f2f;
+  margin: 8px 0;
+  font-size: 0.875rem;
+  padding: 8px;
+  background: #ffebee;
+  border-radius: 4px;
+}
+
+.image-upload {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.upload-button {
+  text-transform: none !important;
+  color: #2563eb !important;
+  border-color: #2563eb !important;
+}
+
+.image-preview {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.preview-item {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-image {
+  position: absolute !important;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.5) !important;
+  padding: 4px !important;
+}
+
+.remove-image svg {
+  color: white;
+  font-size: 16px;
+}
+
+.btn-submit {
+  align-self: flex-start;
+  margin-top: 16px !important;
+  background: #2563eb !important;
+  color: white !important;
+  text-transform: none !important;
+  padding: 8px 24px !important;
+  border-radius: 8px !important;
+}
+
+.reviews-list {
+  margin-top: 32px;
+}
+
+.user-avatar-container {
+  width: 40px;
+  height: 40px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.user-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.default-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #2563eb;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.review-header {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.review-user-info {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.review-item {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 12px;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.review-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.review-username {
+  font-weight: 600 !important;
+  color: #1a1a1a !important;
+}
+
+.review-date {
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.review-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.review-actions button {
+  color: #666 !important;
+}
+
+.review-content {
+  margin: 12px 0;
+  color: #333;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.review-images {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.review-image {
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+}
+
+.review-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s;
+}
+
+.review-image img:hover {
+  transform: scale(1.05);
+}
+
+/* Loading state */
+.btn-submit:disabled {
+  background-color: #94a3b8 !important;
+  cursor: not-allowed;
+}

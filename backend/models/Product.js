@@ -15,7 +15,7 @@ const productSchema = new mongoose.Schema({
       avatar: String, // avatar của user tại thời điểm đánh giá
       rating: { type: Number, min: 1, max: 5 },
       comment: String,
-      date: String,
+      date: { type: Date, default: Date.now },
       likes: [String], // danh sách username/userId đã like
       images: [String] // danh sách URL ảnh đính kèm review
     }

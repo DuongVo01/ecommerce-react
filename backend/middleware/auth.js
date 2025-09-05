@@ -2,21 +2,33 @@ const jwt = require('jsonwebtoken');
 
 // Middleware xác thực JWT token
 const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+  try {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
-  if (!token) {
-    return res.status(401).json({ message: 'Access token required' });
-  }
-
-  jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key', (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: 'Invalid or expired token' });
+    if (!token) {
+      return res.status(401).json({ message: 'Access token required' });
     }
-    
-    req.user = user;
-    next();
-  });
+
+    jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key', (err, decoded) => {
+      if (err) {
+        if (err.name === 'TokenExpiredError') {
+          return res.status(401).json({ message: 'Token has expired', code: 'TOKEN_EXPIRED' });
+        }
+        return res.status(401).json({ message: 'Invalid token', code: 'INVALID_TOKEN' });
+      }
+      
+      if (!decoded.id) {
+        return res.status(401).json({ message: 'Invalid token format', code: 'INVALID_TOKEN_FORMAT' });
+      }
+      
+      req.user = decoded;
+      next();
+    });
+  } catch (error) {
+    console.error('Auth Middleware Error:', error);
+    return res.status(500).json({ message: 'Internal server error during authentication' });
+  }
 };
 
 // Middleware kiểm tra quyền admin
