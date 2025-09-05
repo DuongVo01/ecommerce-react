@@ -56,11 +56,9 @@ const ProductDetailPage = () => {
       return;
     }
 
-    addToCart({
-      ...product,
-      quantity: quantity
-    });
-    showToast('Đã thêm vào giỏ hàng!');
+    // Truyền sản phẩm và số lượng cần thêm
+    addToCart(product, quantity);
+    showToast(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
     
     // Log thông tin cho mục đích debug
     console.log('Added to cart:', {
@@ -69,6 +67,9 @@ const ProductDetailPage = () => {
       quantity: quantity,
       price: product.price
     });
+
+    // Reset số lượng về 1 sau khi thêm thành công
+    setQuantity(1);
   };
 
   // Loading state

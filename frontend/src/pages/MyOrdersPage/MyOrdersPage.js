@@ -38,7 +38,20 @@ const MyOrdersPage = () => {
     let filtered = orders;
 
     if (currentStatus && currentStatus !== 'all') {
-      filtered = filtered.filter(order => order.status === currentStatus);
+      filtered = filtered.filter(order => {
+        switch (currentStatus) {
+          case 'processing':
+            return ['pending', 'confirmed', 'waiting'].includes(order.status);
+          case 'shipping':
+            return order.status === 'shipping';
+          case 'completed':
+            return ['delivered', 'completed'].includes(order.status);
+          case 'cancelled':
+            return order.status === 'cancelled';
+          default:
+            return true;
+        }
+      });
     }
 
     if (searchQuery.trim()) {
@@ -84,11 +97,26 @@ const MyOrdersPage = () => {
       completed: 0,
       cancelled: 0
     };
+
     orders.forEach(order => {
-      if (stats.hasOwnProperty(order.status)) {
-        stats[order.status]++;
+      // Chờ xử lý: pending, confirmed, waiting
+      if (order.status === 'pending' || order.status === 'confirmed' || order.status === 'waiting') {
+        stats.processing++;
+      }
+      // Đang giao: shipping
+      else if (order.status === 'shipping') {
+        stats.shipping++;
+      }
+      // Hoàn thành: delivered, completed
+      else if (order.status === 'delivered' || order.status === 'completed') {
+        stats.completed++;
+      }
+      // Đã hủy: cancelled
+      else if (order.status === 'cancelled') {
+        stats.cancelled++;
       }
     });
+    
     return stats;
   }, [orders]);
 
@@ -140,7 +168,7 @@ const MyOrdersPage = () => {
   const getStatusDisplay = () => {
     const statusLabels = {
       all: 'Tất cả đơn hàng',
-      processing: 'Đang xử lý',
+      processing: 'Chờ xử lý',
       shipping: 'Đang giao',
       completed: 'Đã hoàn thành',
       cancelled: 'Đã hủy'
@@ -233,7 +261,7 @@ const MyOrdersPage = () => {
                 const getStatusConfig = (status) => {
                   switch (status) {
                     case 'all': return { icon: ShoppingBag, bg: 'bg-blue', iconColor: 'icon-blue', label: 'Tổng cộng' };
-                    case 'processing': return { icon: Clock, bg: 'bg-yellow', iconColor: 'icon-yellow', label: 'Đang xử lý' };
+                    case 'processing': return { icon: Clock, bg: 'bg-yellow', iconColor: 'icon-yellow', label: 'Chờ xử lý' };
                     case 'shipping': return { icon: Package, bg: 'bg-indigo', iconColor: 'icon-indigo', label: 'Đang giao' };
                     case 'completed': return { icon: CheckCircle, bg: 'bg-green', iconColor: 'icon-green', label: 'Hoàn thành' };
                     case 'cancelled': return { icon: XCircle, bg: 'bg-red', iconColor: 'icon-red', label: 'Đã hủy' };
@@ -242,8 +270,21 @@ const MyOrdersPage = () => {
                 };
                 const config = getStatusConfig(status);
                 const IconComponent = config.icon;
+                const statusToTab = {
+                  all: 'all-orders',
+                  processing: 'processing',
+                  shipping: 'shipping',
+                  completed: 'completed',
+                  cancelled: 'cancelled'
+                };
+                
                 return (
-                  <div key={status} className={`stat-card ${config.bg}`}>
+                  <div 
+                    key={status} 
+                    className={`stat-card ${config.bg} ${activeTab === statusToTab[status] ? 'active' : ''}`}
+                    onClick={() => handleTabChange(statusToTab[status])}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <div className="stat-top">
                       <IconComponent className={config.iconColor} />
                       <span className="stat-count">{count}</span>

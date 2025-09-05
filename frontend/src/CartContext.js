@@ -47,7 +47,7 @@ export const CartProvider = ({ children }) => {
   };
 
   // Thêm sản phẩm vào giỏ
-  const addToCart = async (product) => {
+  const addToCart = async (product, quantityToAdd = 1) => {
     if (!user) {
       alert('Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng');
       return;
@@ -56,7 +56,7 @@ export const CartProvider = ({ children }) => {
     try {
       const productId = product._id || product.id;
       const currentItem = cartItems.find(item => (item._id || item.id) === productId);
-      const newQuantity = currentItem ? currentItem.quantity + 1 : 1;
+      const newQuantity = currentItem ? currentItem.quantity + quantityToAdd : quantityToAdd;
       
       await addToCartAPI(user._id || user.id, {
         productId,
