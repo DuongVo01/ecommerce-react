@@ -28,7 +28,8 @@ router.post('/:id/reviews', reviewUpload.array('images', 5), productController.a
 router.put('/:id/reviews/:reviewId', reviewUpload.array('images', 5), productController.updateProductReview);
 router.delete('/:id/reviews/:reviewId', productController.deleteProductReview);
 
-// Like/unlike review
-router.post('/:id/reviews/:reviewId/like', productController.likeProductReview);
+// Review likes routes
+router.post('/:id/reviews/:reviewId/like', productController.toggleReviewLike);
+router.get('/:id/reviews/:reviewId/likes', productController.getReviewLikes);
 
 module.exports = router;

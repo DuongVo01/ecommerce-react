@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Rating, TextField, Button, Typography, Divider, IconButton } from '@mui/material';
-import { Edit, Delete, Image as ImageIcon } from '@mui/icons-material';
+import { Edit, Delete, Image as ImageIcon, ThumbUp, ThumbUpOutlined } from '@mui/icons-material';
 import { UserContext } from '../../UserContext';
 import './ReviewsSection.css';
 
@@ -10,6 +10,7 @@ const ReviewsSection = ({
   onAddReview,
   onUpdateReview,
   onDeleteReview,
+  onLikeReview,
   isLoading = false
 }) => {
   const { user } = useContext(UserContext);
@@ -268,6 +269,29 @@ const ReviewsSection = ({
                 ))}
               </div>
             )}
+
+            <div className="review-footer">
+              <div className="like-section">
+                {user && user.username !== review.user && (
+                  <IconButton 
+                    onClick={() => onLikeReview(review._id)}
+                    color={review.likes?.includes(user?.username) ? 'primary' : 'default'}
+                    size="small"
+                    className="like-button"
+                    title="Thích đánh giá này"
+                  >
+                    {review.likes?.includes(user?.username) ? <ThumbUp /> : <ThumbUpOutlined />}
+                  </IconButton>
+                )}
+                <Typography 
+                  variant="body2" 
+                  className="like-count"
+                  title={review.likes?.length > 0 ? `${review.likes?.length} người đã thích` : ''}
+                >
+                  {review.likes?.length || 0} lượt thích
+                </Typography>
+              </div>
+            </div>
 
             <Divider sx={{ margin: '10px 0' }} />
           </div>

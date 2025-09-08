@@ -18,6 +18,31 @@
   margin-bottom: 24px;
 }
 
+.review-footer {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.like-section {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.like-button {
+  padding: 4px !important;
+}
+
+.like-button:hover {
+  background-color: rgba(25, 118, 210, 0.04) !important;
+}
+
+.like-count {
+  color: #666;
+  font-size: 0.875rem;
+}
+
 .review-rating {
   margin-bottom: 8px;
 }

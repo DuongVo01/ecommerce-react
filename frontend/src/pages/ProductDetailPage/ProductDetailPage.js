@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { useCart } from '../../CartContext';
 import { useToast } from '../../ToastContext';
+import { UserContext } from '../../UserContext';
 import { api } from '../../services/api';
-import ReviewsSection from '../../components/ReviewsSection/ReviewsSection'; // 👈 thêm
+import ReviewsSection from '../../components/ReviewsSection/ReviewsSection';
 import './ProductDetailPage.css';
 
 const ProductDetailPage = () => {
@@ -12,10 +13,11 @@ const ProductDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [isImageZoomed, setIsImageZoomed] = useState(false);
-  const [reviews, setReviews] = useState([]); // 👈 thêm state đánh giá
+  const [reviews, setReviews] = useState([]);
 
   const { addToCart } = useCart();
   const { showToast } = useToast();
+  const { user } = useContext(UserContext);
 
   useEffect(() => {
     const fetchProductAndReviews = async () => {
@@ -54,6 +56,30 @@ const ProductDetailPage = () => {
     addToCart(product, quantity);
     showToast(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
     setQuantity(1);
+  };
+
+  const handleLikeReview = async (reviewId) => {
+    try {
+      if (!user) {
+        showToast('Vui lòng đăng nhập để thích đánh giá', 'warning');
+        return;
+      }
+
+      const response = await api.post(
+        `/products/${id}/reviews/${reviewId}/like`,
+        { username: user.username }
+      );
+      // Refresh reviews after liking
+      const reviewsResponse = await api.get(`/products/${id}/reviews`);
+      setReviews(reviewsResponse.data);
+      showToast(response.data.message === 'Review liked' ? 'Đã thích đánh giá!' : 'Đã bỏ thích đánh giá!');
+    } catch (error) {
+      console.error('Error liking review:', error);
+      showToast(
+        error.response?.data?.message || 'Không thể thích đánh giá. Vui lòng thử lại.', 
+        'error'
+      );
+    }
   };
 
   const handleAddReview = async (formData) => {
@@ -280,6 +306,7 @@ const ProductDetailPage = () => {
           onAddReview={handleAddReview}
           onUpdateReview={handleUpdateReview}
           onDeleteReview={handleDeleteReview}
+          onLikeReview={handleLikeReview}
           productId={id}
           isLoading={loading}
         />

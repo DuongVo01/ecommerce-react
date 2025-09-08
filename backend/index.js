@@ -12,9 +12,22 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+
+// Create required directories
+const path = require('path');
+const fs = require('fs');
+const uploadsPath = path.join(__dirname, 'uploads');
+const reviewsPath = path.join(__dirname, 'uploads/reviews');
+if (!fs.existsSync(uploadsPath)) {
+  fs.mkdirSync(uploadsPath, { recursive: true });
+}
+if (!fs.existsSync(reviewsPath)) {
+  fs.mkdirSync(reviewsPath, { recursive: true });
+}
+
 // Serve static files from uploads and uploads/reviews
-app.use('/uploads', express.static(require('path').join(__dirname, 'uploads')));
-app.use('/uploads/reviews', express.static(require('path').join(__dirname, 'uploads/reviews')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads/reviews', express.static(path.join(__dirname, 'uploads/reviews')));
 
 
 // Product routes
